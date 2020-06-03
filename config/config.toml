@@ -41,8 +41,8 @@ maxPoolSize = 200
 timeout = 10
 
 [trade]
-endpoint = "https://testnet.binancefuture.com"
-wsEndpoint = "wss://stream.binancefuture.com"
+endpoint = "https://api.binancezh.com"
+wsEndpoint = "wss://stream.binancezh.com:9443"
 futuresEndpoint = "https://testnet.binancefuture.com"
 futuresWSEndpoint = "wss://stream.binancefuture.com"
 apiKey = "13273648906b6fab5364b5ee07b2dfd56f11ebcad244e232cf74cf62c3731811"

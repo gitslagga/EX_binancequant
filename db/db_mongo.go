@@ -2,6 +2,7 @@ package db
 
 import (
 	"EX_binancequant/config"
+	"EX_binancequant/data"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
 	"context"
@@ -51,32 +52,33 @@ func getContext() context.Context {
 根据用户ID获取客户端
 */
 func GetClientByUserID(userID string) (*trade.Client, error) {
-	ctx := context.Background()
-	var userKeys map[string]string
+	ctx := data.NewContext()
+	var userKeys map[string]interface{}
 
 	collection := client.Database("main_quantify").Collection("user_keys")
 	errUser := collection.FindOne(ctx, bson.D{{"user_id", userID}}).Decode(&userKeys)
 	if errUser != nil {
 		if errUser == mongo.ErrNoDocuments {
-			err := collection.FindOne(ctx, bson.D{{"status", "0"}}).Decode(&userKeys)
+			err := collection.FindOne(ctx, bson.D{{"status", 0}}).Decode(&userKeys)
 			if err != nil {
 				mylog.Logger.Error().Msgf("[GetClientByUserID] collection FindOne failed, err=%v", err)
 				return nil, err
 			}
 
-			updateResult, err := collection.UpdateOne(ctx, bson.D{{"_id", userKeys["_id"]}}, bson.D{{
-				"$set", bson.D{{"status", "1"}, {"user_id", userID}},
-			}})
-			if err != nil {
-				mylog.Logger.Error().Msgf("[GetClientByUserID] collection UpdateOne failed, updateResult=%v, err=%v", updateResult, err)
-				return nil, err
-			}
 		} else {
 			mylog.Logger.Error().Msgf("[GetClientByUserID] collection FindOne failed, err=%v", errUser)
 			return nil, errUser
 		}
 	}
 
-	client := trade.NewClientByParam(userKeys["api_key"], userKeys["secret_key"])
+	updateResult, err := collection.UpdateOne(ctx, bson.D{{"_id", userKeys["_id"]}}, bson.D{{
+		"$set", bson.D{{"status", 1}, {"user_id", userID}},
+	}})
+	if err != nil {
+		mylog.Logger.Error().Msgf("[GetClientByUserID] collection UpdateOne failed, updateResult=%v, err=%v", updateResult, err)
+		return nil, err
+	}
+
+	client := trade.NewClientByParam(userKeys["api_key"].(string), userKeys["secret_key"].(string))
 	return client, nil
 }

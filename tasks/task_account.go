@@ -6,6 +6,7 @@ import (
 	"EX_binancequant/mylog"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 /**
@@ -16,9 +17,9 @@ func ListDepositsService(c *gin.Context) {
 
 	token := c.GetHeader("token")
 	userID, err := db.ConvertTokenToUserID(token)
-	asset := c.GetString("asset")
-	status := c.GetInt("status")
-	startTime := c.GetInt64("startTime")
+	asset := c.Query("asset")
+	status, _ := strconv.Atoi(c.Query("status"))
+	startTime, _ := strconv.Atoi(c.Query("startTime"))
 
 	mylog.Logger.Info().Msgf("[Task Service] GetSwapInstrumentPosition request param: %s", userID)
 
@@ -40,7 +41,7 @@ func ListDepositsService(c *gin.Context) {
 	listDeposits := client.NewListDepositsService()
 	listDeposits.Asset(asset)
 	listDeposits.Status(status)
-	listDeposits.StartTime(startTime)
+	listDeposits.StartTime(int64(startTime))
 
 	list, err := listDeposits.Do(data.NewContext())
 	if err != nil {

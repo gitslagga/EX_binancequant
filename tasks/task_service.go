@@ -14,11 +14,11 @@ func InitRouter(r *gin.Engine) {
 }
 
 func InitFutures() {
-	fmt.Println("[Tasks] swap init ...")
+	fmt.Println("[Tasks] futures init ...")
 
 	StartPingService()
 
-	fmt.Println("[Tasks] swap init success.")
+	fmt.Println("[Tasks] futures init success.")
 }
 
 func StartPingService() {
