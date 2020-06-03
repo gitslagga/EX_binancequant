@@ -53,7 +53,7 @@ func (s *ListDepositsService) Limit(limit int) *ListDepositsService {
 }
 
 // Do send request
-func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (deposits []*Deposit, err error) {
+func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (deposits *ResponseDeposit, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/sapi/v1/capital/deposit/hisrec",
@@ -84,13 +84,15 @@ func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (de
 	if err != nil {
 		return
 	}
-	var res []*Deposit
+	var res = new(ResponseDeposit)
 	err = json.Unmarshal(data, res)
 	if err != nil {
 		return
 	}
 	return res, nil
 }
+
+type ResponseDeposit []Deposit
 
 // Deposit define deposit info
 type Deposit struct {

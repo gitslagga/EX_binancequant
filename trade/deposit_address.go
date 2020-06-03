@@ -44,7 +44,7 @@ func (s *DepositsAddressService) Do(ctx context.Context, opts ...RequestOption) 
 	if err != nil {
 		return
 	}
-	var res *DepositAddressResponse
+	var res = new(DepositAddressResponse)
 	err = json.Unmarshal(data, res)
 	if err != nil {
 		return
