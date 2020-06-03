@@ -84,17 +84,12 @@ func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (de
 	if err != nil {
 		return
 	}
-	res := new(DepositHistoryResponse)
+	var res []*Deposit
 	err = json.Unmarshal(data, res)
 	if err != nil {
 		return
 	}
-	return res.Deposits, nil
-}
-
-// DepositHistoryResponse define deposit history
-type DepositHistoryResponse struct {
-	Deposits []*Deposit
+	return res, nil
 }
 
 // Deposit define deposit info
