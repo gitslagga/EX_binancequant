@@ -1,13 +1,13 @@
 package main
 
 import (
-	"EX_binancequant/trade"
 	"EX_binancequant/config"
 	"EX_binancequant/data"
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/proxy"
 	"EX_binancequant/tasks"
+	"EX_binancequant/trade"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"

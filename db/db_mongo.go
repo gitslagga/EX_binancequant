@@ -54,7 +54,7 @@ func GetClientByUserID(userID string) (*trade.Client, error) {
 	ctx := context.Background()
 	var userKeys map[string]string
 
-	collection := client.Database("main_quantify").Collection("swap_user_keys")
+	collection := client.Database("main_quantify").Collection("user_keys")
 	errUser := collection.FindOne(ctx, bson.D{{"user_id", userID}}).Decode(&userKeys)
 	if errUser != nil {
 		if errUser == mongo.ErrNoDocuments {
@@ -79,16 +79,4 @@ func GetClientByUserID(userID string) (*trade.Client, error) {
 
 	client := trade.NewClientByParam(userKeys["api_key"], userKeys["secret_key"])
 	return client, nil
-}
-
-/**
-Ping服务器服务
-*/
-func NewPingService() {
-	err := trade.BAExClient.NewPingService().Do(context.Background())
-	if err != nil {
-		mylog.Logger.Error().Msgf("[GetSwapInstruments] trade NewPingService failed, err:%v", err)
-		return
-	}
-
 }

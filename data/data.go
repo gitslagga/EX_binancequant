@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"errors"
 	"sync"
 	"time"
@@ -61,6 +62,10 @@ type CommonResp struct {
 	ErrorCode    int         `json:"error_code" form:"error_code"`
 	ErrorMessage string      `json:"error_message" form:"error_message"`
 	Data         interface{} `json:"data" form:"data"`
+}
+
+func NewContext() context.Context {
+	return context.Background()
 }
 
 /*********************************** trading *************************************/
