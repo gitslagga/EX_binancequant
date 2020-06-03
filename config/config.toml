@@ -1,0 +1,52 @@
+[server]
+address = "0.0.0.0:8000"
+location = "Asia/Singapore"
+baseLogPath = "./log"
+serverName = "quantity"
+serviceName = "all"
+serverTag = "main"
+
+[baseLog]
+fileName = "info.log"
+fileMaxSize = 500
+FileMaxBackups = 10
+FileMaxAge = 10
+
+[dataLog]
+fileName = "data.log"
+fileMaxSize = 500
+FileMaxBackups = 10
+FileMaxAge = 10
+
+[redis]
+address = "192.168.1.135:6379"
+password = "todoAdmin"
+maxActive = 10
+maxIdle = 5
+idleMills = 0
+
+[mysql]
+user = "root"
+password = "123456"
+address = "127.0.0.1:3306"
+dataBase = "main_quantity"
+maxOpenConn = 10
+maxIdleConn = 3
+
+[mongo]
+applyURI = "mongodb://admin:123456@127.0.0.1:27017"
+localThreshold = 3
+maxConnIdleTime = 5
+maxPoolSize = 200
+timeout = 10
+
+[trade]
+endpoint = "https://testnet.binancefuture.com"
+wsEndpoint = "wss://stream.binancefuture.com"
+futuresEndpoint = "https://testnet.binancefuture.com"
+futuresWSEndpoint = "wss://stream.binancefuture.com"
+apiKey = "13273648906b6fab5364b5ee07b2dfd56f11ebcad244e232cf74cf62c3731811"
+secretKey = "bfe5c8f5066a1763ec88265235e0e6a86e29ea045db1ecd00cc41f36f31f7e8b"
+
+[service]
+notifyUrl = "http://192.168.1.135:8001"

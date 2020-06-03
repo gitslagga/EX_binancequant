@@ -1,0 +1,52 @@
+[server]
+address = "0.0.0.0:8000"
+location = "Asia/Singapore"
+baseLogPath = "./log"
+serverName = "quantity"
+serviceName = "all"
+serverTag = "main"
+
+[baseLog]
+fileName = "info.log"
+fileMaxSize = 500
+FileMaxBackups = 10
+FileMaxAge = 10
+
+[dataLog]
+fileName = "data.log"
+fileMaxSize = 500
+FileMaxBackups = 10
+FileMaxAge = 10
+
+[redis]
+address = "127.0.0.1:6379"
+password = "foobared"
+maxActive = 10
+maxIdle = 5
+idleMills = 0
+
+[mysql]
+user = "slagga"
+password = "slagga"
+address = "127.0.0.1:3306"
+dataBase = "main_quantity"
+maxOpenConn = 10
+maxIdleConn = 3
+
+[mongo]
+applyURI = "mongodb://admin:123456@127.0.0.1:27017"
+localThreshold = 3
+maxConnIdleTime = 5
+maxPoolSize = 200
+timeout = 10
+
+[trade]
+endpoint = "https://api.binance.com"
+wsEndpoint = "wss://stream.binance.com:9443"
+futuresEndpoint = "https://fapi.binance.com"
+futuresWSEndpoint = "wss://fstream.binance.com"
+apiKey = "UMny424R9LuXOXFGBkfNSVABtd8fVr4OySCiGgrT5z6rgDxFQahWRIm7kjd8gNPe"
+secretKey = "ELWEXamvSCB2lh7rnE1cBlEl40gk98FSRQbU57pqi5NTAYHtKjf04mCwDVCHpSpn"
+
+[service]
+notifyUrl = "http://172.31.177.157:8001"
