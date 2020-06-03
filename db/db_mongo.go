@@ -65,18 +65,18 @@ func GetClientByUserID(userID string) (*trade.Client, error) {
 				return nil, err
 			}
 
+			updateResult, err := collection.UpdateOne(ctx, bson.D{{"_id", userKeys["_id"]}}, bson.D{{
+				"$set", bson.D{{"status", 1}, {"user_id", userID}},
+			}})
+			if err != nil {
+				mylog.Logger.Error().Msgf("[GetClientByUserID] collection UpdateOne failed, updateResult=%v, err=%v", updateResult, err)
+				return nil, err
+			}
+
 		} else {
 			mylog.Logger.Error().Msgf("[GetClientByUserID] collection FindOne failed, err=%v", errUser)
 			return nil, errUser
 		}
-	}
-
-	updateResult, err := collection.UpdateOne(ctx, bson.D{{"_id", userKeys["_id"]}}, bson.D{{
-		"$set", bson.D{{"status", 1}, {"user_id", userID}},
-	}})
-	if err != nil {
-		mylog.Logger.Error().Msgf("[GetClientByUserID] collection UpdateOne failed, updateResult=%v, err=%v", updateResult, err)
-		return nil, err
 	}
 
 	client := trade.NewClientByParam(userKeys["api_key"].(string), userKeys["secret_key"].(string))
