@@ -39,7 +39,7 @@ func (s *depositServiceTestSuite) TestListDeposits() {
 		})
 		s.assertRequestEqual(e, r)
 	})
-	deposits, err := s.client.NewListDepositsService().Asset("BTC").
+	deposits, err := s.client.NewListDepositsService().Coin("BTC").
 		Status(1).StartTime(1508198532000).EndTime(1508198532001).
 		Do(newContext())
 	r := s.r()
@@ -48,7 +48,7 @@ func (s *depositServiceTestSuite) TestListDeposits() {
 	e := &Deposit{
 		InsertTime: 1508198532000,
 		Amount:     0.04670582,
-		Asset:      "ETH",
+		Coin:       "ETH",
 		Status:     1,
 		TxID:       "b3c6219639c8ae3f9cf010cdc24fw7f7yt8j1e063f9b4bd1a05cb44c4b6e2509",
 	}
@@ -58,7 +58,7 @@ func (s *depositServiceTestSuite) TestListDeposits() {
 func (s *depositServiceTestSuite) assertDepositEqual(e, a *Deposit) {
 	r := s.r()
 	r.Equal(e.InsertTime, a.InsertTime, "InsertTime")
-	r.Equal(e.Asset, a.Asset, "Asset")
+	r.Equal(e.Coin, a.Coin, "Asset")
 	r.InDelta(e.Amount, a.Amount, 0.0000000001, "Amount")
 	r.Equal(e.Status, a.Status, "Status")
 	r.Equal(e.TxID, a.TxID, "TxID")

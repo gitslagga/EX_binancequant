@@ -150,7 +150,7 @@ func newJSON(data []byte) (j *simplejson.Json, err error) {
 // NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
-func NewClient(apiKey, secretKey, endpoint string) *Client {
+func NewClient(apiKey, secretKey, endpoint string, debug bool) *Client {
 	return &Client{
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
@@ -158,12 +158,13 @@ func NewClient(apiKey, secretKey, endpoint string) *Client {
 		UserAgent:  "Binance/golang",
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
+		Debug:      debug,
 	}
 }
 
 // NewFuturesClient initialize client for futures API
-func NewFuturesClient(apiKey, secretKey, futuresEndpoint string) *futures.Client {
-	return futures.NewClient(apiKey, secretKey, futuresEndpoint)
+func NewFuturesClient(apiKey, secretKey, futuresEndpoint string, debug bool) *futures.Client {
+	return futures.NewClient(apiKey, secretKey, futuresEndpoint, debug)
 }
 
 type doFunc func(req *http.Request) (*http.Response, error)
@@ -387,6 +388,11 @@ func (c *Client) NewListTradesService() *ListTradesService {
 // NewHistoricalTradesService init listing trades service
 func (c *Client) NewHistoricalTradesService() *HistoricalTradesService {
 	return &HistoricalTradesService{c: c}
+}
+
+// NewDepositsAddressService init deposits address service
+func (c *Client) NewDepositsAddressService() *DepositsAddressService {
+	return &DepositsAddressService{c: c}
 }
 
 // NewListDepositsService init listing deposits service

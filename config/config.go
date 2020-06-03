@@ -62,12 +62,14 @@ type mongoConfig struct {
 }
 
 type tradeConfig struct {
-	Endpoint      		string
-	WSEndpoint    		string
-	FuturesEndpoint     string
-	FuturesWSEndpoint   string
-	ApiKey        		string
-	SecretKey     		string
+	Endpoint          string
+	WSEndpoint        string
+	FuturesEndpoint   string
+	FuturesWSEndpoint string
+	ApiKey            string
+	SecretKey         string
+	Debug             bool
+	FuturesDebug      bool
 }
 
 type serviceConfig struct {

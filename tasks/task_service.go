@@ -10,7 +10,7 @@ import (
 func InitRouter(r *gin.Engine) {
 	/****************************** 永续合约 *********************************/
 	r.POST("/api/account/deposits/list", ListDepositsService)
-
+	r.POST("/api/account/deposits/address", DepositsAddressService)
 }
 
 func InitFutures() {

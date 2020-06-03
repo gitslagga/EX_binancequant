@@ -17,24 +17,32 @@ func InitTrade() {
 		secretKey       = config.Config.Trade.SecretKey
 		endpoint        = config.Config.Trade.Endpoint
 		futuresEndpoint = config.Config.Trade.FuturesEndpoint
+		debug           = config.Config.Trade.Debug
+		futuresDebu     = config.Config.Trade.FuturesDebug
 	)
 
-	BAExClient = NewClient(apiKey, secretKey, endpoint)
-	BAExFuturesClient = NewFuturesClient(apiKey, secretKey, futuresEndpoint)
+	BAExClient = NewClient(apiKey, secretKey, endpoint, debug)
+	BAExFuturesClient = NewFuturesClient(apiKey, secretKey, futuresEndpoint, futuresDebu)
 
 	fmt.Println("[InitTrade] binance success.")
 }
 
 func NewClientByParam(apiKey, secretKey string) *Client {
-	var endpoint = config.Config.Trade.Endpoint
+	var (
+		endpoint = config.Config.Trade.Endpoint
+		debug    = config.Config.Trade.Debug
+	)
 
-	return NewClient(apiKey, secretKey, endpoint)
+	return NewClient(apiKey, secretKey, endpoint, debug)
 }
 
 func NewFuturesClientByParam(apiKey, secretKey string) *futures.Client {
-	var futuresEndpoint = config.Config.Trade.FuturesEndpoint
+	var (
+		futuresEndpoint = config.Config.Trade.FuturesEndpoint
+		futuresDebu     = config.Config.Trade.FuturesDebug
+	)
 
-	return NewFuturesClient(apiKey, secretKey, futuresEndpoint)
+	return NewFuturesClient(apiKey, secretKey, futuresEndpoint, futuresDebu)
 }
 
 /**

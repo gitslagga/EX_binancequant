@@ -133,7 +133,7 @@ func newJSON(data []byte) (j *simplejson.Json, err error) {
 // NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
-func NewClient(apiKey, secretKey, futuresEndpoint string) *Client {
+func NewClient(apiKey, secretKey, futuresEndpoint string, debug bool) *Client {
 	return &Client{
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
@@ -141,6 +141,7 @@ func NewClient(apiKey, secretKey, futuresEndpoint string) *Client {
 		UserAgent:  "Binance/golang",
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
+		Debug:      debug,
 	}
 }
 

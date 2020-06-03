@@ -8,15 +8,17 @@ import (
 // ListDepositsService list deposits
 type ListDepositsService struct {
 	c         *Client
-	asset     *string
+	coin      *string
 	status    *int
 	startTime *int64
 	endTime   *int64
+	offset    *int
+	limit     *int
 }
 
-// Asset set asset
-func (s *ListDepositsService) Asset(asset string) *ListDepositsService {
-	s.asset = &asset
+// Coin set coin
+func (s *ListDepositsService) Coin(coin string) *ListDepositsService {
+	s.coin = &coin
 	return s
 }
 
@@ -38,16 +40,28 @@ func (s *ListDepositsService) EndTime(endTime int64) *ListDepositsService {
 	return s
 }
 
+// EndTime set endTime
+func (s *ListDepositsService) Offset(offset int) *ListDepositsService {
+	s.offset = &offset
+	return s
+}
+
+// EndTime set endTime
+func (s *ListDepositsService) Limit(limit int) *ListDepositsService {
+	s.limit = &limit
+	return s
+}
+
 // Do send request
 func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (deposits []*Deposit, err error) {
 	r := &request{
-		method:   "POST",
-		endpoint: "/wapi/v1/getDepositHistory.html",
+		method:   "GET",
+		endpoint: "/sapi/v1/capital/deposit/hisrec",
 		secType:  secTypeSigned,
 	}
 	m := params{}
-	if s.asset != nil {
-		m["asset"] = *s.asset
+	if s.coin != nil {
+		m["coin"] = *s.coin
 	}
 	if s.status != nil {
 		m["status"] = *s.status
@@ -57,6 +71,12 @@ func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (de
 	}
 	if s.endTime != nil {
 		m["endTime"] = *s.endTime
+	}
+	if s.endTime != nil {
+		m["offset"] = *s.offset
+	}
+	if s.endTime != nil {
+		m["limit"] = *s.limit
 	}
 	r.setParams(m)
 
@@ -74,15 +94,17 @@ func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (de
 
 // DepositHistoryResponse define deposit history
 type DepositHistoryResponse struct {
-	Success  bool       `json:"success"`
-	Deposits []*Deposit `json:"depositList"`
+	Deposits []*Deposit
 }
 
 // Deposit define deposit info
 type Deposit struct {
+	Address    string  `json:"address"`
+	AddressTag string  `json:"addressTag"`
+	Network    string  `json:"network"`
 	InsertTime int64   `json:"insertTime"`
 	Amount     float64 `json:"amount"`
-	Asset      string  `json:"asset"`
+	Coin       string  `json:"coin"`
 	Status     int     `json:"status"`
 	TxID       string  `json:"txId"`
 }

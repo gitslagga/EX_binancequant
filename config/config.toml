@@ -47,6 +47,8 @@ futuresEndpoint = "https://testnet.binancefuture.com"
 futuresWSEndpoint = "wss://stream.binancefuture.com"
 apiKey = "13273648906b6fab5364b5ee07b2dfd56f11ebcad244e232cf74cf62c3731811"
 secretKey = "bfe5c8f5066a1763ec88265235e0e6a86e29ea045db1ecd00cc41f36f31f7e8b"
+debug = true
+futuresDebug = true
 
 [service]
 notifyUrl = "http://192.168.1.135:8001"

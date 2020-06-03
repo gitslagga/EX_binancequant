@@ -115,7 +115,7 @@ type mockedClient struct {
 
 func newMockedClient(apiKey, secretKey string) *mockedClient {
 	m := new(mockedClient)
-	m.Client = NewClient(apiKey, secretKey, "https://fapi.binance.com")
+	m.Client = NewClient(apiKey, secretKey, "https://fapi.binance.com", true)
 	return m
 }
 
