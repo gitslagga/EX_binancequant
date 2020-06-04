@@ -148,9 +148,9 @@ func FuturesTransferService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	asset := c.Param("asset")
-	amount := c.Param("amount")
-	sType := c.Param("type")
+	asset := c.Query("asset")
+	amount := c.Query("amount")
+	sType := c.Query("type")
 
 	if asset == "" || amount == "" || sType == "" {
 		out.ErrorCode = data.EC_PARAMS_ERR
@@ -199,11 +199,11 @@ func ListFuturesTransferService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	asset := c.Param("asset")
-	startTime, _ := strconv.ParseInt(c.Param("startTime"), 10, 64)
-	endTime, _ := strconv.ParseInt(c.Param("endTime"), 10, 64)
-	current, _ := strconv.ParseInt(c.Param("current"), 10, 64)
-	size, _ := strconv.ParseInt(c.Param("size"), 10, 64)
+	asset := c.Query("asset")
+	startTime, _ := strconv.ParseInt(c.Query("startTime"), 10, 64)
+	endTime, _ := strconv.ParseInt(c.Query("endTime"), 10, 64)
+	current, _ := strconv.ParseInt(c.Query("current"), 10, 64)
+	size, _ := strconv.ParseInt(c.Query("size"), 10, 64)
 
 	if asset == "" {
 		out.ErrorCode = data.EC_PARAMS_ERR
