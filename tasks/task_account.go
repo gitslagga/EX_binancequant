@@ -29,7 +29,7 @@ func DepositsAddressService(c *gin.Context) {
 		return
 	}
 
-	client, err := db.GetClientByUserID(userID)
+	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
@@ -74,7 +74,7 @@ func ListDepositsService(c *gin.Context) {
 	mylog.Logger.Info().Msgf("[Task Account] ListDepositsService request param: %s, %s, %s, %s, %s, %s, %s",
 		userID, coin, status, startTime, endTime, offset, limit)
 
-	client, err := db.GetClientByUserID(userID)
+	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
@@ -109,14 +109,14 @@ func ListDepositsService(c *gin.Context) {
 /**
 现货账户信息 (USER_DATA)
 */
-func AccountService(c *gin.Context) {
+func SpotAccountService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	mylog.Logger.Info().Msgf("[Task Account] AccountService request param: %s", userID)
+	mylog.Logger.Info().Msgf("[Task Account] SpotAccountService request param: %s", userID)
 
-	client, err := db.GetClientByUserID(userID)
+	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
@@ -124,9 +124,41 @@ func AccountService(c *gin.Context) {
 		return
 	}
 
-	depositsAddress := client.NewDepositsAddressService()
+	list, err := client.NewGetAccountService().Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
 
-	list, err := depositsAddress.Do(data.NewContext())
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+合约账户信息 (USER_DATA)
+*/
+func FuturesAccountService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %s", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	list, err := client.NewGetAccountService().Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()

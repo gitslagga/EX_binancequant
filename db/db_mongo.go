@@ -5,6 +5,7 @@ import (
 	"EX_binancequant/data"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
+	"EX_binancequant/trade/futures"
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
@@ -48,10 +49,7 @@ func getContext() context.Context {
 	return ctx
 }
 
-/**
-根据用户ID获取客户端
-*/
-func GetClientByUserID(userID string) (*trade.Client, error) {
+func getUserKeys(userID string) (*map[string]interface{}, error) {
 	ctx := data.NewContext()
 	var userKeys map[string]interface{}
 
@@ -61,7 +59,7 @@ func GetClientByUserID(userID string) (*trade.Client, error) {
 		if errUser == mongo.ErrNoDocuments {
 			err := collection.FindOne(ctx, bson.D{{"status", 0}}).Decode(&userKeys)
 			if err != nil {
-				mylog.Logger.Error().Msgf("[GetClientByUserID] collection FindOne failed, err=%v", err)
+				mylog.Logger.Error().Msgf("[GetSpotClientByUserID] collection FindOne failed, err=%v", err)
 				return nil, err
 			}
 
@@ -69,16 +67,41 @@ func GetClientByUserID(userID string) (*trade.Client, error) {
 				"$set", bson.D{{"status", 1}, {"user_id", userID}},
 			}})
 			if err != nil {
-				mylog.Logger.Error().Msgf("[GetClientByUserID] collection UpdateOne failed, updateResult=%v, err=%v", updateResult, err)
+				mylog.Logger.Error().Msgf("[GetSpotClientByUserID] collection UpdateOne failed, updateResult=%v, err=%v", updateResult, err)
 				return nil, err
 			}
 
 		} else {
-			mylog.Logger.Error().Msgf("[GetClientByUserID] collection FindOne failed, err=%v", errUser)
+			mylog.Logger.Error().Msgf("[GetSpotClientByUserID] collection FindOne failed, err=%v", errUser)
 			return nil, errUser
 		}
 	}
 
-	client := trade.NewClientByParam(userKeys["api_key"].(string), userKeys["secret_key"].(string))
+	return &userKeys, nil
+}
+
+/**
+根据用户ID获取客户端
+*/
+func GetSpotClientByUserID(userID string) (*trade.Client, error) {
+	userKeys, err := getUserKeys(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	client := trade.NewClientByParam((*userKeys)["api_key"].(string), (*userKeys)["secret_key"].(string))
+	return client, nil
+}
+
+/**
+根据用户ID获取合约客户端
+*/
+func GetFuturesClientByUserID(userID string) (*futures.Client, error) {
+	userKeys, err := getUserKeys(userID)
+	if err != nil {
+		return nil, err
+	}
+
+	client := trade.NewFuturesClientByParam((*userKeys)["api_key"].(string), (*userKeys)["secret_key"].(string))
 	return client, nil
 }

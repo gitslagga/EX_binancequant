@@ -16,7 +16,8 @@ func InitRouter(r *gin.Engine) {
 	/****************************** 永续合约 *********************************/
 	route.POST("/api/account/deposits/list", ListDepositsService)
 	route.POST("/api/account/deposits/address", DepositsAddressService)
-	route.POST("/api/account/spot", AccountService)
+	route.POST("/api/account/spot", SpotAccountService)
+	route.POST("/api/account/futures", FuturesAccountService)
 }
 
 func InitFutures() {
