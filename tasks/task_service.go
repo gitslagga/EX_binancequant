@@ -14,10 +14,12 @@ func InitRouter(r *gin.Engine) {
 	route := r.Use(beforeHandler())
 
 	/****************************** 永续合约 *********************************/
-	route.POST("/api/account/deposits/list", ListDepositsService)
-	route.POST("/api/account/deposits/address", DepositsAddressService)
-	route.POST("/api/account/spot", SpotAccountService)
-	route.POST("/api/account/futures", FuturesAccountService)
+	route.GET("/api/account/deposits/list", ListDepositsService)
+	route.GET("/api/account/deposits/address", DepositsAddressService)
+	route.GET("/api/account/spot", SpotAccountService)
+	route.GET("/api/account/futures", FuturesAccountService)
+	route.POST("/api/account/transfer", FuturesTransferService)
+	route.GET("/api/account/transfer", ListFuturesTransferService)
 }
 
 func InitFutures() {

@@ -4,6 +4,7 @@ import (
 	"EX_binancequant/data"
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
+	"EX_binancequant/trade"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -141,16 +142,27 @@ func SpotAccountService(c *gin.Context) {
 }
 
 /**
-合约账户信息 (USER_DATA)
+合约划转
 */
-func FuturesAccountService(c *gin.Context) {
+func FuturesTransferService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
+	asset := c.Param("asset")
+	amount := c.Param("amount")
+	sType := c.Param("type")
 
-	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %s", userID)
+	if asset == "" || amount == "" || sType == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
 
-	client, err := db.GetFuturesClientByUserID(userID)
+	mylog.Logger.Info().Msgf("[Task Account] FuturesTransferService request param: %s, %s, %s, %s",
+		userID, asset, amount, sType)
+
+	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
@@ -158,7 +170,67 @@ func FuturesAccountService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetAccountService().Do(data.NewContext())
+	futuresTransfer := client.NewFuturesTransferService()
+	futuresTransfer.Asset(asset)
+	futuresTransfer.Amount(amount)
+	var iType interface{} = sType
+	futuresTransfer.Type(iType.(trade.FuturesTransferType))
+
+	list, err := futuresTransfer.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+合约获取划转历史
+*/
+func ListFuturesTransferService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	asset := c.Param("asset")
+	startTime, _ := strconv.ParseInt(c.Param("startTime"), 10, 64)
+	endTime, _ := strconv.ParseInt(c.Param("endTime"), 10, 64)
+	current, _ := strconv.ParseInt(c.Param("current"), 10, 64)
+	size, _ := strconv.ParseInt(c.Param("size"), 10, 64)
+
+	if asset == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Account] ListFuturesTransferService request param: %s, %s, %s, %s, %s, %s",
+		userID, asset, startTime, endTime, current, size)
+
+	client, err := db.GetSpotClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	futuresTransfer := client.NewListFuturesTransferService()
+	futuresTransfer.Asset(asset)
+	futuresTransfer.StartTime(startTime)
+	futuresTransfer.EndTime(endTime)
+	futuresTransfer.Current(current)
+	futuresTransfer.Size(size)
+
+	list, err := futuresTransfer.Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
