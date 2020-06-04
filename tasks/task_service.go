@@ -20,6 +20,8 @@ func InitRouter(r *gin.Engine) {
 	route.GET("/api/account/futures", FuturesAccountService)
 	route.POST("/api/account/transfer", FuturesTransferService)
 	route.GET("/api/account/transfer", ListFuturesTransferService)
+	route.POST("/api/futures/position/mode", ChangePositionModeService)
+	route.GET("/api/futures/position/mode", GetPositionModeService)
 }
 
 func InitFutures() {

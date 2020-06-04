@@ -6,17 +6,27 @@ import (
 	"EX_binancequant/mylog"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 /**
-合约账户信息 (USER_DATA)
+更改持仓模式（TRADE）
 */
-func FuturesAccountService(c *gin.Context) {
+func ChangePositionModeService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
+	dualSidePosition, err := strconv.ParseBool(c.Query("dualSidePosition"))
 
-	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %s", userID)
+	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %v, %v",
+		userID, dualSidePosition)
+
+	if err != nil {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
@@ -26,7 +36,44 @@ func FuturesAccountService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetAccountService().Do(data.NewContext())
+	positionMode := client.NewChangePositionModeService()
+	positionMode.DualSide(dualSidePosition)
+
+	err = positionMode.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = ""
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+查询持仓模式（USER_DATA）
+*/
+func GetPositionModeService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	list, err := client.NewGetPositionModeService().Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()

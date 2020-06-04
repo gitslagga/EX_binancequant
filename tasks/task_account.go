@@ -21,7 +21,7 @@ func DepositsAddressService(c *gin.Context) {
 	coin := c.Query("coin")
 	network := c.Query("network")
 
-	mylog.Logger.Info().Msgf("[Task Account] DepositsAddressService request param: %s, %s, %s",
+	mylog.Logger.Info().Msgf("[Task Account] DepositsAddressService request param: %v, %v, %v",
 		userID, coin, network)
 
 	if coin == "" {
@@ -73,7 +73,7 @@ func ListDepositsService(c *gin.Context) {
 	offset, _ := strconv.Atoi(c.Query("offset"))
 	limit, _ := strconv.Atoi(c.Query("limit"))
 
-	mylog.Logger.Info().Msgf("[Task Account] ListDepositsService request param: %s, %s, %s, %s, %s, %s, %s",
+	mylog.Logger.Info().Msgf("[Task Account] ListDepositsService request param: %v, %v, %v, %v, %v, %v, %v",
 		userID, coin, status, startTime, endTime, offset, limit)
 
 	client, err := db.GetSpotClientByUserID(userID)
@@ -116,7 +116,7 @@ func SpotAccountService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 
-	mylog.Logger.Info().Msgf("[Task Account] SpotAccountService request param: %s", userID)
+	mylog.Logger.Info().Msgf("[Task Account] SpotAccountService request param: %v", userID)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
@@ -153,15 +153,15 @@ func FuturesTransferService(c *gin.Context) {
 	amount := c.Query("amount")
 	sType := c.Query("type")
 
+	mylog.Logger.Info().Msgf("[Task Account] FuturesTransferService request param: %v, %v, %v, %v",
+		userID, asset, amount, sType)
+
 	if asset == "" || amount == "" || sType == "" {
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
-
-	mylog.Logger.Info().Msgf("[Task Account] FuturesTransferService request param: %s, %s, %s, %s",
-		userID, asset, amount, sType)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
@@ -207,15 +207,15 @@ func ListFuturesTransferService(c *gin.Context) {
 	current, _ := strconv.ParseInt(c.Query("current"), 10, 64)
 	size, _ := strconv.ParseInt(c.Query("size"), 10, 64)
 
-	if asset == "" {
+	mylog.Logger.Info().Msgf("[Task Account] ListFuturesTransferService request param: %v, %v, %v, %v, %v, %v",
+		userID, asset, startTime, endTime, current, size)
+
+	if asset == "" || startTime == 0 {
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
-
-	mylog.Logger.Info().Msgf("[Task Account] ListFuturesTransferService request param: %s, %s, %s, %s, %s, %s",
-		userID, asset, startTime, endTime, current, size)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
@@ -233,6 +233,40 @@ func ListFuturesTransferService(c *gin.Context) {
 	futuresTransfer.Size(size)
 
 	list, err := futuresTransfer.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+合约账户信息 (USER_DATA)
+*/
+func FuturesAccountService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	list, err := client.NewGetAccountService().Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
