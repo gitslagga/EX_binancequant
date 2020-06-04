@@ -5,6 +5,7 @@ import (
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -173,8 +174,9 @@ func FuturesTransferService(c *gin.Context) {
 	futuresTransfer := client.NewFuturesTransferService()
 	futuresTransfer.Asset(asset)
 	futuresTransfer.Amount(amount)
-	var iType interface{} = sType
-	futuresTransfer.Type(iType.(trade.FuturesTransferType))
+	var iType trade.FuturesTransferType
+	_ = json.Unmarshal([]byte(sType), &iType)
+	futuresTransfer.Type(iType)
 
 	list, err := futuresTransfer.Do(data.NewContext())
 	if err != nil {
