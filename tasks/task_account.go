@@ -151,12 +151,14 @@ func FuturesTransferService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 	asset := c.Query("asset")
 	amount := c.Query("amount")
-	sType := c.Query("type")
+
+	var fType trade.FuturesTransferType
+	err := json.Unmarshal([]byte(c.Query("type")), &fType)
 
 	mylog.Logger.Info().Msgf("[Task Account] FuturesTransferService request param: %v, %v, %v, %v",
-		userID, asset, amount, sType)
+		userID, asset, amount, fType)
 
-	if asset == "" || amount == "" || sType == "" {
+	if asset == "" || amount == "" || err != nil {
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
@@ -174,9 +176,7 @@ func FuturesTransferService(c *gin.Context) {
 	futuresTransfer := client.NewFuturesTransferService()
 	futuresTransfer.Asset(asset)
 	futuresTransfer.Amount(amount)
-	var iType trade.FuturesTransferType
-	_ = json.Unmarshal([]byte(sType), &iType)
-	futuresTransfer.Type(iType)
+	futuresTransfer.Type(fType)
 
 	list, err := futuresTransfer.Do(data.NewContext())
 	if err != nil {
