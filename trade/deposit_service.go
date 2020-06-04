@@ -72,10 +72,10 @@ func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (de
 	if s.endTime != nil {
 		m["endTime"] = *s.endTime
 	}
-	if s.endTime != nil {
+	if s.offset != nil {
 		m["offset"] = *s.offset
 	}
-	if s.endTime != nil {
+	if s.limit != nil {
 		m["limit"] = *s.limit
 	}
 	r.setParams(m)
