@@ -13,7 +13,7 @@ type CreateOrderService struct {
 	positionSide     *PositionSideType
 	orderType        OrderType
 	timeInForce      *TimeInForceType
-	quantity         string
+	quantity         *string
 	reduceOnly       *bool
 	price            *string
 	newClientOrderID *string
@@ -21,6 +21,8 @@ type CreateOrderService struct {
 	workingType      *WorkingType
 	activationPrice  *string
 	callbackRate     *string
+	closePosition    *bool
+	newOrderRespType *NewOrderRespType
 }
 
 // Symbol set symbol
@@ -55,7 +57,7 @@ func (s *CreateOrderService) TimeInForce(timeInForce TimeInForceType) *CreateOrd
 
 // Quantity set quantity
 func (s *CreateOrderService) Quantity(quantity string) *CreateOrderService {
-	s.quantity = quantity
+	s.quantity = &quantity
 	return s
 }
 
@@ -101,6 +103,18 @@ func (s *CreateOrderService) CallbackRate(callbackRate string) *CreateOrderServi
 	return s
 }
 
+// ClosePosition set closePosition
+func (s *CreateOrderService) ClosePosition(closePosition bool) *CreateOrderService {
+	s.closePosition = &closePosition
+	return s
+}
+
+// NewOrderRespType set newOrderRespType
+func (s *CreateOrderService) NewOrderRespType(newOrderRespType NewOrderRespType) *CreateOrderService {
+	s.newOrderRespType = &newOrderRespType
+	return s
+}
+
 func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, opts ...RequestOption) (data []byte, err error) {
 	r := &request{
 		method:   "POST",
@@ -108,10 +122,12 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 		secType:  secTypeSigned,
 	}
 	m := params{
-		"symbol":   s.symbol,
-		"side":     s.side,
-		"type":     s.orderType,
-		"quantity": s.quantity,
+		"symbol": s.symbol,
+		"side":   s.side,
+		"type":   s.orderType,
+	}
+	if s.quantity != nil {
+		m["quantity"] = *s.quantity
 	}
 	if s.positionSide != nil {
 		m["positionSide"] = *s.positionSide
@@ -139,6 +155,12 @@ func (s *CreateOrderService) createOrder(ctx context.Context, endpoint string, o
 	}
 	if s.callbackRate != nil {
 		m["callbackRate"] = *s.callbackRate
+	}
+	if s.closePosition != nil {
+		m["closePosition"] = *s.closePosition
+	}
+	if s.newOrderRespType != nil {
+		m["newOrderRespType"] = *s.newOrderRespType
 	}
 	r.setFormParams(m)
 	data, err = s.c.callAPI(ctx, r, opts...)
@@ -295,6 +317,7 @@ type Order struct {
 	AvgPrice         string           `json:"avgPrice"`
 	OrigType         string           `json:"origType"`
 	PositionSide     PositionSideType `json:"positionSide"`
+	ClosePosition    bool             `json:"closePosition"`
 }
 
 // ListOrdersService all account orders; active, canceled, or filled
