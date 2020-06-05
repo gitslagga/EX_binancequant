@@ -434,7 +434,7 @@ func ListOrdersService(c *gin.Context) {
 		return
 	}
 
-	client, err := db.GetSpotClientByUserID(userID)
+	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
@@ -504,6 +504,369 @@ func GetBalanceService(c *gin.Context) {
 	}
 
 	list, err := client.NewGetBalanceService().Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+调整开仓杠杆 (TRADE)
+*/
+func ChangeLeveragevService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	symbol := c.Query("symbol")
+	leverage, err := strconv.Atoi(c.Query("leverage"))
+
+	mylog.Logger.Info().Msgf("[Task Futures] ChangeLeverageService request param: %v, %v, %v",
+		userID, symbol, leverage)
+
+	if symbol == "" || err != nil {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	changeLeverage := client.NewChangeLeverageService()
+	changeLeverage.Symbol(symbol)
+	changeLeverage.Leverage(leverage)
+
+	list, err := changeLeverage.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+变换逐全仓模式 (TRADE)
+*/
+func ChangeMarginTypeService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	symbol := c.Query("symbol")
+	marginType := c.Query("marginType")
+
+	mylog.Logger.Info().Msgf("[Task Futures] ChangeMarginTypeService request param: %v, %v, %v",
+		userID, symbol, marginType)
+
+	if symbol == "" || marginType == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	changeMarginType := client.NewChangeMarginTypeService()
+	changeMarginType.Symbol(symbol)
+	changeMarginType.MarginType(futures.MarginType(marginType))
+
+	err = changeMarginType.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = ""
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+调整逐仓保证金 (TRADE)
+*/
+func UpdatePositionMarginService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	symbol := c.Query("symbol")
+	positionSide := c.Query("positionSide")
+	amount := c.Query("amount")
+	iType, err := strconv.Atoi(c.Query("type"))
+
+	mylog.Logger.Info().Msgf("[Task Futures] UpdatePositionMarginService request param: %v, %v, %v, %v, %v",
+		userID, symbol, positionSide, amount, iType)
+
+	if symbol == "" || amount == "" || err != nil {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	updatePositionMargin := client.NewUpdatePositionMarginService()
+	updatePositionMargin.Symbol(symbol)
+	updatePositionMargin.Amount(amount)
+	updatePositionMargin.Type(iType)
+	if positionSide != "" {
+		updatePositionMargin.PositionSide(futures.PositionSideType(positionSide))
+	}
+
+	err = updatePositionMargin.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = ""
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+逐仓保证金变动历史 (TRADE)
+*/
+func GetPositionMarginHistoryService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	symbol := c.Query("symbol")
+	sType := c.Query("type")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	limit := c.Query("limit")
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetPositionMarginHistoryService request param: %v, %v, %v, %v, %v, %v",
+		userID, symbol, sType, startTime, endTime, limit)
+
+	if symbol == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	positionMarginHistory := client.NewGetPositionMarginHistoryService()
+	positionMarginHistory.Symbol(symbol)
+	if sType != "" {
+		iType, err := strconv.Atoi(sType)
+		if err == nil {
+			positionMarginHistory.Type(iType)
+		}
+	}
+	if startTime != "" {
+		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
+		if err == nil {
+			positionMarginHistory.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
+		if err == nil {
+			positionMarginHistory.EndTime(iEndTime)
+		}
+	}
+	if limit != "" {
+		iLimit, err := strconv.ParseInt(limit, 10, 64)
+		if err == nil {
+			positionMarginHistory.Limit(iLimit)
+		}
+	}
+
+	list, err := positionMarginHistory.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+用户持仓风险 (USER_DATA)
+*/
+func GetPositionRiskService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetPositionRiskService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	list, err := client.NewGetPositionRiskService().Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+获取账户损益资金流水(USER_DATA)
+*/
+func GetIncomeHistoryService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	symbol := c.Query("symbol")
+	incomeType := c.Query("incomeType")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	limit := c.Query("limit")
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetIncomeHistoryService request param: %v, %v, %v, %v, %v, %v",
+		userID, symbol, incomeType, startTime, endTime, limit)
+
+	if symbol == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	incomeHistory := client.NewGetIncomeHistoryService()
+	incomeHistory.Symbol(symbol)
+	if incomeType != "" {
+		incomeHistory.IncomeType(incomeType)
+	}
+	if startTime != "" {
+		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
+		if err == nil {
+			incomeHistory.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
+		if err == nil {
+			incomeHistory.EndTime(iEndTime)
+		}
+	}
+	if limit != "" {
+		iLimit, err := strconv.ParseInt(limit, 10, 64)
+		if err == nil {
+			incomeHistory.Limit(iLimit)
+		}
+	}
+
+	list, err := incomeHistory.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+杠杆分层标准 (USER_DATA)
+*/
+func GetLeverageBracketService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetLeverageBracketService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	list, err := client.NewGetLeverageBracketService().Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()
