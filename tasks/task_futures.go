@@ -166,3 +166,55 @@ func CreateOrderService(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 	return
 }
+
+/**
+查询订单 (USER_DATA)
+*/
+func GetOrderService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	symbol := c.Query("symbol")
+	orderId, _ := strconv.ParseInt(c.Query("orderId"), 10, 64)
+	origClientOrderId := c.Query("origClientOrderId")
+
+	mylog.Logger.Info().Msgf(
+		"[Task Account] GetOrderService request param: %v, %v, %v, %v",
+		userID, symbol, orderId, origClientOrderId)
+
+	if symbol == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	getOrder := client.NewGetOrderService()
+	getOrder.Symbol(symbol)
+	getOrder.OrderID(orderId)
+	getOrder.OrigClientOrderID(origClientOrderId)
+
+	list, err := getOrder.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
