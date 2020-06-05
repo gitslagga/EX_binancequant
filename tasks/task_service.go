@@ -20,10 +20,24 @@ func InitRouter(r *gin.Engine) {
 	route.GET("/api/account/futures", FuturesAccountService)
 	route.POST("/api/account/transfer", FuturesTransferService)
 	route.GET("/api/account/transfer", ListFuturesTransferService)
+
 	route.POST("/api/futures/position/mode", ChangePositionModeService)
 	route.GET("/api/futures/position/mode", GetPositionModeService)
 	route.POST("/api/futures/order", CreateOrderService)
 	route.GET("/api/futures/order", GetOrderService)
+	route.DELETE("/api/futures/order", CancelOrderService)
+	route.DELETE("/api/futures/allOpenOrders", CancelAllOpenOrdersService)
+	route.GET("/api/futures/openOrders", ListOpenOrdersService)
+	route.GET("/api/futures/allOrders", ListOrdersService)
+	route.GET("/api/futures/balance", GetBalanceService)
+	route.POST("/api/futures/leverage", ChangeLeverageService)
+	route.POST("/api/futures/marginType", ChangeMarginTypeService)
+	route.POST("/api/futures/positionMargin", UpdatePositionMarginService)
+	route.GET("/api/futures/positionMargin", GetPositionMarginHistoryService)
+	route.GET("/api/futures/positionRisk", GetPositionRiskService)
+	route.GET("/api/futures/income", GetIncomeHistoryService)
+	route.GET("/api/futures/leverageBracket", GetLeverageBracketService)
+
 }
 
 func InitFutures() {

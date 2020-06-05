@@ -522,7 +522,7 @@ func GetBalanceService(c *gin.Context) {
 /**
 调整开仓杠杆 (TRADE)
 */
-func ChangeLeveragevService(c *gin.Context) {
+func ChangeLeverageService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
