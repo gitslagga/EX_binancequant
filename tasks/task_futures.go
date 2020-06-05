@@ -102,12 +102,12 @@ func CreateOrderService(c *gin.Context) {
 	side := c.Query("side")
 	positionSide := c.Query("positionSide")
 	oType := c.Query("type")
-	reduceOnly, _ := strconv.ParseBool(c.Query("reduceOnly"))
+	reduceOnly := c.Query("reduceOnly")
 	quantity := c.Query("quantity")
 	price := c.Query("price")
 	newClientOrderId := c.Query("newClientOrderId")
 	stopPrice := c.Query("stopPrice")
-	closePosition, _ := strconv.ParseBool(c.Query("closePosition"))
+	closePosition := c.Query("closePosition")
 	activationPrice := c.Query("activationPrice")
 	callbackRate := c.Query("callbackRate")
 	timeInForce := c.Query("timeInForce")
@@ -137,19 +137,49 @@ func CreateOrderService(c *gin.Context) {
 	createOrder := client.NewCreateOrderService()
 	createOrder.Symbol(symbol)
 	createOrder.Side(futures.SideType(side))
-	createOrder.PositionSide(futures.PositionSideType(positionSide))
 	createOrder.Type(futures.OrderType(oType))
-	createOrder.ReduceOnly(reduceOnly)
-	createOrder.Quantity(quantity)
-	createOrder.Price(price)
-	createOrder.NewClientOrderID(newClientOrderId)
-	createOrder.StopPrice(stopPrice)
-	createOrder.ClosePosition(closePosition)
-	createOrder.ActivationPrice(activationPrice)
-	createOrder.CallbackRate(callbackRate)
-	createOrder.TimeInForce(futures.TimeInForceType(timeInForce))
-	createOrder.WorkingType(futures.WorkingType(workingType))
-	createOrder.NewOrderRespType(futures.NewOrderRespType(newOrderRespType))
+	if positionSide != "" {
+		createOrder.PositionSide(futures.PositionSideType(positionSide))
+	}
+	if reduceOnly != "" {
+		bReduceOnly, err := strconv.ParseBool(reduceOnly)
+		if err == nil {
+			createOrder.ReduceOnly(bReduceOnly)
+		}
+	}
+	if quantity != "" {
+		createOrder.Quantity(quantity)
+	}
+	if price != "" {
+		createOrder.Price(price)
+	}
+	if newClientOrderId != "" {
+		createOrder.NewClientOrderID(newClientOrderId)
+	}
+	if stopPrice != "" {
+		createOrder.StopPrice(stopPrice)
+	}
+	if closePosition != "" {
+		bClosePosition, err := strconv.ParseBool(closePosition)
+		if err == nil {
+			createOrder.ClosePosition(bClosePosition)
+		}
+	}
+	if activationPrice != "" {
+		createOrder.ActivationPrice(activationPrice)
+	}
+	if callbackRate != "" {
+		createOrder.CallbackRate(callbackRate)
+	}
+	if timeInForce != "" {
+		createOrder.TimeInForce(futures.TimeInForceType(timeInForce))
+	}
+	if workingType != "" {
+		createOrder.WorkingType(futures.WorkingType(workingType))
+	}
+	if newOrderRespType != "" {
+		createOrder.NewOrderRespType(futures.NewOrderRespType(newOrderRespType))
+	}
 
 	list, err := createOrder.Do(data.NewContext())
 	if err != nil {
@@ -176,7 +206,7 @@ func GetOrderService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	symbol := c.Query("symbol")
-	orderId, _ := strconv.ParseInt(c.Query("orderId"), 10, 64)
+	orderId := c.Query("orderId")
 	origClientOrderId := c.Query("origClientOrderId")
 
 	mylog.Logger.Info().Msgf(
@@ -200,8 +230,15 @@ func GetOrderService(c *gin.Context) {
 
 	getOrder := client.NewGetOrderService()
 	getOrder.Symbol(symbol)
-	getOrder.OrderID(orderId)
-	getOrder.OrigClientOrderID(origClientOrderId)
+	if orderId != "" {
+		iOrderId, err := strconv.ParseInt(orderId, 10, 64)
+		if err == nil {
+			getOrder.OrderID(iOrderId)
+		}
+	}
+	if origClientOrderId != "" {
+		getOrder.OrigClientOrderID(origClientOrderId)
+	}
 
 	list, err := getOrder.Do(data.NewContext())
 	if err != nil {

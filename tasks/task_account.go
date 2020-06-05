@@ -41,7 +41,9 @@ func DepositsAddressService(c *gin.Context) {
 
 	depositsAddress := client.NewDepositsAddressService()
 	depositsAddress.Coin(coin)
-	depositsAddress.Network(network)
+	if network != "" {
+		depositsAddress.Network(network)
+	}
 
 	list, err := depositsAddress.Do(data.NewContext())
 	if err != nil {
@@ -67,11 +69,11 @@ func ListDepositsService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 	coin := c.Query("coin")
-	status, _ := strconv.Atoi(c.Query("status"))
-	startTime, _ := strconv.ParseInt(c.Query("startTime"), 10, 64)
-	endTime, _ := strconv.ParseInt(c.Query("endTime"), 10, 64)
-	offset, _ := strconv.Atoi(c.Query("offset"))
-	limit, _ := strconv.Atoi(c.Query("limit"))
+	status := c.Query("status")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	offset := c.Query("offset")
+	limit := c.Query("limit")
 
 	mylog.Logger.Info().Msgf("[Task Account] ListDepositsService request param: %v, %v, %v, %v, %v, %v, %v",
 		userID, coin, status, startTime, endTime, offset, limit)
@@ -85,12 +87,39 @@ func ListDepositsService(c *gin.Context) {
 	}
 
 	listDeposits := client.NewListDepositsService()
-	listDeposits.Coin(coin)
-	listDeposits.Status(status)
-	listDeposits.StartTime(startTime)
-	listDeposits.EndTime(endTime)
-	listDeposits.Offset(offset)
-	listDeposits.Limit(limit)
+	if coin != "" {
+		listDeposits.Coin(coin)
+	}
+	if status != "" {
+		iStatus, err := strconv.Atoi(status)
+		if err == nil {
+			listDeposits.Status(iStatus)
+		}
+	}
+	if startTime != "" {
+		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
+		if err == nil {
+			listDeposits.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
+		if err == nil {
+			listDeposits.EndTime(iEndTime)
+		}
+	}
+	if offset != "" {
+		iOffset, err := strconv.Atoi(offset)
+		if err == nil {
+			listDeposits.Offset(iOffset)
+		}
+	}
+	if limit != "" {
+		iLimit, err := strconv.Atoi(limit)
+		if err == nil {
+			listDeposits.Limit(iLimit)
+		}
+	}
 
 	list, err := listDeposits.Do(data.NewContext())
 	if err != nil {
@@ -202,15 +231,15 @@ func ListFuturesTransferService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 	asset := c.Query("asset")
-	startTime, _ := strconv.ParseInt(c.Query("startTime"), 10, 64)
-	endTime, _ := strconv.ParseInt(c.Query("endTime"), 10, 64)
-	current, _ := strconv.ParseInt(c.Query("current"), 10, 64)
-	size, _ := strconv.ParseInt(c.Query("size"), 10, 64)
+	startTime, err := strconv.ParseInt(c.Query("startTime"), 10, 64)
+	endTime := c.Query("endTime")
+	current := c.Query("current")
+	size := c.Query("size")
 
 	mylog.Logger.Info().Msgf("[Task Account] ListFuturesTransferService request param: %v, %v, %v, %v, %v, %v",
 		userID, asset, startTime, endTime, current, size)
 
-	if asset == "" || startTime == 0 {
+	if asset == "" || err != nil {
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
@@ -228,9 +257,24 @@ func ListFuturesTransferService(c *gin.Context) {
 	futuresTransfer := client.NewListFuturesTransferService()
 	futuresTransfer.Asset(asset)
 	futuresTransfer.StartTime(startTime)
-	futuresTransfer.EndTime(endTime)
-	futuresTransfer.Current(current)
-	futuresTransfer.Size(size)
+	if endTime != "" {
+		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
+		if err == nil {
+			futuresTransfer.EndTime(iEndTime)
+		}
+	}
+	if current != "" {
+		iCurrent, err := strconv.ParseInt(current, 10, 64)
+		if err == nil {
+			futuresTransfer.Current(iCurrent)
+		}
+	}
+	if size != "" {
+		iSize, err := strconv.ParseInt(size, 10, 64)
+		if err == nil {
+			futuresTransfer.Size(iSize)
+		}
+	}
 
 	list, err := futuresTransfer.Do(data.NewContext())
 	if err != nil {
