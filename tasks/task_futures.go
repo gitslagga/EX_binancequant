@@ -19,7 +19,7 @@ func ChangePositionModeService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 	dualSidePosition, err := strconv.ParseBool(c.Query("dualSidePosition"))
 
-	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %v, %v",
+	mylog.Logger.Info().Msgf("[Task Futures] FuturesAccountService request param: %v, %v",
 		userID, dualSidePosition)
 
 	if err != nil {
@@ -64,7 +64,7 @@ func GetPositionModeService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 
-	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %v", userID)
+	mylog.Logger.Info().Msgf("[Task Futures] FuturesAccountService request param: %v", userID)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
@@ -115,7 +115,7 @@ func CreateOrderService(c *gin.Context) {
 	newOrderRespType := c.Query("newOrderRespType")
 
 	mylog.Logger.Info().Msgf(
-		"[Task Account] CreateOrderService request param: %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v",
+		"[Task Futures] CreateOrderService request param: %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v",
 		userID, symbol, side, positionSide, oType, reduceOnly, quantity, price, newClientOrderId, stopPrice, closePosition,
 		activationPrice, callbackRate, timeInForce, workingType, newOrderRespType)
 
@@ -210,10 +210,10 @@ func GetOrderService(c *gin.Context) {
 	origClientOrderId := c.Query("origClientOrderId")
 
 	mylog.Logger.Info().Msgf(
-		"[Task Account] GetOrderService request param: %v, %v, %v, %v",
+		"[Task Futures] GetOrderService request param: %v, %v, %v, %v",
 		userID, symbol, orderId, origClientOrderId)
 
-	if symbol == "" {
+	if symbol == "" || (orderId == "" && origClientOrderId == "") {
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
@@ -241,6 +241,269 @@ func GetOrderService(c *gin.Context) {
 	}
 
 	list, err := getOrder.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+撤销订单 (TRADE)
+*/
+func CancelOrderService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	symbol := c.Query("symbol")
+	orderId := c.Query("orderId")
+	origClientOrderId := c.Query("origClientOrderId")
+
+	mylog.Logger.Info().Msgf(
+		"[Task Futures] CancelOrderService request param: %v, %v, %v, %v",
+		userID, symbol, orderId, origClientOrderId)
+
+	if symbol == "" || (orderId == "" && origClientOrderId == "") {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	cancelOrder := client.NewCancelOrderService()
+	cancelOrder.Symbol(symbol)
+	if orderId != "" {
+		iOrderId, err := strconv.ParseInt(orderId, 10, 64)
+		if err == nil {
+			cancelOrder.OrderID(iOrderId)
+		}
+	}
+	if origClientOrderId != "" {
+		cancelOrder.OrigClientOrderID(origClientOrderId)
+	}
+
+	list, err := cancelOrder.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+撤销全部订单 (TRADE)
+*/
+func CancelAllOpenOrdersService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	symbol := c.Query("symbol")
+
+	mylog.Logger.Info().Msgf(
+		"[Task Futures] CancelAllOpenOrdersService request param: %v, %v",
+		userID, symbol)
+
+	if symbol == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	cancelAllOpenOrders := client.NewCancelAllOpenOrdersService()
+	cancelAllOpenOrders.Symbol(symbol)
+
+	err = cancelAllOpenOrders.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = ""
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+查看当前全部挂单 (USER_DATA)
+*/
+func ListOpenOrdersService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	symbol := c.Query("symbol")
+
+	mylog.Logger.Info().Msgf(
+		"[Task Futures] ListOpenOrdersService request param: %v, %v",
+		userID, symbol)
+
+	if symbol == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	listOpenOrders := client.NewListOpenOrdersService()
+	listOpenOrders.Symbol(symbol)
+
+	list, err := listOpenOrders.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+查询所有订单（包括历史订单） (USER_DATA)
+*/
+func ListOrdersService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	symbol := c.Query("symbol")
+	orderId := c.Query("orderId")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	limit := c.Query("limit")
+
+	mylog.Logger.Info().Msgf("[Task Futures] ListOrdersService request param: %v, %v, %v, %v, %v, %v",
+		userID, symbol, orderId, startTime, endTime, limit)
+
+	if symbol == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetSpotClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	listOrders := client.NewListOrdersService()
+	listOrders.Symbol(symbol)
+	if orderId != "" {
+		iOrderId, err := strconv.ParseInt(orderId, 10, 64)
+		if err == nil {
+			listOrders.OrderID(iOrderId)
+		}
+	}
+	if startTime != "" {
+		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
+		if err == nil {
+			listOrders.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
+		if err == nil {
+			listOrders.EndTime(iEndTime)
+		}
+	}
+	if limit != "" {
+		iLimit, err := strconv.Atoi(limit)
+		if err == nil {
+			listOrders.Limit(iLimit)
+		}
+	}
+
+	list, err := listOrders.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+账户余额 (USER_DATA)
+*/
+func GetBalanceService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetBalanceService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	list, err := client.NewGetBalanceService().Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()

@@ -172,7 +172,7 @@ func SpotAccountService(c *gin.Context) {
 }
 
 /**
-合约划转
+划转
 */
 func FuturesTransferService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -224,7 +224,7 @@ func FuturesTransferService(c *gin.Context) {
 }
 
 /**
-合约获取划转历史
+获取划转历史
 */
 func ListFuturesTransferService(c *gin.Context) {
 	out := data.CommonResp{}
