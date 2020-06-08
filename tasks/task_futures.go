@@ -778,6 +778,80 @@ func GetPositionRiskService(c *gin.Context) {
 }
 
 /**
+账户成交历史 (USER_DATA)
+*/
+func GetTradeHistoryService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	symbol := c.Query("symbol")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	fromId := c.Query("fromId")
+	limit := c.Query("limit")
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetTradeHistoryService request param: %v, %v, %v, %v, %v, %v",
+		userID, symbol, fromId, startTime, endTime, limit)
+
+	if symbol == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	positionMarginHistory := client.NewGetTradeHistoryService()
+	positionMarginHistory.Symbol(symbol)
+	if fromId != "" {
+		iFromId, err := strconv.ParseUint(fromId, 10, 64)
+		if err == nil {
+			positionMarginHistory.FromId(iFromId)
+		}
+	}
+	if startTime != "" {
+		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
+		if err == nil {
+			positionMarginHistory.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
+		if err == nil {
+			positionMarginHistory.EndTime(iEndTime)
+		}
+	}
+	if limit != "" {
+		iLimit, err := strconv.ParseInt(limit, 10, 64)
+		if err == nil {
+			positionMarginHistory.Limit(iLimit)
+		}
+	}
+
+	list, err := positionMarginHistory.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
 获取账户损益资金流水(USER_DATA)
 */
 func GetIncomeHistoryService(c *gin.Context) {
