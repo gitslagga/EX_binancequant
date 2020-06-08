@@ -7,16 +7,20 @@ import (
 
 // CreateWithdrawService create withdraw
 type CreateWithdrawService struct {
-	c       *Client
-	asset   string
-	address string
-	amount  string
-	name    *string
+	c                  *Client
+	coin               string
+	address            string
+	amount             float64
+	network            *string
+	addressTag         *string
+	withdrawOrderId    *string
+	transactionFeeFlag *bool
+	name               *string
 }
 
-// Asset set asset
-func (s *CreateWithdrawService) Asset(asset string) *CreateWithdrawService {
-	s.asset = asset
+// Coin set coin
+func (s *CreateWithdrawService) Coin(coin string) *CreateWithdrawService {
+	s.coin = coin
 	return s
 }
 
@@ -27,8 +31,32 @@ func (s *CreateWithdrawService) Address(address string) *CreateWithdrawService {
 }
 
 // Amount set amount
-func (s *CreateWithdrawService) Amount(amount string) *CreateWithdrawService {
+func (s *CreateWithdrawService) Amount(amount float64) *CreateWithdrawService {
 	s.amount = amount
+	return s
+}
+
+// Network set network
+func (s *CreateWithdrawService) Network(network string) *CreateWithdrawService {
+	s.network = &network
+	return s
+}
+
+// AddressTag set addressTag
+func (s *CreateWithdrawService) AddressTag(addressTag string) *CreateWithdrawService {
+	s.addressTag = &addressTag
+	return s
+}
+
+// WithdrawOrderId set withdrawOrderId
+func (s *CreateWithdrawService) WithdrawOrderId(withdrawOrderId string) *CreateWithdrawService {
+	s.withdrawOrderId = &withdrawOrderId
+	return s
+}
+
+// TransactionFeeFlag set transactionFeeFlag
+func (s *CreateWithdrawService) TransactionFeeFlag(transactionFeeFlag bool) *CreateWithdrawService {
+	s.transactionFeeFlag = &transactionFeeFlag
 	return s
 }
 
@@ -42,12 +70,24 @@ func (s *CreateWithdrawService) Name(name string) *CreateWithdrawService {
 func (s *CreateWithdrawService) Do(ctx context.Context) (err error) {
 	r := &request{
 		method:   "POST",
-		endpoint: "/wapi/v3/withdraw.html",
+		endpoint: "/sapi/v1/capital/withdraw/apply",
 		secType:  secTypeSigned,
 	}
-	r.setParam("asset", s.asset)
+	r.setParam("coin", s.coin)
 	r.setParam("address", s.address)
 	r.setParam("amount", s.amount)
+	if s.withdrawOrderId != nil {
+		r.setParam("withdrawOrderId", *s.withdrawOrderId)
+	}
+	if s.network != nil {
+		r.setParam("network", *s.network)
+	}
+	if s.addressTag != nil {
+		r.setParam("addressTag", *s.addressTag)
+	}
+	if s.transactionFeeFlag != nil {
+		r.setParam("transactionFeeFlag", *s.transactionFeeFlag)
+	}
 	if s.name != nil {
 		r.setParam("name", *s.name)
 	}
@@ -58,21 +98,35 @@ func (s *CreateWithdrawService) Do(ctx context.Context) (err error) {
 // ListWithdrawsService list withdraws
 type ListWithdrawsService struct {
 	c         *Client
-	asset     *string
+	coin      *string
 	status    *int
+	offset    *int
+	limit     *int
 	startTime *int64
 	endTime   *int64
 }
 
-// Asset set asset
-func (s *ListWithdrawsService) Asset(asset string) *ListWithdrawsService {
-	s.asset = &asset
+// Coin set coin
+func (s *ListWithdrawsService) Coin(coin string) *ListWithdrawsService {
+	s.coin = &coin
 	return s
 }
 
 // Status set status
 func (s *ListWithdrawsService) Status(status int) *ListWithdrawsService {
 	s.status = &status
+	return s
+}
+
+// Offset set offset
+func (s *ListWithdrawsService) Offset(offset int) *ListWithdrawsService {
+	s.offset = &offset
+	return s
+}
+
+// Limit set limit
+func (s *ListWithdrawsService) Limit(limit int) *ListWithdrawsService {
+	s.limit = &limit
 	return s
 }
 
@@ -89,17 +143,23 @@ func (s *ListWithdrawsService) EndTime(endTime int64) *ListWithdrawsService {
 }
 
 // Do send request
-func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, err error) {
+func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws *WithdrawHistoryResponse, err error) {
 	r := &request{
-		method:   "POST",
-		endpoint: "/wapi/v1/getWithdrawHistory.html",
+		method:   "GET",
+		endpoint: "/sapi/v1/capital/withdraw/history",
 		secType:  secTypeSigned,
 	}
-	if s.asset != nil {
-		r.setParam("asset", *s.asset)
+	if s.coin != nil {
+		r.setParam("coin", *s.coin)
 	}
 	if s.status != nil {
 		r.setParam("status", *s.status)
+	}
+	if s.offset != nil {
+		r.setParam("offset", *s.offset)
+	}
+	if s.limit != nil {
+		r.setParam("limit", *s.limit)
 	}
 	if s.startTime != nil {
 		r.setParam("startTime", *s.startTime)
@@ -116,34 +176,36 @@ func (s *ListWithdrawsService) Do(ctx context.Context) (withdraws []*Withdraw, e
 	if err != nil {
 		return
 	}
-	return res.Withdraws, nil
+	return res, nil
 }
 
 // WithdrawHistoryResponse define withdraw history response
-type WithdrawHistoryResponse struct {
-	Withdraws []*Withdraw `json:"withdrawList"`
-	Success   bool        `json:"success"`
-}
+type WithdrawHistoryResponse []Withdraw
 
 // Withdraw define withdraw info
 type Withdraw struct {
-	Amount    float64 `json:"amount"`
-	Address   string  `json:"address"`
-	Asset     string  `json:"asset"`
-	TxID      string  `json:"txId"`
-	ApplyTime int64   `json:"applyTime"`
-	Status    int     `json:"status"`
+	Amount          float64 `json:"amount"`
+	Address         string  `json:"address"`
+	Coin            string  `json:"coin"`
+	TxID            string  `json:"txId"`
+	ApplyTime       int64   `json:"applyTime"`
+	Status          int     `json:"status"`
+	Id              string  `json:"id"`
+	WithdrawOrderId string  `json:"withdrawOrderId"`
+	Network         string  `json:"network"`
+	TransferType    string  `json:"transferType"`
 }
 
+// Discard
 // GetWithdrawFeeService get withdraw fee
 type GetWithdrawFeeService struct {
-	c     *Client
-	asset string
+	c    *Client
+	coin string
 }
 
-// Asset set asset
-func (s *GetWithdrawFeeService) Asset(asset string) *GetWithdrawFeeService {
-	s.asset = asset
+// Coin set coin
+func (s *GetWithdrawFeeService) Coin(coin string) *GetWithdrawFeeService {
+	s.coin = coin
 	return s
 }
 
@@ -154,7 +216,7 @@ func (s *GetWithdrawFeeService) Do(ctx context.Context, opts ...RequestOption) (
 		endpoint: "/wapi/v3/withdrawFee.html",
 		secType:  secTypeSigned,
 	}
-	r.setParam("asset", s.asset)
+	r.setParam("coin", s.coin)
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return nil, err

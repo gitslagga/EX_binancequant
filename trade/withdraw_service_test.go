@@ -22,13 +22,13 @@ func (s *withdrawServiceTestSuite) TestCreateWithdraw() {
 	s.mockDo(data, nil)
 	defer s.assertDo()
 
-	asset := "ETH"
+	coin := "ETH"
 	address := "myaddress"
 	amount := "0.01"
 	name := "eth"
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setParams(params{
-			"asset":   asset,
+			"coin":    coin,
 			"address": address,
 			"amount":  amount,
 			"name":    name,
@@ -36,7 +36,7 @@ func (s *withdrawServiceTestSuite) TestCreateWithdraw() {
 		s.assertRequestEqual(e, r)
 	})
 
-	err := s.client.NewCreateWithdrawService().Asset(asset).
+	err := s.client.NewCreateWithdrawService().Coin(coin).
 		Address(address).Amount(amount).Name(name).Do(newContext())
 	s.r().NoError(err)
 }
@@ -47,7 +47,7 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
             {
                 "amount": 1,
                 "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
-                "asset": "ETH",
+                "coin": "ETH",
                 "applyTime": 1508198532000,
                 "status": 4
             },
@@ -55,7 +55,7 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
                 "amount": 0.005,
                 "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
                 "txId": "0x80aaabed54bdab3f6de5868f89929a2371ad21d666f20f7393d1a3389fad95a1",
-                "asset": "ETH",
+                "coin": "ETH",
                 "applyTime": 1508198532000,
                 "status": 4
             }
@@ -65,13 +65,13 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
 	s.mockDo(data, nil)
 	defer s.assertDo()
 
-	asset := "ETH"
+	coin := "ETH"
 	status := 0
 	startTime := int64(1508198532000)
 	endTime := int64(1508198532001)
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setParams(params{
-			"asset":     asset,
+			"coin":      coin,
 			"status":    status,
 			"startTime": startTime,
 			"endTime":   endTime,
@@ -79,7 +79,7 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
 		s.assertRequestEqual(e, r)
 	})
 
-	withdraws, err := s.client.NewListWithdrawsService().Asset(asset).
+	withdraws, err := s.client.NewListWithdrawsService().Coin(coin).
 		Status(status).StartTime(startTime).EndTime(endTime).
 		Do(newContext())
 	r := s.r()
@@ -88,7 +88,7 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
 	e1 := &Withdraw{
 		Amount:    1,
 		Address:   "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
-		Asset:     "ETH",
+		Coin:      "ETH",
 		ApplyTime: 1508198532000,
 		Status:    4,
 	}
@@ -96,19 +96,19 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
 		Amount:    0.005,
 		Address:   "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
 		TxID:      "0x80aaabed54bdab3f6de5868f89929a2371ad21d666f20f7393d1a3389fad95a1",
-		Asset:     "ETH",
+		Coin:      "ETH",
 		ApplyTime: 1508198532000,
 		Status:    4,
 	}
-	s.assertWithdrawEqual(e1, withdraws[0])
-	s.assertWithdrawEqual(e2, withdraws[1])
+	s.assertWithdrawEqual(e1, &(*withdraws)[0])
+	s.assertWithdrawEqual(e2, &(*withdraws)[1])
 }
 
 func (s *withdrawServiceTestSuite) assertWithdrawEqual(e, a *Withdraw) {
 	r := s.r()
 	r.InDelta(e.Amount, a.Amount, 0.0000001, "Amount")
 	r.Equal(e.Address, a.Address, "Address")
-	r.Equal(e.Asset, a.Asset, "Asset")
+	r.Equal(e.Coin, a.Coin, "Coin")
 	r.Equal(e.ApplyTime, a.ApplyTime, "ApplyTime")
 	r.Equal(e.Status, a.Status, "Status")
 }
@@ -118,13 +118,13 @@ func (s *withdrawServiceTestSuite) TestGetWithdrawFee() {
 	s.mockDo(data, nil)
 	defer s.assertDo()
 
-	asset := "BTC"
+	coin := "BTC"
 	s.assertReq(func(r *request) {
-		e := newSignedRequest().setParam("asset", asset)
+		e := newSignedRequest().setParam("coin", coin)
 		s.assertRequestEqual(e, r)
 	})
 
-	res, err := s.client.NewGetWithdrawFeeService().Asset(asset).Do(newContext())
+	res, err := s.client.NewGetWithdrawFeeService().Coin(coin).Do(newContext())
 	s.r().NoError(err)
 	s.r().Equal(res.Fee, 0.0005, "Fee")
 }

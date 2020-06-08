@@ -325,3 +325,152 @@ func FuturesAccountService(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 	return
 }
+
+/**
+提交提现请求。
+*/
+func CreateWithdrawService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	coin := c.Query("coin")
+	withdrawOrderId := c.Query("withdrawOrderId")
+	network := c.Query("network")
+	address := c.Query("address")
+	addressTag := c.Query("addressTag")
+	amount, err := strconv.ParseFloat(c.Query("amount"), 64)
+	transactionFeeFlag := c.Query("transactionFeeFlag")
+	name := c.Query("name")
+
+	if coin == "" || address != "" || err != nil {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Account] CreateWithdrawService request param: %v, %v, %v, %v, %v, %v, %v, %v, %v",
+		userID, coin, withdrawOrderId, network, address, addressTag, amount, transactionFeeFlag, name)
+
+	client, err := db.GetSpotClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	createWithdraw := client.NewCreateWithdrawService()
+	createWithdraw.Coin(coin)
+	createWithdraw.Address(address)
+	createWithdraw.Amount(amount)
+
+	if withdrawOrderId != "" {
+		createWithdraw.WithdrawOrderId(withdrawOrderId)
+	}
+	if network != "" {
+		createWithdraw.Network(network)
+	}
+	if addressTag != "" {
+		createWithdraw.AddressTag(addressTag)
+	}
+	if transactionFeeFlag != "" {
+		bTransactionFeeFlag, err := strconv.ParseBool(transactionFeeFlag)
+		if err == nil {
+			createWithdraw.TransactionFeeFlag(bTransactionFeeFlag)
+		}
+	}
+	if name != "" {
+		createWithdraw.Name(name)
+	}
+
+	err = createWithdraw.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = ""
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+获取提币历史 (支持多网络) (USER_DATA)
+*/
+func ListWithdrawsService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+	coin := c.Query("coin")
+	status := c.Query("status")
+	offset := c.Query("offset")
+	limit := c.Query("limit")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	mylog.Logger.Info().Msgf("[Task Account] ListWithdrawsService request param: %v, %v, %v, %v, %v, %v, %v",
+		userID, coin, status, startTime, endTime, offset, limit)
+
+	client, err := db.GetSpotClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	listDeposits := client.NewListWithdrawsService()
+	if coin != "" {
+		listDeposits.Coin(coin)
+	}
+	if status != "" {
+		iStatus, err := strconv.Atoi(status)
+		if err == nil {
+			listDeposits.Status(iStatus)
+		}
+	}
+	if offset != "" {
+		iOffset, err := strconv.Atoi(offset)
+		if err == nil {
+			listDeposits.Offset(iOffset)
+		}
+	}
+	if limit != "" {
+		iLimit, err := strconv.Atoi(limit)
+		if err == nil {
+			listDeposits.Limit(iLimit)
+		}
+	}
+	if startTime != "" {
+		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
+		if err == nil {
+			listDeposits.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
+		if err == nil {
+			listDeposits.EndTime(iEndTime)
+		}
+	}
+
+	list, err := listDeposits.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
