@@ -342,15 +342,15 @@ func CreateWithdrawService(c *gin.Context) {
 	transactionFeeFlag := c.Query("transactionFeeFlag")
 	name := c.Query("name")
 
-	if coin == "" || address != "" || err != nil {
+	mylog.Logger.Info().Msgf("[Task Account] CreateWithdrawService request param: %v, %v, %v, %v, %v, %v, %v, %v, %v, %v",
+		userID, coin, withdrawOrderId, network, address, addressTag, amount, transactionFeeFlag, name, err)
+
+	if coin == "" || address == "" || err != nil {
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
-
-	mylog.Logger.Info().Msgf("[Task Account] CreateWithdrawService request param: %v, %v, %v, %v, %v, %v, %v, %v, %v",
-		userID, coin, withdrawOrderId, network, address, addressTag, amount, transactionFeeFlag, name)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
