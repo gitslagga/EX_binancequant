@@ -383,7 +383,6 @@ func CreateWithdrawService(c *gin.Context) {
 
 	out.ErrorCode = data.EC_NONE.Code()
 	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = ""
 
 	c.JSON(http.StatusOK, out)
 	return

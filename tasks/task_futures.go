@@ -52,7 +52,6 @@ func ChangePositionModeService(c *gin.Context) {
 
 	out.ErrorCode = data.EC_NONE.Code()
 	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = ""
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -338,7 +337,6 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 
 	out.ErrorCode = data.EC_NONE.Code()
 	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = ""
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -592,7 +590,6 @@ func ChangeMarginTypeService(c *gin.Context) {
 
 	out.ErrorCode = data.EC_NONE.Code()
 	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = ""
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -645,7 +642,6 @@ func UpdatePositionMarginService(c *gin.Context) {
 
 	out.ErrorCode = data.EC_NONE.Code()
 	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = ""
 
 	c.JSON(http.StatusOK, out)
 	return
