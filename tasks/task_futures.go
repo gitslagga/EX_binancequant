@@ -17,17 +17,19 @@ func ChangePositionModeService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	dualSidePosition, err := strconv.ParseBool(c.Query("dualSidePosition"))
 
-	mylog.Logger.Info().Msgf("[Task Futures] FuturesAccountService request param: %v, %v",
-		userID, dualSidePosition)
-
-	if err != nil {
+	var positionModeRequest data.PositionModeRequest
+	if err := c.ShouldBindJSON(&positionModeRequest); err != nil {
+		mylog.Logger.Error().Msgf("[Task Account] ChangePositionModeService request param err: %v, %v",
+			userID, err)
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] FuturesAccountService request param: %v, %v",
+		userID, positionModeRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
@@ -38,7 +40,7 @@ func ChangePositionModeService(c *gin.Context) {
 	}
 
 	positionMode := client.NewChangePositionModeService()
-	positionMode.DualSide(dualSidePosition)
+	positionMode.DualSide(positionModeRequest.DualSidePosition)
 
 	err = positionMode.Do(data.NewContext())
 	if err != nil {
@@ -98,33 +100,18 @@ func CreateOrderService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 
-	symbol := c.Query("symbol")
-	side := c.Query("side")
-	positionSide := c.Query("positionSide")
-	oType := c.Query("type")
-	reduceOnly := c.Query("reduceOnly")
-	quantity := c.Query("quantity")
-	price := c.Query("price")
-	newClientOrderId := c.Query("newClientOrderId")
-	stopPrice := c.Query("stopPrice")
-	closePosition := c.Query("closePosition")
-	activationPrice := c.Query("activationPrice")
-	callbackRate := c.Query("callbackRate")
-	timeInForce := c.Query("timeInForce")
-	workingType := c.Query("workingType")
-	newOrderRespType := c.Query("newOrderRespType")
-
-	mylog.Logger.Info().Msgf(
-		"[Task Futures] CreateOrderService request param: %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v, %v",
-		userID, symbol, side, positionSide, oType, reduceOnly, quantity, price, newClientOrderId, stopPrice, closePosition,
-		activationPrice, callbackRate, timeInForce, workingType, newOrderRespType)
-
-	if symbol == "" || side == "" || oType == "" {
+	var orderRequest data.OrderRequest
+	if err := c.ShouldBindJSON(&orderRequest); err != nil {
+		mylog.Logger.Error().Msgf("[Task Account] CreateOrderService request param err: %v, %v",
+			userID, err)
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] CreateOrderService request param: %v, %v",
+		userID, orderRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
@@ -135,50 +122,44 @@ func CreateOrderService(c *gin.Context) {
 	}
 
 	createOrder := client.NewCreateOrderService()
-	createOrder.Symbol(symbol)
-	createOrder.Side(futures.SideType(side))
-	createOrder.Type(futures.OrderType(oType))
-	if positionSide != "" {
-		createOrder.PositionSide(futures.PositionSideType(positionSide))
+	createOrder.Symbol(orderRequest.Symbol)
+	createOrder.Side(futures.SideType(orderRequest.Side))
+	createOrder.Type(futures.OrderType(orderRequest.Type))
+	if orderRequest.PositionSide != "" {
+		createOrder.PositionSide(futures.PositionSideType(orderRequest.PositionSide))
 	}
-	if reduceOnly != "" {
-		bReduceOnly, err := strconv.ParseBool(reduceOnly)
-		if err == nil {
-			createOrder.ReduceOnly(bReduceOnly)
-		}
+	if orderRequest.ReduceOnly != false {
+		createOrder.ReduceOnly(orderRequest.ReduceOnly)
 	}
-	if quantity != "" {
-		createOrder.Quantity(quantity)
+	if orderRequest.Quantity != 0 {
+		createOrder.Quantity(orderRequest.Quantity)
 	}
-	if price != "" {
-		createOrder.Price(price)
+	if orderRequest.Price != 0 {
+		createOrder.Price(orderRequest.Price)
 	}
-	if newClientOrderId != "" {
-		createOrder.NewClientOrderID(newClientOrderId)
+	if orderRequest.NewClientOrderId != "" {
+		createOrder.NewClientOrderID(orderRequest.NewClientOrderId)
 	}
-	if stopPrice != "" {
-		createOrder.StopPrice(stopPrice)
+	if orderRequest.StopPrice != 0 {
+		createOrder.StopPrice(orderRequest.StopPrice)
 	}
-	if closePosition != "" {
-		bClosePosition, err := strconv.ParseBool(closePosition)
-		if err == nil {
-			createOrder.ClosePosition(bClosePosition)
-		}
+	if orderRequest.ClosePosition != false {
+		createOrder.ClosePosition(orderRequest.ClosePosition)
 	}
-	if activationPrice != "" {
-		createOrder.ActivationPrice(activationPrice)
+	if orderRequest.ActivationPrice != 0 {
+		createOrder.ActivationPrice(orderRequest.ActivationPrice)
 	}
-	if callbackRate != "" {
-		createOrder.CallbackRate(callbackRate)
+	if orderRequest.CallbackRate != 0 {
+		createOrder.CallbackRate(orderRequest.CallbackRate)
 	}
-	if timeInForce != "" {
-		createOrder.TimeInForce(futures.TimeInForceType(timeInForce))
+	if orderRequest.TimeInForce != "" {
+		createOrder.TimeInForce(futures.TimeInForceType(orderRequest.TimeInForce))
 	}
-	if workingType != "" {
-		createOrder.WorkingType(futures.WorkingType(workingType))
+	if orderRequest.WorkingType != "" {
+		createOrder.WorkingType(futures.WorkingType(orderRequest.WorkingType))
 	}
-	if newOrderRespType != "" {
-		createOrder.NewOrderRespType(futures.NewOrderRespType(newOrderRespType))
+	if orderRequest.NewOrderRespType != "" {
+		createOrder.NewOrderRespType(futures.NewOrderRespType(orderRequest.NewOrderRespType))
 	}
 
 	list, err := createOrder.Do(data.NewContext())
@@ -526,18 +507,19 @@ func ChangeLeverageService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	symbol := c.Query("symbol")
-	leverage, err := strconv.Atoi(c.Query("leverage"))
 
-	mylog.Logger.Info().Msgf("[Task Futures] ChangeLeverageService request param: %v, %v, %v",
-		userID, symbol, leverage)
-
-	if symbol == "" || err != nil {
+	var leverageRequest data.LeverageRequest
+	if err := c.ShouldBindJSON(&leverageRequest); err != nil {
+		mylog.Logger.Error().Msgf("[Task Futures] ChangeLeverageService request param err: %v, %v",
+			userID, err)
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] ChangeLeverageService request param: %v, %v",
+		userID, leverageRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
@@ -548,8 +530,8 @@ func ChangeLeverageService(c *gin.Context) {
 	}
 
 	changeLeverage := client.NewChangeLeverageService()
-	changeLeverage.Symbol(symbol)
-	changeLeverage.Leverage(leverage)
+	changeLeverage.Symbol(leverageRequest.Symbol)
+	changeLeverage.Leverage(leverageRequest.Leverage)
 
 	list, err := changeLeverage.Do(data.NewContext())
 	if err != nil {
@@ -574,18 +556,19 @@ func ChangeMarginTypeService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	symbol := c.Query("symbol")
-	marginType := c.Query("marginType")
 
-	mylog.Logger.Info().Msgf("[Task Futures] ChangeMarginTypeService request param: %v, %v, %v",
-		userID, symbol, marginType)
-
-	if symbol == "" || marginType == "" {
+	var marginTypeRequest data.MarginTypeRequest
+	if err := c.ShouldBindJSON(&marginTypeRequest); err != nil {
+		mylog.Logger.Error().Msgf("[Task Futures] ChangeMarginTypeService request param err: %v, %v",
+			userID, err)
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] ChangeMarginTypeService request param: %v, %v",
+		userID, marginTypeRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
@@ -596,8 +579,8 @@ func ChangeMarginTypeService(c *gin.Context) {
 	}
 
 	changeMarginType := client.NewChangeMarginTypeService()
-	changeMarginType.Symbol(symbol)
-	changeMarginType.MarginType(futures.MarginType(marginType))
+	changeMarginType.Symbol(marginTypeRequest.Symbol)
+	changeMarginType.MarginType(futures.MarginType(marginTypeRequest.MarginType))
 
 	err = changeMarginType.Do(data.NewContext())
 	if err != nil {
@@ -622,20 +605,19 @@ func UpdatePositionMarginService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	symbol := c.Query("symbol")
-	positionSide := c.Query("positionSide")
-	amount := c.Query("amount")
-	iType, err := strconv.Atoi(c.Query("type"))
 
-	mylog.Logger.Info().Msgf("[Task Futures] UpdatePositionMarginService request param: %v, %v, %v, %v, %v",
-		userID, symbol, positionSide, amount, iType)
-
-	if symbol == "" || amount == "" || err != nil {
+	var positionMarginRequest data.PositionMarginRequest
+	if err := c.ShouldBindJSON(&positionMarginRequest); err != nil {
+		mylog.Logger.Info().Msgf("[Task Futures] UpdatePositionMarginService request param err: %v, %v",
+			userID, err)
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] UpdatePositionMarginService request param: %v, %v",
+		userID, positionMarginRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
@@ -646,11 +628,11 @@ func UpdatePositionMarginService(c *gin.Context) {
 	}
 
 	updatePositionMargin := client.NewUpdatePositionMarginService()
-	updatePositionMargin.Symbol(symbol)
-	updatePositionMargin.Amount(amount)
-	updatePositionMargin.Type(iType)
-	if positionSide != "" {
-		updatePositionMargin.PositionSide(futures.PositionSideType(positionSide))
+	updatePositionMargin.Symbol(positionMarginRequest.Symbol)
+	updatePositionMargin.Amount(positionMarginRequest.Amount)
+	updatePositionMargin.Type(positionMarginRequest.Type)
+	if positionMarginRequest.PositionSide != "" {
+		updatePositionMargin.PositionSide(futures.PositionSideType(positionMarginRequest.PositionSide))
 	}
 
 	err = updatePositionMargin.Do(data.NewContext())

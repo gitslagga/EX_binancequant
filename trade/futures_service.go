@@ -9,7 +9,7 @@ import (
 type FuturesTransferService struct {
 	c            *Client
 	asset        string
-	amount       string
+	amount       float64
 	transferType int
 }
 
@@ -20,7 +20,7 @@ func (s *FuturesTransferService) Asset(asset string) *FuturesTransferService {
 }
 
 // Amount the amount to be transferred
-func (s *FuturesTransferService) Amount(amount string) *FuturesTransferService {
+func (s *FuturesTransferService) Amount(amount float64) *FuturesTransferService {
 	s.amount = amount
 	return s
 }

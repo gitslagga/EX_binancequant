@@ -5,7 +5,6 @@ import (
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
-	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -178,21 +177,19 @@ func FuturesTransferService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	asset := c.Query("asset")
-	amount := c.Query("amount")
 
-	var fType trade.FuturesTransferType
-	err := json.Unmarshal([]byte(c.Query("type")), &fType)
-
-	mylog.Logger.Info().Msgf("[Task Account] FuturesTransferService request param: %v, %v, %v, %v",
-		userID, asset, amount, fType)
-
-	if asset == "" || amount == "" || err != nil {
+	var transferRequest data.TransferRequest
+	if err := c.ShouldBindJSON(&transferRequest); err != nil {
+		mylog.Logger.Error().Msgf("[Task Account] FuturesTransferService request param error: %v, %v",
+			userID, err)
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Account] FuturesTransferService request param: %v, %v",
+		userID, transferRequest)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
@@ -203,9 +200,9 @@ func FuturesTransferService(c *gin.Context) {
 	}
 
 	futuresTransfer := client.NewFuturesTransferService()
-	futuresTransfer.Asset(asset)
-	futuresTransfer.Amount(amount)
-	futuresTransfer.Type(fType)
+	futuresTransfer.Asset(transferRequest.Asset)
+	futuresTransfer.Amount(transferRequest.Amount)
+	futuresTransfer.Type(trade.FuturesTransferType(transferRequest.Type))
 
 	list, err := futuresTransfer.Do(data.NewContext())
 	if err != nil {
@@ -333,24 +330,19 @@ func CreateWithdrawService(c *gin.Context) {
 	out := data.CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	coin := c.Query("coin")
-	withdrawOrderId := c.Query("withdrawOrderId")
-	network := c.Query("network")
-	address := c.Query("address")
-	addressTag := c.Query("addressTag")
-	amount, err := strconv.ParseFloat(c.Query("amount"), 64)
-	transactionFeeFlag := c.Query("transactionFeeFlag")
-	name := c.Query("name")
 
-	mylog.Logger.Info().Msgf("[Task Account] CreateWithdrawService request param: %v, %v, %v, %v, %v, %v, %v, %v, %v, %v",
-		userID, coin, withdrawOrderId, network, address, addressTag, amount, transactionFeeFlag, name, err)
-
-	if coin == "" || address == "" || err != nil {
+	var withdrawRequest data.WithdrawRequest
+	if err := c.ShouldBindJSON(&withdrawRequest); err != nil {
+		mylog.Logger.Error().Msgf("[Task Account] CreateWithdrawService request param err: %v, %v",
+			userID, err)
 		out.ErrorCode = data.EC_PARAMS_ERR
 		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Account] CreateWithdrawService request param: %v, %v",
+		userID, withdrawRequest)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
@@ -361,27 +353,24 @@ func CreateWithdrawService(c *gin.Context) {
 	}
 
 	createWithdraw := client.NewCreateWithdrawService()
-	createWithdraw.Coin(coin)
-	createWithdraw.Address(address)
-	createWithdraw.Amount(amount)
+	createWithdraw.Coin(withdrawRequest.Coin)
+	createWithdraw.Address(withdrawRequest.Address)
+	createWithdraw.Amount(withdrawRequest.Amount)
 
-	if withdrawOrderId != "" {
-		createWithdraw.WithdrawOrderId(withdrawOrderId)
+	if withdrawRequest.WithdrawOrderId != "" {
+		createWithdraw.WithdrawOrderId(withdrawRequest.WithdrawOrderId)
 	}
-	if network != "" {
-		createWithdraw.Network(network)
+	if withdrawRequest.Network != "" {
+		createWithdraw.Network(withdrawRequest.Network)
 	}
-	if addressTag != "" {
-		createWithdraw.AddressTag(addressTag)
+	if withdrawRequest.AddressTag != "" {
+		createWithdraw.AddressTag(withdrawRequest.AddressTag)
 	}
-	if transactionFeeFlag != "" {
-		bTransactionFeeFlag, err := strconv.ParseBool(transactionFeeFlag)
-		if err == nil {
-			createWithdraw.TransactionFeeFlag(bTransactionFeeFlag)
-		}
+	if withdrawRequest.TransactionFeeFlag != false {
+		createWithdraw.TransactionFeeFlag(withdrawRequest.TransactionFeeFlag)
 	}
-	if name != "" {
-		createWithdraw.Name(name)
+	if withdrawRequest.Name != "" {
+		createWithdraw.Name(withdrawRequest.Name)
 	}
 
 	err = createWithdraw.Do(data.NewContext())

@@ -13,14 +13,14 @@ type CreateOrderService struct {
 	positionSide     *PositionSideType
 	orderType        OrderType
 	timeInForce      *TimeInForceType
-	quantity         *string
+	quantity         *float64
 	reduceOnly       *bool
-	price            *string
+	price            *float64
 	newClientOrderID *string
-	stopPrice        *string
+	stopPrice        *float64
 	workingType      *WorkingType
-	activationPrice  *string
-	callbackRate     *string
+	activationPrice  *float64
+	callbackRate     *float64
 	closePosition    *bool
 	newOrderRespType *NewOrderRespType
 }
@@ -56,7 +56,7 @@ func (s *CreateOrderService) TimeInForce(timeInForce TimeInForceType) *CreateOrd
 }
 
 // Quantity set quantity
-func (s *CreateOrderService) Quantity(quantity string) *CreateOrderService {
+func (s *CreateOrderService) Quantity(quantity float64) *CreateOrderService {
 	s.quantity = &quantity
 	return s
 }
@@ -68,7 +68,7 @@ func (s *CreateOrderService) ReduceOnly(reduceOnly bool) *CreateOrderService {
 }
 
 // Price set price
-func (s *CreateOrderService) Price(price string) *CreateOrderService {
+func (s *CreateOrderService) Price(price float64) *CreateOrderService {
 	s.price = &price
 	return s
 }
@@ -80,7 +80,7 @@ func (s *CreateOrderService) NewClientOrderID(newClientOrderID string) *CreateOr
 }
 
 // StopPrice set stopPrice
-func (s *CreateOrderService) StopPrice(stopPrice string) *CreateOrderService {
+func (s *CreateOrderService) StopPrice(stopPrice float64) *CreateOrderService {
 	s.stopPrice = &stopPrice
 	return s
 }
@@ -92,13 +92,13 @@ func (s *CreateOrderService) WorkingType(workingType WorkingType) *CreateOrderSe
 }
 
 // ActivationPrice set activationPrice
-func (s *CreateOrderService) ActivationPrice(activationPrice string) *CreateOrderService {
+func (s *CreateOrderService) ActivationPrice(activationPrice float64) *CreateOrderService {
 	s.activationPrice = &activationPrice
 	return s
 }
 
 // CallbackRate set callbackRate
-func (s *CreateOrderService) CallbackRate(callbackRate string) *CreateOrderService {
+func (s *CreateOrderService) CallbackRate(callbackRate float64) *CreateOrderService {
 	s.callbackRate = &callbackRate
 	return s
 }

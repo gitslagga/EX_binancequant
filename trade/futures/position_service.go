@@ -96,7 +96,7 @@ type UpdatePositionMarginService struct {
 	c            *Client
 	symbol       string
 	positionSide *PositionSideType
-	amount       string
+	amount       float64
 	actionType   int
 }
 
@@ -113,7 +113,7 @@ func (s *UpdatePositionMarginService) PositionSide(positionSide PositionSideType
 }
 
 // Amount set position margin amount
-func (s *UpdatePositionMarginService) Amount(amount string) *UpdatePositionMarginService {
+func (s *UpdatePositionMarginService) Amount(amount float64) *UpdatePositionMarginService {
 	s.amount = amount
 	return s
 }

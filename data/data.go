@@ -69,39 +69,58 @@ func NewContext() context.Context {
 }
 
 /*********************************** trading *************************************/
-type OrderParam struct {
-	ClientOID    string `json:"client_oid"`
-	InstrumentID string `json:"instrument_id" binding:"required"`
-	Type         string `json:"type" binding:"required"`
-	Price        string `json:"price"`
-	Size         string `json:"size" binding:"required"`
-	OrderType    string `json:"order_type"`
-	MatchPrice   string `json:"match_price"`
+type TransferRequest struct {
+	Asset  string  `json:"asset" binding:"required"`
+	Amount float64 `json:"amount" binding:"required"`
+	Type   int     `json:"type" binding:"required"`
 }
 
-const (
-	FuturesContractType int = 3
-	SwapContractType    int = 5
-)
-
-type ResponseFindAccount struct {
-	RespCode int         `json:"respCode"`
-	RespDesc string      `json:"respDesc"`
-	RespData accountInfo `json:"respData"`
+type WithdrawRequest struct {
+	Coin               string  `json:"coin" binding:"required"`
+	Address            string  `json:"address" binding:"required"`
+	Amount             float64 `json:"amount" binding:"required"`
+	WithdrawOrderId    string  `json:"withdrawOrderId"`
+	Network            string  `json:"network"`
+	AddressTag         string  `json:"addressTag"`
+	TransactionFeeFlag bool    `json:"transactionFeeFlag"`
+	Name               string  `json:"name"`
 }
 
-type accountInfo struct {
-	AssetsID     int     `json:"assetsId"`
-	UserID       int     `json:"userId"`
-	CurrencyID   int     `json:"currencyId"`
-	CurrencyName string  `json:"currencyName"`
-	Available    float64 `json:"available"`
-	Freeze       float64 `json:"freeze"`
-	Total        float64 `json:"total"`
-	Give         float64 `json:"give"`
-	CreateTime   string  `json:"createTime"`
-	UpdateTime   string  `json:"updateTime"`
-	Version      int     `json:"version"`
-	IsLock       int     `json:"isLock"`
-	UsdReal      int     `json:"usdReal"`
+type PositionModeRequest struct {
+	DualSidePosition bool `json:"dualSidePosition"`
+}
+
+type OrderRequest struct {
+	Symbol           string  `json:"symbol" binding:"required"`
+	Side             string  `json:"side" binding:"required"`
+	Type             string  `json:"type" binding:"required"`
+	PositionSide     string  `json:"positionSide"`
+	ReduceOnly       bool    `json:"reduceOnly"`
+	Quantity         float64 `json:"quantity"`
+	Price            float64 `json:"price"`
+	NewClientOrderId string  `json:"newClientOrderId"`
+	StopPrice        float64 `json:"stopPrice"`
+	ClosePosition    bool    `json:"closePosition"`
+	ActivationPrice  float64 `json:"activationPrice"`
+	CallbackRate     float64 `json:"callbackRate"`
+	TimeInForce      string  `json:"timeInForce"`
+	WorkingType      string  `json:"workingType"`
+	NewOrderRespType string  `json:"newOrderRespType"`
+}
+
+type LeverageRequest struct {
+	Symbol   string `json:"symbol" binding:"required"`
+	Leverage int    `json:"leverage" binding:"required"`
+}
+
+type MarginTypeRequest struct {
+	Symbol     string `json:"symbol" binding:"required"`
+	MarginType string `json:"marginType" binding:"required"`
+}
+
+type PositionMarginRequest struct {
+	Symbol       string  `json:"symbol" binding:"required"`
+	Amount       float64 `json:"amount"  binding:"required"`
+	Type         int     `json:"type" binding:"required"`
+	PositionSide string  `json:"positionSide"`
 }
