@@ -94,14 +94,14 @@ type ResponseDeposit []Deposit
 
 // Deposit define deposit info
 type Deposit struct {
-	Address    string  `json:"address"`
-	AddressTag string  `json:"addressTag"`
-	Network    string  `json:"network"`
-	InsertTime int64   `json:"insertTime"`
-	Amount     float64 `json:"amount"`
-	Coin       string  `json:"coin"`
-	Status     int     `json:"status"`
-	TxID       string  `json:"txId"`
+	Address    string `json:"address"`
+	AddressTag string `json:"addressTag"`
+	Network    string `json:"network"`
+	InsertTime int64  `json:"insertTime"`
+	Amount     string `json:"amount"`
+	Coin       string `json:"coin"`
+	Status     int    `json:"status"`
+	TxID       string `json:"txId"`
 }
 
 // DepositsAddressService deposits address

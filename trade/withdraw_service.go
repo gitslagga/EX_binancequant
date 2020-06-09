@@ -184,16 +184,16 @@ type WithdrawHistoryResponse []Withdraw
 
 // Withdraw define withdraw info
 type Withdraw struct {
-	Amount          float64 `json:"amount"`
-	Address         string  `json:"address"`
-	Coin            string  `json:"coin"`
-	TxID            string  `json:"txId"`
-	ApplyTime       int64   `json:"applyTime"`
-	Status          int     `json:"status"`
-	Id              string  `json:"id"`
-	WithdrawOrderId string  `json:"withdrawOrderId"`
-	Network         string  `json:"network"`
-	TransferType    string  `json:"transferType"`
+	Amount          string `json:"amount"`
+	Address         string `json:"address"`
+	Coin            string `json:"coin"`
+	TxID            string `json:"txId"`
+	ApplyTime       string `json:"applyTime"`
+	Status          int    `json:"status"`
+	Id              string `json:"id"`
+	WithdrawOrderId string `json:"withdrawOrderId"`
+	Network         string `json:"network"`
+	TransferType    int    `json:"transferType"`
 }
 
 // Discard
