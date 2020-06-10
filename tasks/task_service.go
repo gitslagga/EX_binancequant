@@ -11,9 +11,18 @@ import (
 )
 
 func InitRouter(r *gin.Engine) {
+	/****************************** 永续合约行情接口 *********************************/
+	r.GET("/api/market/time", ServerTimeService)
+	r.GET("/api/market/depth", DepthService)
+	r.GET("/api/market/aggTrades", AggTradesService)
+	r.GET("/api/market/klines", KlinesService)
+	r.GET("/api/market/premiumIndex", PremiumIndexService)
+	r.GET("/api/market/ticker/24hr", ListPriceChangeStatsService)
+	r.GET("/api/market/ticker/price", ListPricesService)
+
 	route := r.Use(beforeHandler())
 
-	/****************************** 永续合约 *********************************/
+	/****************************** 永续合约认证接口 *********************************/
 	route.GET("/api/account/deposits/list", ListDepositsService)
 	route.GET("/api/account/deposits/address", DepositsAddressService)
 	route.GET("/api/account/spot", SpotAccountService)
