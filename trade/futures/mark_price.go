@@ -27,7 +27,7 @@ func (s *PremiumIndexService) Do(ctx context.Context, opts ...RequestOption) (re
 		secType:  secTypeNone,
 	}
 	if s.symbol != nil {
-		r.setParam("symbol", s.symbol)
+		r.setParam("symbol", *s.symbol)
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
