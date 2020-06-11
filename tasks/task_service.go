@@ -51,9 +51,9 @@ func InitRouter(r *gin.Engine) {
 	route.GET("/api/futures/income", GetIncomeHistoryService)
 	route.GET("/api/futures/leverageBracket", GetLeverageBracketService)
 
-	route.POST("/api/futures/listenKey ", StartUserStreamService)
-	route.PUT("/api/futures/listenKey ", KeepaliveUserStreamService)
-	route.DELETE("/api/futures/listenKey ", CloseUserStreamService)
+	route.POST("/api/futures/listenKey", StartUserStreamService)
+	route.PUT("/api/futures/listenKey", KeepaliveUserStreamService)
+	route.DELETE("/api/futures/listenKey", CloseUserStreamService)
 }
 
 func InitFutures() {
