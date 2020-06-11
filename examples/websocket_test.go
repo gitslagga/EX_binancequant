@@ -125,3 +125,33 @@ func Test_UserData(t *testing.T) {
 	}
 	<-doneC
 }
+
+func Test_MarketStat(t *testing.T) {
+	wsMarketStatHandler := func(event *futures.WsMarketStatEvent) {
+		fmt.Println(event)
+	}
+	errHandler := func(err error) {
+		fmt.Println(err)
+	}
+	doneC, _, err := futures.WsMarketStatServe("BTCUSDT", wsMarketStatHandler, errHandler)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	<-doneC
+}
+
+func Test_MarketsStat(t *testing.T) {
+	wsAllMarketsStatHandler := func(event futures.WsAllMarketsStatEvent) {
+		fmt.Println(event[0])
+	}
+	errHandler := func(err error) {
+		fmt.Println(err)
+	}
+	doneC, _, err := futures.WsAllMarketsStatServe(wsAllMarketsStatHandler, errHandler)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	<-doneC
+}

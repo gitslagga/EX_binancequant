@@ -327,13 +327,8 @@ type WsMarketStatEvent struct {
 	PriceChange        string `json:"p"`
 	PriceChangePercent string `json:"P"`
 	WeightedAvgPrice   string `json:"w"`
-	PrevClosePrice     string `json:"x"`
 	LastPrice          string `json:"c"`
 	CloseQty           string `json:"Q"`
-	BidPrice           string `json:"b"`
-	BidQty             string `json:"B"`
-	AskPrice           string `json:"a"`
-	AskQty             string `json:"A"`
 	OpenPrice          string `json:"o"`
 	HighPrice          string `json:"h"`
 	LowPrice           string `json:"l"`
