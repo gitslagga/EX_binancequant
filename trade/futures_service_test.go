@@ -21,7 +21,7 @@ func (s *futuresTransferTestSuite) TestTransfer() {
 	s.mockDo(data, nil)
 	defer s.assertDo()
 	asset := "BTC"
-	amount := "1.000"
+	amount := 1.000
 	transferType := FuturesTransferTypeToFutures
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setFormParams(params{

@@ -20,7 +20,7 @@ func (s *depositServiceTestSuite) TestListDeposits() {
         "depositList": [
             {
                 "insertTime": 1508198532000,
-                "amount": 0.04670582,
+                "amount": "0.04670582",
                 "asset": "ETH",
                 "status": 1,
                 "TxID": "b3c6219639c8ae3f9cf010cdc24fw7f7yt8j1e063f9b4bd1a05cb44c4b6e2509"
@@ -47,7 +47,7 @@ func (s *depositServiceTestSuite) TestListDeposits() {
 	r.Len(deposits, 1)
 	e := &Deposit{
 		InsertTime: 1508198532000,
-		Amount:     0.04670582,
+		Amount:     "0.04670582",
 		Coin:       "ETH",
 		Status:     1,
 		TxID:       "b3c6219639c8ae3f9cf010cdc24fw7f7yt8j1e063f9b4bd1a05cb44c4b6e2509",

@@ -24,7 +24,7 @@ func (s *withdrawServiceTestSuite) TestCreateWithdraw() {
 
 	coin := "ETH"
 	address := "myaddress"
-	amount := "0.01"
+	amount := 0.01
 	name := "eth"
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setParams(params{
@@ -45,18 +45,18 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
 	data := []byte(`{
         "withdrawList": [
             {
-                "amount": 1,
+                "amount": "1"",
                 "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
                 "coin": "ETH",
-                "applyTime": 1508198532000,
+                "applyTime": "1508198532000"",
                 "status": 4
             },
             {
-                "amount": 0.005,
+                "amount": "0.005"",
                 "address": "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
                 "txId": "0x80aaabed54bdab3f6de5868f89929a2371ad21d666f20f7393d1a3389fad95a1",
                 "coin": "ETH",
-                "applyTime": 1508198532000,
+                "applyTime": "1508198532000"",
                 "status": 4
             }
         ],
@@ -86,18 +86,18 @@ func (s *withdrawServiceTestSuite) TestListWithdraws() {
 	r.NoError(err)
 	s.Len(withdraws, 2)
 	e1 := &Withdraw{
-		Amount:    1,
+		Amount:    "1",
 		Address:   "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
 		Coin:      "ETH",
-		ApplyTime: 1508198532000,
+		ApplyTime: "1508198532000",
 		Status:    4,
 	}
 	e2 := &Withdraw{
-		Amount:    0.005,
+		Amount:    "0.005",
 		Address:   "0x6915f16f8791d0a1cc2bf47c13a6b2a92000504b",
 		TxID:      "0x80aaabed54bdab3f6de5868f89929a2371ad21d666f20f7393d1a3389fad95a1",
 		Coin:      "ETH",
-		ApplyTime: 1508198532000,
+		ApplyTime: "1508198532000",
 		Status:    4,
 	}
 	s.assertWithdrawEqual(e1, &(*withdraws)[0])
