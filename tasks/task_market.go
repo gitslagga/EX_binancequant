@@ -276,3 +276,26 @@ func ListPricesService(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 	return
 }
+
+/**
+获取交易规则和交易对
+*/
+func ExchangeInfoService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	list, err := trade.BAExFuturesClient.NewExchangeInfoService().Do(data.NewContext())
+
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}

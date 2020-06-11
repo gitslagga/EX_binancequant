@@ -933,3 +933,103 @@ func GetLeverageBracketService(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 	return
 }
+
+/**
+生成listenKey (USER_STREAM)
+*/
+func StartUserStreamService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Futures] StartUserStreamService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	list, err := client.NewStartUserStreamService().Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+延长listenKey有效期 (USER_STREAM)
+*/
+func KeepaliveUserStreamService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Futures] KeepaliveUserStreamService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	err = client.NewKeepaliveUserStreamService().Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+关闭listenKey (USER_STREAM)
+*/
+func CloseUserStreamService(c *gin.Context) {
+	out := data.CommonResp{}
+
+	userID := c.MustGet("user_id").(string)
+
+	mylog.Logger.Info().Msgf("[Task Futures] CloseUserStreamService request param: %v", userID)
+
+	client, err := db.GetFuturesClientByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	err = client.NewCloseUserStreamService().Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+
+	c.JSON(http.StatusOK, out)
+	return
+}
