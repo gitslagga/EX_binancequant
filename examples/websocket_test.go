@@ -9,8 +9,6 @@ import (
 
 func Test_Depth(t *testing.T) {
 	wsDepthHandler := func(event *futures.WsDepthEvent) {
-		fmt.Println(event.Asks[0].Price)
-		fmt.Println(event.Asks[0].Quantity)
 		fmt.Println(event)
 	}
 	errHandler := func(err error) {
@@ -32,8 +30,6 @@ func Test_Depth(t *testing.T) {
 
 func Test_PartialDepth(t *testing.T) {
 	wsDepthHandler := func(event *futures.WsDepthEvent) {
-		fmt.Println(event.Asks[0].Price)
-		fmt.Println(event.Asks[0].Quantity)
 		fmt.Println(event)
 	}
 	errHandler := func(err error) {
@@ -50,8 +46,6 @@ func Test_PartialDepth(t *testing.T) {
 
 func Test_CombinedPartial(t *testing.T) {
 	wsDepthHandler := func(event *futures.WsDepthEvent) {
-		fmt.Println(event.Asks[0].Price)
-		fmt.Println(event.Asks[0].Quantity)
 		fmt.Println(event)
 	}
 	errHandler := func(err error) {

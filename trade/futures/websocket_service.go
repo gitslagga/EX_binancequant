@@ -116,6 +116,7 @@ func WsCombinedPartialDepthServe(symbolLevels map[string]string, handler WsDepth
 			return
 		}
 		event := new(WsDepthEvent)
+		j = j.Get("data")
 		event.Event = j.Get("e").MustString()
 		event.Time = j.Get("E").MustInt64()
 		event.TradeTime = j.Get("T").MustInt64()
