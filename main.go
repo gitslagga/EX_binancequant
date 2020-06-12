@@ -8,6 +8,7 @@ import (
 	"EX_binancequant/proxy"
 	"EX_binancequant/tasks"
 	"EX_binancequant/trade"
+	"EX_binancequant/websocket"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -52,15 +53,25 @@ func main() {
 	r := gin.New()
 	tasks.InitRouter(r)
 
-	srv := &http.Server{
-		Addr:    config.Config.Server.Address,
-		Handler: r,
-	}
+	go func() {
+		http.HandleFunc("/ws", websocket.WSHandler)
+
+		// service connections
+		err := http.ListenAndServe(config.Config.Server.WSAddress, nil)
+		if err != nil && err != http.ErrServerClosed {
+			fmt.Printf("websocket listen err:%v\n", err)
+		}
+	}()
 
 	go func() {
+		srv := &http.Server{
+			Addr:    config.Config.Server.Address,
+			Handler: r,
+		}
+
 		// service connections
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Printf("listen err:%v\n", err)
+			fmt.Printf("server listen err:%v\n", err)
 		}
 	}()
 	fmt.Println("the server start succeed!!!")

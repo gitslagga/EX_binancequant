@@ -1,5 +1,6 @@
 [server]
 address = "0.0.0.0:8000"
+wsAddress = "0.0.0.0:9443"
 location = "Asia/Singapore"
 baseLogPath = "./log"
 serverName = "quantity"

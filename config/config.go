@@ -22,6 +22,7 @@ type tomlConfig struct {
 
 type serverConfig struct {
 	Address     string
+	WSAddress   string
 	Location    string
 	BaseLogPath string
 	ServerName  string
