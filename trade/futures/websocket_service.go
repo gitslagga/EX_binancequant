@@ -241,7 +241,7 @@ type WsAggTradeEvent struct {
 	Placeholder           bool   `json:"M"` // add this field to avoid case insensitive unmarshaling
 }
 
-// WsMarkPriceHandler handle websocket binance event
+// WsMarkPriceHandler handle websocket mark price event
 type WsMarkPriceHandler func(event *WsMarkPriceEvent)
 
 // WsMarkPriceServe serve websocket handler with a symbol
@@ -259,6 +259,28 @@ func WsMarkPriceServe(symbol string, handler WsMarkPriceHandler, errHandler ErrH
 	}
 	return wsServe(cfg, wsHandler, errHandler)
 }
+
+// WsAllMarkPriceHandler handle websocket that push all mark price event
+type WsAllMarkPriceHandler func(event WsAllMarkPriceEvent)
+
+// WsAllMarkPriceServe serve websocket that push all mark price every second
+func WsAllMarkPriceServe(handler WsAllMarkPriceHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/!markPrice@arr", baseURL)
+	cfg := newWsConfig(endpoint)
+	wsHandler := func(message []byte) {
+		var event WsAllMarkPriceEvent
+		err := json.Unmarshal(message, &event)
+		if err != nil {
+			errHandler(err)
+			return
+		}
+		handler(event)
+	}
+	return wsServe(cfg, wsHandler, errHandler)
+}
+
+// WsAllMarkPriceEvent define array of websocket mark price events
+type WsAllMarkPriceEvent []*WsMarkPriceEvent
 
 // WsMarkPriceEvent define websocket binance event
 type WsMarkPriceEvent struct {

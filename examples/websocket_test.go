@@ -110,6 +110,21 @@ func Test_MarkPrice(t *testing.T) {
 	<-doneC
 }
 
+func Test_MarksPrice(t *testing.T) {
+	wsAllMarkPriceHandler := func(event futures.WsAllMarkPriceEvent) {
+		fmt.Println(event[0])
+	}
+	errHandler := func(err error) {
+		fmt.Println(err)
+	}
+	doneC, _, err := futures.WsAllMarkPriceServe(wsAllMarkPriceHandler, errHandler)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	<-doneC
+}
+
 func Test_UserData(t *testing.T) {
 	listenKey := "pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1"
 	wsHandler := func(message []byte) {
