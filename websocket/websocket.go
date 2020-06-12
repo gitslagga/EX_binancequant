@@ -2,7 +2,9 @@ package websocket
 
 import (
 	"EX_binancequant/mylog"
+	"encoding/json"
 	"errors"
+	"github.com/bitly/go-simplejson"
 	"net/http"
 	"sync"
 	"time"
@@ -34,6 +36,9 @@ type wsConnection struct {
 	isClosed  bool
 	closeChan chan byte // 关闭通知
 }
+
+//数据发送类型
+var MessageType = websocket.TextMessage
 
 func (wsConn *wsConnection) wsReadLoop() {
 	for {
@@ -81,7 +86,7 @@ func (wsConn *wsConnection) procLoop() {
 	go func() {
 		for {
 			time.Sleep(60 * time.Second)
-			if err := wsConn.wsWrite(websocket.TextMessage, []byte("heartbeat from server")); err != nil {
+			if err := wsConn.wsWrite(MessageType, []byte("heartbeat from server")); err != nil {
 				mylog.DataLogger.Error().Msgf("[Websocket] heartbeat write fail err: %v", err)
 				wsConn.wsClose()
 				break
@@ -94,14 +99,53 @@ func (wsConn *wsConnection) procLoop() {
 		msg, err := wsConn.wsRead()
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
+			wsConn.wsClose()
 			break
 		}
 
-		mylog.DataLogger.Info().Msgf("[Websocket] read message data: %v, %v", msg.messageType, string(msg.data))
+		mylog.DataLogger.Info().Msgf("[Websocket] read message data: %v", string(msg.data))
 
-		err = wsConn.wsWrite(msg.messageType, msg.data)
+		j, err := simplejson.NewJson(msg.data)
+		if err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
+			wsConn.wsClose()
+			break
+		}
+
+		jsonRequest := new(JsonRequest)
+		jsonResponse := new(JsonResponse)
+		jsonRequest.Method = j.Get("method").MustString()
+		jsonRequest.Symbol = j.Get("symbol").MustString()
+		jsonRequest.Levels = j.Get("levels").MustString()
+		jsonRequest.ListenKey = j.Get("listenKey").MustString()
+		jsonRequest.ID = j.Get("id").MustInt64()
+
+		jsonResponse.Result = ""
+		jsonResponse.ID = jsonRequest.ID
+		response, err := json.Marshal(jsonResponse)
+		if err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
+			wsConn.wsClose()
+			break
+		}
+
+		switch jsonRequest.Method {
+		case "normal":
+			// 推送BAMessageData
+			go InitNormalPush(wsConn, jsonRequest.Symbol, jsonRequest.Levels)
+		case "kline":
+			go PushKline(wsConn, jsonRequest.Symbol, jsonRequest.Levels)
+		case "userData":
+			go PushUserData(wsConn, jsonRequest.ListenKey)
+		default:
+			mylog.DataLogger.Error().Msgf("[Websocket] read message param err")
+			jsonResponse.Result = "request message param err"
+		}
+
+		err = wsConn.wsWrite(msg.messageType, response)
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] write message fail err: %v", err)
+			wsConn.wsClose()
 			break
 		}
 	}
