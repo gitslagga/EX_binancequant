@@ -1,8 +1,8 @@
 package websocket
 
 import (
+	"EX_binancequant/mylog"
 	"errors"
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -80,9 +80,9 @@ func (wsConn *wsConnection) procLoop() {
 	// 启动一个gouroutine发送心跳
 	go func() {
 		for {
-			time.Sleep(2 * time.Second)
+			time.Sleep(60 * time.Second)
 			if err := wsConn.wsWrite(websocket.TextMessage, []byte("heartbeat from server")); err != nil {
-				fmt.Println("heartbeat fail")
+				mylog.DataLogger.Error().Msgf("[Websocket] heartbeat write fail err: %v", err)
 				wsConn.wsClose()
 				break
 			}
@@ -93,13 +93,15 @@ func (wsConn *wsConnection) procLoop() {
 	for {
 		msg, err := wsConn.wsRead()
 		if err != nil {
-			fmt.Println("read fail")
+			mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
 			break
 		}
-		fmt.Println(string(msg.data))
+
+		mylog.DataLogger.Info().Msgf("[Websocket] read message data: %v, %v", msg.messageType, string(msg.data))
+
 		err = wsConn.wsWrite(msg.messageType, msg.data)
 		if err != nil {
-			fmt.Println("write fail")
+			mylog.DataLogger.Error().Msgf("[Websocket] write message fail err: %v", err)
 			break
 		}
 	}
