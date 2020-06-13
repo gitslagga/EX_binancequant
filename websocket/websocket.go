@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/bitly/go-simplejson"
+	"github.com/gorilla/websocket"
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 // http升级websocket协议的配置
@@ -90,8 +89,19 @@ func (wsConn *wsConnection) procLoop() {
 			}
 
 			time.Sleep(60 * time.Second)
-			if err := wsConn.wsWrite(MessageType, []byte("heartbeat from server")); err != nil {
-				mylog.DataLogger.Error().Msgf("[Websocket] heartbeat write fail err: %v", err)
+
+			jsonResponse := new(JsonResponse)
+			jsonResponse.Result = "pong"
+			jsonResponse.ID = 0
+			response, err := json.Marshal(jsonResponse)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
+				wsConn.wsClose()
+				break
+			}
+
+			if err := wsConn.wsWrite(MessageType, response); err != nil {
+				mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
 				wsConn.wsClose()
 				break
 			}
