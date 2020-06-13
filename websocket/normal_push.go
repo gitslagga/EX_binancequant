@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 )
 
-func InitNormalPush(wsConn *wsConnection, symbol, levels string) {
+func InitNormalPush(wsConn *wsConnection, symbol, levels, listenKey string) {
 	go func() {
 		PushAllMarkPrice(wsConn)
 	}()
@@ -21,6 +21,9 @@ func InitNormalPush(wsConn *wsConnection, symbol, levels string) {
 	}()
 	go func() {
 		PushDepth(wsConn, symbol)
+	}()
+	go func() {
+		PushUserData(wsConn, listenKey)
 	}()
 }
 
