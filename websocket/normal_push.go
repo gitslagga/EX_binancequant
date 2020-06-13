@@ -6,36 +6,15 @@ import (
 	"encoding/json"
 )
 
-func InitNormalPush(wsConn *wsConnection, symbol, interval, listenKey string) {
-	go func() {
-		PushAllMarkPrice(wsConn)
-	}()
-	go func() {
-		PushKline(wsConn, symbol, interval)
-	}()
-	go func() {
-		PushAggTrade(wsConn, symbol)
-	}()
-	go func() {
-		PushAllMarketsStat(wsConn)
-	}()
-	go func() {
-		PushDepth(wsConn, symbol)
-	}()
-	go func() {
-		PushUserData(wsConn, listenKey)
-	}()
-}
-
 func PushDepth(wsConn *wsConnection, symbol string) {
 	wsDepthHandler := func(event *futures.WsDepthEvent) {
-		response, err := json.Marshal(event)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[PushDepth] json Marshal fail err: %v", err)
-			return
-		}
-
 		if !wsConn.isClosed {
+			response, err := json.Marshal(event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushDepth] json Marshal fail err: %v", err)
+				return
+			}
+
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushDepth] write message fail err: %v", err)
@@ -58,13 +37,13 @@ func PushDepth(wsConn *wsConnection, symbol string) {
 
 func PushDepthLevels(wsConn *wsConnection, symbol, levels string) {
 	wsDepthHandler := func(event *futures.WsDepthEvent) {
-		response, err := json.Marshal(event)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[PushDepthLevel] json Marshal fail err: %v", err)
-			return
-		}
-
 		if !wsConn.isClosed {
+			response, err := json.Marshal(event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushDepthLevel] json Marshal fail err: %v", err)
+				return
+			}
+
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushDepthLevel] write message fail err: %v", err)
@@ -87,13 +66,13 @@ func PushDepthLevels(wsConn *wsConnection, symbol, levels string) {
 
 func PushKline(wsConn *wsConnection, symbol, interval string) {
 	wsKlineHandler := func(event *futures.WsKlineEvent) {
-		response, err := json.Marshal(event)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[PushKline] json Marshal fail err: %v", err)
-			return
-		}
-
 		if !wsConn.isClosed {
+			response, err := json.Marshal(event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushKline] json Marshal fail err: %v", err)
+				return
+			}
+
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushKline] write message fail err: %v", err)
@@ -116,13 +95,13 @@ func PushKline(wsConn *wsConnection, symbol, interval string) {
 
 func PushKlineInterval(wsConn *wsConnection, symbol, interval string) {
 	wsKlineHandler := func(event *futures.WsKlineEvent) {
-		response, err := json.Marshal(event)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[PushKlineInterval] json Marshal fail err: %v", err)
-			return
-		}
-
 		if !wsConn.isClosed {
+			response, err := json.Marshal(event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushKlineInterval] json Marshal fail err: %v", err)
+				return
+			}
+
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushKlineInterval] write message fail err: %v", err)
@@ -145,13 +124,13 @@ func PushKlineInterval(wsConn *wsConnection, symbol, interval string) {
 
 func PushAggTrade(wsConn *wsConnection, symbol string) {
 	wsAggTradeHandler := func(event *futures.WsAggTradeEvent) {
-		response, err := json.Marshal(event)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[PushAggTrade] json Marshal fail err: %v", err)
-			return
-		}
-
 		if !wsConn.isClosed {
+			response, err := json.Marshal(event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushAggTrade] json Marshal fail err: %v", err)
+				return
+			}
+
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushAggTrade] write message fail err: %v", err)
@@ -198,13 +177,13 @@ func PushUserData(wsConn *wsConnection, listenKey string) {
 
 func PushAllMarkPrice(wsConn *wsConnection) {
 	wsAllMarkPrice := func(event futures.WsAllMarkPriceEvent) {
-		response, err := json.Marshal(event)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[PushAllMarkPrice] json Marshal fail err: %v", err)
-			return
-		}
-
 		if !wsConn.isClosed {
+			response, err := json.Marshal(event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushAllMarkPrice] json Marshal fail err: %v", err)
+				return
+			}
+
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushAllMarkPrice] write message fail err: %v", err)
@@ -227,13 +206,13 @@ func PushAllMarkPrice(wsConn *wsConnection) {
 
 func PushAllMarketsStat(wsConn *wsConnection) {
 	wsAllMarketsStatHandler := func(event futures.WsAllMarketsStatEvent) {
-		response, err := json.Marshal(event)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[PushAllMarketsStat] json Marshal fail err: %v", err)
-			return
-		}
-
 		if !wsConn.isClosed {
+			response, err := json.Marshal(event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushAllMarketsStat] json Marshal fail err: %v", err)
+				return
+			}
+
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushAllMarketsStat] write message fail err: %v", err)

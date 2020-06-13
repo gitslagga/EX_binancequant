@@ -151,7 +151,12 @@ func (wsConn *wsConnection) procLoop() {
 		switch jsonRequest.Method {
 		case "normal":
 			// 推送BasicMessageData
-			go InitNormalPush(wsConn, jsonRequest.Symbol, jsonRequest.Interval, jsonRequest.ListenKey)
+			go PushAllMarkPrice(wsConn)
+			go PushKline(wsConn, jsonRequest.Symbol, jsonRequest.Interval)
+			go PushAggTrade(wsConn, jsonRequest.Symbol)
+			go PushAllMarketsStat(wsConn)
+			go PushDepth(wsConn, jsonRequest.Symbol)
+			go PushUserData(wsConn, jsonRequest.ListenKey)
 		case "kline":
 			// 推送KlineMessageData
 			go PushKlineInterval(wsConn, jsonRequest.Symbol, jsonRequest.Interval)
