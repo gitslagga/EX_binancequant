@@ -3,6 +3,7 @@ package websocket
 type JsonRequest struct {
 	Method    string `json:"method"`
 	Symbol    string `json:"symbol"`
+	Interval  string ``
 	Levels    string `json:"levels"`
 	ListenKey string `json:"listenKey"`
 	ID        int64  `json:"id"`

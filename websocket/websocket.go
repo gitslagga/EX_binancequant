@@ -124,6 +124,7 @@ func (wsConn *wsConnection) procLoop() {
 		jsonResponse := new(JsonResponse)
 		jsonRequest.Method = j.Get("method").MustString()
 		jsonRequest.Symbol = j.Get("symbol").MustString()
+		jsonRequest.Interval = j.Get("interval").MustString()
 		jsonRequest.Levels = j.Get("levels").MustString()
 		jsonRequest.ListenKey = j.Get("listenKey").MustString()
 		jsonRequest.ID = j.Get("id").MustInt64()
@@ -140,10 +141,13 @@ func (wsConn *wsConnection) procLoop() {
 		switch jsonRequest.Method {
 		case "normal":
 			// 推送BasicMessageData
-			go InitNormalPush(wsConn, jsonRequest.Symbol, jsonRequest.Levels, jsonRequest.ListenKey)
+			go InitNormalPush(wsConn, jsonRequest.Symbol, jsonRequest.Interval, jsonRequest.ListenKey)
 		case "kline":
 			// 推送KlineMessageData
-			go PushKlineCustom(wsConn, jsonRequest.Symbol, jsonRequest.Levels)
+			go PushKlineInterval(wsConn, jsonRequest.Symbol, jsonRequest.Interval)
+		case "depth":
+			// 推送KlineMessageData
+			go PushDepthLevels(wsConn, jsonRequest.Symbol, jsonRequest.Levels)
 		default:
 			mylog.DataLogger.Error().Msgf("[Websocket] read message param err")
 			jsonResponse.Result = "request message param err"
