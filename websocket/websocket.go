@@ -85,6 +85,10 @@ func (wsConn *wsConnection) procLoop() {
 	// 启动一个gouroutine发送心跳
 	go func() {
 		for {
+			if wsConn.isClosed {
+				break
+			}
+
 			time.Sleep(60 * time.Second)
 			if err := wsConn.wsWrite(MessageType, []byte("heartbeat from server")); err != nil {
 				mylog.DataLogger.Error().Msgf("[Websocket] heartbeat write fail err: %v", err)
@@ -96,6 +100,10 @@ func (wsConn *wsConnection) procLoop() {
 
 	// 这是一个同步处理模型（只是一个例子），如果希望并行处理可以每个请求一个gorutine，注意控制并发goroutine的数量!!!
 	for {
+		if wsConn.isClosed {
+			break
+		}
+
 		msg, err := wsConn.wsRead()
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
