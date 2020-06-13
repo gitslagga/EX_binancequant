@@ -143,7 +143,7 @@ func (wsConn *wsConnection) procLoop() {
 			go InitNormalPush(wsConn, jsonRequest.Symbol, jsonRequest.Levels, jsonRequest.ListenKey)
 		case "kline":
 			// 推送KlineMessageData
-			go PushKline(wsConn, jsonRequest.Symbol, jsonRequest.Levels)
+			go PushKlineCustom(wsConn, jsonRequest.Symbol, jsonRequest.Levels)
 		default:
 			mylog.DataLogger.Error().Msgf("[Websocket] read message param err")
 			jsonResponse.Result = "request message param err"

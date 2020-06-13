@@ -31,23 +31,23 @@ func PushDepth(wsConn *wsConnection, symbol string) {
 	wsDepthHandler := func(event *futures.WsDepthEvent) {
 		response, err := json.Marshal(event)
 		if err != nil {
-			mylog.DataLogger.Error().Msgf("[BA_CLIENT] json Marshal fail err: %v", err)
+			mylog.DataLogger.Error().Msgf("[PushDepth] json Marshal fail err: %v", err)
 			return
 		}
 
 		if !wsConn.isClosed {
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
-				mylog.DataLogger.Error().Msgf("[BA_CLIENT] write message fail err: %v", err)
+				mylog.DataLogger.Error().Msgf("[PushDepth] write message fail err: %v", err)
 			}
 		}
 	}
 	errHandler := func(err error) {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushDepth handler fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushDepth] WsDepthServe handler fail err: %v", err)
 	}
 	_, stopC, err := futures.WsDepthServe(symbol, wsDepthHandler, errHandler)
 	if err != nil {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushDepth dial fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushDepth] WsDepthServe dial fail err: %v", err)
 		return
 	}
 
@@ -56,27 +56,27 @@ func PushDepth(wsConn *wsConnection, symbol string) {
 	}
 }
 
-func PushDepthLevel(wsConn *wsConnection, symbol, levels string) {
-	wsDepthHandler := func(event *futures.WsDepthEvent) {
+func PushKlineCustom(wsConn *wsConnection, symbol, levels string) {
+	wsKlineHandler := func(event *futures.WsKlineEvent) {
 		response, err := json.Marshal(event)
 		if err != nil {
-			mylog.DataLogger.Error().Msgf("[BA_CLIENT] json Marshal fail err: %v", err)
+			mylog.DataLogger.Error().Msgf("[PushKlineCustom] json Marshal fail err: %v", err)
 			return
 		}
 
 		if !wsConn.isClosed {
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
-				mylog.DataLogger.Error().Msgf("[BA_CLIENT] write message fail err: %v", err)
+				mylog.DataLogger.Error().Msgf("[PushKlineCustom] write message fail err: %v", err)
 			}
 		}
 	}
 	errHandler := func(err error) {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushDepthLevel handler fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushKlineCustom] WsKlineServe handler fail err: %v", err)
 	}
-	_, stopC, err := futures.WsPartialDepthServe(symbol, levels, wsDepthHandler, errHandler)
+	_, stopC, err := futures.WsKlineServe(symbol, levels, wsKlineHandler, errHandler)
 	if err != nil {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushDepthLevel dial fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushKlineCustom] WsKlineServe dial fail err: %v", err)
 		return
 	}
 
@@ -89,23 +89,23 @@ func PushKline(wsConn *wsConnection, symbol, levels string) {
 	wsKlineHandler := func(event *futures.WsKlineEvent) {
 		response, err := json.Marshal(event)
 		if err != nil {
-			mylog.DataLogger.Error().Msgf("[BA_CLIENT] json Marshal fail err: %v", err)
+			mylog.DataLogger.Error().Msgf("[PushKline] json Marshal fail err: %v", err)
 			return
 		}
 
 		if !wsConn.isClosed {
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
-				mylog.DataLogger.Error().Msgf("[BA_CLIENT] write message fail err: %v", err)
+				mylog.DataLogger.Error().Msgf("[PushKline] write message fail err: %v", err)
 			}
 		}
 	}
 	errHandler := func(err error) {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushKline handler fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushKline] WsKlineServe handler fail err: %v", err)
 	}
 	_, stopC, err := futures.WsKlineServe(symbol, levels, wsKlineHandler, errHandler)
 	if err != nil {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushKline dial fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushKline] WsKlineServe dial fail err: %v", err)
 		return
 	}
 
@@ -149,16 +149,16 @@ func PushUserData(wsConn *wsConnection, listenKey string) {
 		if !wsConn.isClosed {
 			err := wsConn.wsWrite(MessageType, message)
 			if err != nil {
-				mylog.DataLogger.Error().Msgf("[BA_CLIENT] write message fail err: %v", err)
+				mylog.DataLogger.Error().Msgf("[PushUserData] write message fail err: %v", err)
 			}
 		}
 	}
 	errHandler := func(err error) {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushUserData handler fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushUserData] WsUserDataServe handler fail err: %v", err)
 	}
 	_, stopC, err := futures.WsUserDataServe(listenKey, wsHandler, errHandler)
 	if err != nil {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushUserData dial fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushUserData] WsUserDataServe dial fail err: %v", err)
 		return
 	}
 
@@ -171,23 +171,23 @@ func PushAllMarkPrice(wsConn *wsConnection) {
 	wsAllMarkPrice := func(event futures.WsAllMarkPriceEvent) {
 		response, err := json.Marshal(event)
 		if err != nil {
-			mylog.DataLogger.Error().Msgf("[BA_CLIENT] json Marshal fail err: %v", err)
+			mylog.DataLogger.Error().Msgf("[PushAllMarkPrice] json Marshal fail err: %v", err)
 			return
 		}
 
 		if !wsConn.isClosed {
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
-				mylog.DataLogger.Error().Msgf("[BA_CLIENT] write message fail err: %v", err)
+				mylog.DataLogger.Error().Msgf("[PushAllMarkPrice] write message fail err: %v", err)
 			}
 		}
 	}
 	errHandler := func(err error) {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushAllMarkPrice handler fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushAllMarkPrice] WsAllMarkPriceServe handler fail err: %v", err)
 	}
 	_, stopC, err := futures.WsAllMarkPriceServe(wsAllMarkPrice, errHandler)
 	if err != nil {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushAllMarkPrice dial fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushAllMarkPrice] WsAllMarkPriceServe dial fail err: %v", err)
 		return
 	}
 
@@ -200,23 +200,23 @@ func PushAllMarketsStat(wsConn *wsConnection) {
 	wsAllMarketsStatHandler := func(event futures.WsAllMarketsStatEvent) {
 		response, err := json.Marshal(event)
 		if err != nil {
-			mylog.DataLogger.Error().Msgf("[BA_CLIENT] json Marshal fail err: %v", err)
+			mylog.DataLogger.Error().Msgf("[PushAllMarketsStat] json Marshal fail err: %v", err)
 			return
 		}
 
 		if !wsConn.isClosed {
 			err = wsConn.wsWrite(MessageType, response)
 			if err != nil {
-				mylog.DataLogger.Error().Msgf("[BA_CLIENT] write message fail err: %v", err)
+				mylog.DataLogger.Error().Msgf("[PushAllMarketsStat] write message fail err: %v", err)
 			}
 		}
 	}
 	errHandler := func(err error) {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushAllMarketsStat handler fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushAllMarketsStat] WsAllMarketsStatServe handler fail err: %v", err)
 	}
 	_, stopC, err := futures.WsAllMarketsStatServe(wsAllMarketsStatHandler, errHandler)
 	if err != nil {
-		mylog.DataLogger.Error().Msgf("[BA_CLIENT] PushAllMarketsStat dial fail err: %v", err)
+		mylog.DataLogger.Error().Msgf("[PushAllMarketsStat] WsAllMarketsStatServe dial fail err: %v", err)
 		return
 	}
 
