@@ -290,7 +290,6 @@ type WsMarkPriceEvent struct {
 	Price       string `json:"p"`
 	TradeTime   int64  `json:"T"`
 	FundingRate string `json:"r"`
-	Placeholder bool   `json:"M"` // add this field to avoid case insensitive unmarshaling
 }
 
 // WsUserDataServe serve user data handler with listen key
