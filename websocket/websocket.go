@@ -81,34 +81,94 @@ closed:
 }
 
 func (wsConn *wsConnection) procLoop() {
-	// 启动一个gouroutine发送心跳
-	go func() {
-		for {
-			if wsConn.isClosed {
-				break
-			}
+	go heartBeat(wsConn)
+	go dataHandler(wsConn)
+}
 
-			time.Sleep(60 * time.Second)
+func WSHandler(resp http.ResponseWriter, req *http.Request) {
+	// 应答客户端告知升级连接为websocket
+	wsSocket, err := wsUpgrader.Upgrade(resp, req, nil)
+	if err != nil {
+		return
+	}
+	wsConn := &wsConnection{
+		wsSocket:  wsSocket,
+		inChan:    make(chan *wsMessage, 1000),
+		outChan:   make(chan *wsMessage, 1000),
+		closeChan: make(chan byte),
+		isClosed:  false,
+	}
 
-			jsonResponse := new(JsonResponse)
-			jsonResponse.Result = "pong"
-			jsonResponse.ID = 0
-			response, err := json.Marshal(jsonResponse)
-			if err != nil {
-				mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
-				wsConn.wsClose()
-				break
-			}
+	// 处理器
+	go wsConn.procLoop()
+	// 读协程
+	go wsConn.wsReadLoop()
+	// 写协程
+	go wsConn.wsWriteLoop()
+}
 
-			if err := wsConn.wsWrite(MessageType, response); err != nil {
-				mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
-				wsConn.wsClose()
-				break
-			}
+func (wsConn *wsConnection) wsWrite(messageType int, data []byte) error {
+	select {
+	case wsConn.outChan <- &wsMessage{messageType, data}:
+	case <-wsConn.closeChan:
+		return errors.New("websocket closed")
+	}
+	return nil
+}
+
+func (wsConn *wsConnection) wsRead() (*wsMessage, error) {
+	select {
+	case msg := <-wsConn.inChan:
+		return msg, nil
+	case <-wsConn.closeChan:
+	}
+	return nil, errors.New("websocket closed")
+}
+
+func (wsConn *wsConnection) wsClose() {
+	wsConn.wsSocket.Close()
+
+	wsConn.mutex.Lock()
+	defer wsConn.mutex.Unlock()
+	if !wsConn.isClosed {
+		wsConn.isClosed = true
+		close(wsConn.closeChan)
+	}
+}
+
+/**
+启动一个gouroutine发送心跳
+*/
+func heartBeat(wsConn *wsConnection) {
+	for {
+		if wsConn.isClosed {
+			break
 		}
-	}()
 
-	// 这是一个同步处理模型（只是一个例子），如果希望并行处理可以每个请求一个gorutine，注意控制并发goroutine的数量!!!
+		time.Sleep(60 * time.Second)
+
+		jsonResponse := new(JsonResponse)
+		jsonResponse.Result = "pong"
+		jsonResponse.ID = 0
+		response, err := json.Marshal(jsonResponse)
+		if err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
+			wsConn.wsClose()
+			break
+		}
+
+		if err := wsConn.wsWrite(MessageType, response); err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
+			wsConn.wsClose()
+			break
+		}
+	}
+}
+
+/**
+注意控制并发goroutine的数量!!!
+*/
+func dataHandler(wsConn *wsConnection) {
 	for {
 		if wsConn.isClosed {
 			break
@@ -174,56 +234,5 @@ func (wsConn *wsConnection) procLoop() {
 			wsConn.wsClose()
 			break
 		}
-	}
-}
-
-func WSHandler(resp http.ResponseWriter, req *http.Request) {
-	// 应答客户端告知升级连接为websocket
-	wsSocket, err := wsUpgrader.Upgrade(resp, req, nil)
-	if err != nil {
-		return
-	}
-	wsConn := &wsConnection{
-		wsSocket:  wsSocket,
-		inChan:    make(chan *wsMessage, 1000),
-		outChan:   make(chan *wsMessage, 1000),
-		closeChan: make(chan byte),
-		isClosed:  false,
-	}
-
-	// 处理器
-	go wsConn.procLoop()
-	// 读协程
-	go wsConn.wsReadLoop()
-	// 写协程
-	go wsConn.wsWriteLoop()
-}
-
-func (wsConn *wsConnection) wsWrite(messageType int, data []byte) error {
-	select {
-	case wsConn.outChan <- &wsMessage{messageType, data}:
-	case <-wsConn.closeChan:
-		return errors.New("websocket closed")
-	}
-	return nil
-}
-
-func (wsConn *wsConnection) wsRead() (*wsMessage, error) {
-	select {
-	case msg := <-wsConn.inChan:
-		return msg, nil
-	case <-wsConn.closeChan:
-	}
-	return nil, errors.New("websocket closed")
-}
-
-func (wsConn *wsConnection) wsClose() {
-	wsConn.wsSocket.Close()
-
-	wsConn.mutex.Lock()
-	defer wsConn.mutex.Unlock()
-	if !wsConn.isClosed {
-		wsConn.isClosed = true
-		close(wsConn.closeChan)
 	}
 }
