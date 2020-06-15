@@ -30,8 +30,11 @@ func PushDepth(wsConn *wsConnection, symbol string) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
 
@@ -59,8 +62,11 @@ func PushDepthLevels(wsConn *wsConnection, symbol, levels string) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
 
@@ -88,8 +94,11 @@ func PushKline(wsConn *wsConnection, symbol, interval string) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
 
@@ -117,8 +126,11 @@ func PushKlineInterval(wsConn *wsConnection, symbol, interval string) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
 
@@ -146,8 +158,11 @@ func PushAggTrade(wsConn *wsConnection, symbol string) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
 
@@ -170,8 +185,11 @@ func PushUserData(wsConn *wsConnection, listenKey string) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
 
@@ -199,8 +217,11 @@ func PushAllMarkPrice(wsConn *wsConnection) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
 
@@ -228,7 +249,10 @@ func PushAllMarketsStat(wsConn *wsConnection) {
 		return
 	}
 
-	if wsConn.isClosed {
-		stopC <- struct{}{}
+	for {
+		if wsConn.isClosed {
+			stopC <- struct{}{}
+			break
+		}
 	}
 }
