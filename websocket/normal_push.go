@@ -4,6 +4,7 @@ import (
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade/futures"
 	"encoding/json"
+	"time"
 )
 
 func PushDepth(wsConn *wsConnection, symbol string) {
@@ -31,6 +32,7 @@ func PushDepth(wsConn *wsConnection, symbol string) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
@@ -63,6 +65,7 @@ func PushDepthLevels(wsConn *wsConnection, symbol, levels string) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
@@ -95,6 +98,7 @@ func PushKline(wsConn *wsConnection, symbol, interval string) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
@@ -127,6 +131,7 @@ func PushKlineInterval(wsConn *wsConnection, symbol, interval string) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
@@ -159,6 +164,7 @@ func PushAggTrade(wsConn *wsConnection, symbol string) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
@@ -186,6 +192,7 @@ func PushUserData(wsConn *wsConnection, listenKey string) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
@@ -218,6 +225,7 @@ func PushAllMarkPrice(wsConn *wsConnection) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
@@ -250,6 +258,7 @@ func PushAllMarketsStat(wsConn *wsConnection) {
 	}
 
 	for {
+		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
 			stopC <- struct{}{}
 			break
