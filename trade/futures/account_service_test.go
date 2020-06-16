@@ -20,7 +20,7 @@ func (s *accountServiceTestSuite) TestGetBalance() {
 			"accountAlias": "SgsR",
 			"asset": "USDT",
 			"balance": "122607.35137903",
-			"withdrawAvailable": "102333.54137903"
+			"maxWithdrawAmount": "102333.54137903"
 		}
 	]`)
 	s.mockDo(data, nil)
@@ -37,7 +37,7 @@ func (s *accountServiceTestSuite) TestGetBalance() {
 		AccountAlias:      "SgsR",
 		Asset:             "USDT",
 		Balance:           "122607.35137903",
-		WithdrawAvailable: "102333.54137903",
+		MaxWithdrawAmount: "102333.54137903",
 	}
 	s.assertBalanceEqual(e, res[0])
 }
@@ -47,7 +47,7 @@ func (s *accountServiceTestSuite) assertBalanceEqual(e, a *Balance) {
 	r.Equal(e.AccountAlias, a.AccountAlias, "AccountAlias")
 	r.Equal(e.Asset, a.Asset, "Asset")
 	r.Equal(e.Balance, a.Balance, "Balance")
-	r.Equal(e.WithdrawAvailable, a.WithdrawAvailable, "WithdrawAvailable")
+	r.Equal(e.MaxWithdrawAmount, a.MaxWithdrawAmount, "WithdrawAvailable")
 }
 
 func (s *accountServiceTestSuite) TestGetAccount() {

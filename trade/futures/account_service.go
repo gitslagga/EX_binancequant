@@ -14,7 +14,7 @@ type GetBalanceService struct {
 func (s *GetBalanceService) Do(ctx context.Context, opts ...RequestOption) (res []*Balance, err error) {
 	r := &request{
 		method:   "GET",
-		endpoint: "/fapi/v1/balance",
+		endpoint: "/fapi/v2/balance",
 		secType:  secTypeSigned,
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
@@ -31,10 +31,13 @@ func (s *GetBalanceService) Do(ctx context.Context, opts ...RequestOption) (res 
 
 // Balance define user balance of your account
 type Balance struct {
-	AccountAlias      string `json:"accountAlias"`
-	Asset             string `json:"asset"`
-	Balance           string `json:"balance"`
-	WithdrawAvailable string `json:"withdrawAvailable"`
+	AccountAlias       string `json:"accountAlias"`
+	Asset              string `json:"asset"`
+	Balance            string `json:"balance"`
+	CrossWalletBalance string `json:"crossWalletBalance"`
+	CrossUnPnl         string `json:"crossUnPnl"`
+	AvailableBalance   string `json:"availableBalance"`
+	MaxWithdrawAmount  string `json:"maxWithdrawAmount"`
 }
 
 // GetAccountService get account info
@@ -46,7 +49,7 @@ type GetAccountService struct {
 func (s *GetAccountService) Do(ctx context.Context, opts ...RequestOption) (res *Account, err error) {
 	r := &request{
 		method:   "GET",
-		endpoint: "/fapi/v1/account",
+		endpoint: "/fapi/v2/account",
 		secType:  secTypeSigned,
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
@@ -78,6 +81,9 @@ type Account struct {
 	TotalUnrealizedProfit       string             `json:"totalUnrealizedProfit"`
 	TotalWalletBalance          string             `json:"totalWalletBalance"`
 	UpdateTime                  int64              `json:"updateTime"`
+	TotalCrossWalletBalance     string             `json:"totalCrossWalletBalance"`
+	TotalCrossUnPnl             string             `json:"totalCrossUnPnl"`
+	AvailableBalance            string             `json:"availableBalance"`
 }
 
 // AccountAsset define account asset

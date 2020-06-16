@@ -18,11 +18,11 @@ func InitTrade() {
 		endpoint        = config.Config.Trade.Endpoint
 		futuresEndpoint = config.Config.Trade.FuturesEndpoint
 		debug           = config.Config.Trade.Debug
-		futuresDebu     = config.Config.Trade.FuturesDebug
+		futuresDebug    = config.Config.Trade.FuturesDebug
 	)
 
 	BAExClient = NewClient(apiKey, secretKey, endpoint, debug)
-	BAExFuturesClient = NewFuturesClient(apiKey, secretKey, futuresEndpoint, futuresDebu)
+	BAExFuturesClient = NewFuturesClient(apiKey, secretKey, futuresEndpoint, futuresDebug)
 
 	fmt.Println("[InitTrade] binance success.")
 }
