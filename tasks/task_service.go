@@ -21,9 +21,38 @@ func InitRouter(r *gin.Engine) {
 	r.GET("/api/market/ticker/price", ListPricesService)
 	r.GET("/api/market/exchangeInfo", ExchangeInfoService)
 
+	/****************************** 经纪商接口 *********************************/
+	r.POST("/api/broker/subAccount", CreateSubAccountService)
+	r.POST("/api/broker/subAccount/futures", EnableSubAccountFuturesService)
+	r.POST("/api/broker/subAccountApi", CreateSubAccountApiService)
+	r.DELETE("/api/broker/subAccountApi", DeleteSubAccountApiService)
+	r.GET("/api/broker/subAccountApi", GetSubAccountApiService)
+	r.POST("/api/broker/subAccountApi/permission", ChangeSubAccountApiPermissionService)
+	r.GET("/api/broker/subAccount", GetSubAccountService)
+
+	/****************************** 调整子账户手续费 *********************************/
+	r.POST("/api/broker/subAccountApi/commission/futures", ChangeCommissionFuturesService)
+	r.GET("/api/broker/subAccountApi/commission/futures", GetCommissionFuturesService)
+	r.GET("/api/broker/info", GetInfoService)
+
+	/****************************** 经纪商账户与子账户划转 *********************************/
+	r.POST("/api/broker/transfer", CreateTransferService)
+	r.GET("/api/broker/transfer", GetTransferService)
+
+	/****************************** 子账户充币与资产 *********************************/
+	r.GET("/api/broker/subAccount/depositHist", GetSubAccountDepositHistService)
+	r.GET("/api/broker/subAccount/spotSummary", GetSubAccountSpotSummaryService)
+	r.GET("/api/broker/subAccount/futuresSummary", GetSubAccountFuturesSummaryService)
+
+	/****************************** 查询返佣记录 *********************************/
+	r.GET("/api/broker/rebate/recentRecord", GetRebateRecentRecordService)
+	r.POST("/api/broker/rebate/historicalRecord", GenerateRebateHistoryService)
+	r.GET("/api/broker/rebate/historicalRecord", GetRebateHistoryService)
+
+	//认证接口
 	route := r.Use(beforeHandler())
 
-	/****************************** 永续合约认证接口 *********************************/
+	/****************************** 账户接口 *********************************/
 	route.GET("/api/account/deposits/list", ListDepositsService)
 	route.GET("/api/account/deposits/address", DepositsAddressService)
 	route.GET("/api/account/spot", SpotAccountService)
@@ -33,6 +62,7 @@ func InitRouter(r *gin.Engine) {
 	route.POST("/api/account/withdraw", CreateWithdrawService)
 	route.GET("/api/account/withdraw", ListWithdrawsService)
 
+	/****************************** 永续合约接口 *********************************/
 	route.POST("/api/futures/position/mode", ChangePositionModeService)
 	route.GET("/api/futures/position/mode", GetPositionModeService)
 	route.POST("/api/futures/order", CreateOrderService)
@@ -51,6 +81,7 @@ func InitRouter(r *gin.Engine) {
 	route.GET("/api/futures/income", GetIncomeHistoryService)
 	route.GET("/api/futures/leverageBracket", GetLeverageBracketService)
 
+	/****************************** WS许可证接口 *********************************/
 	route.POST("/api/futures/listenKey", StartUserStreamService)
 	route.PUT("/api/futures/listenKey", KeepaliveUserStreamService)
 	route.DELETE("/api/futures/listenKey", CloseUserStreamService)

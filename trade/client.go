@@ -554,3 +554,28 @@ func (c *Client) NewFuturesTransferService() *FuturesTransferService {
 func (c *Client) NewListFuturesTransferService() *ListFuturesTransferService {
 	return &ListFuturesTransferService{c: c}
 }
+
+// CreateSubAccountService init create sub account service
+func (c *Client) NewCreateSubAccountService() *CreateSubAccountService {
+	return &CreateSubAccountService{c: c}
+}
+
+// EnableSubAccountFutures init enable sub account futures service
+func (c *Client) NewEnableSubAccountFutures() *EnableSubAccountFuturesService {
+	return &EnableSubAccountFuturesService{c: c}
+}
+
+// NewCreateSubAccountApiService init create api key for sub account service
+func (c *Client) NewCreateSubAccountApiService() *CreateSubAccountApiService {
+	return &CreateSubAccountApiService{c: c}
+}
+
+// NewDeleteSubAccountApiService init delete api key for sub account service
+func (c *Client) NewDeleteSubAccountApiService() *DeleteSubAccountApiService {
+	return &DeleteSubAccountApiService{c: c}
+}
+
+// NewGetSubAccountApiService init query api key for sub account service
+func (c *Client) NewGetSubAccountApiService() *GetSubAccountApiService {
+	return &GetSubAccountApiService{c: c}
+}

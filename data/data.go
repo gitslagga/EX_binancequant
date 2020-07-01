@@ -68,7 +68,7 @@ func NewContext() context.Context {
 	return context.Background()
 }
 
-/*********************************** trading *************************************/
+/*********************************** future trading *************************************/
 type TransferRequest struct {
 	Asset  string  `json:"asset" binding:"required"`
 	Amount float64 `json:"amount" binding:"required"`
@@ -123,4 +123,21 @@ type PositionMarginRequest struct {
 	Amount       float64 `json:"amount"  binding:"required"`
 	Type         int     `json:"type" binding:"required"`
 	PositionSide string  `json:"positionSide"`
+}
+
+/*********************************** broker sub account *************************************/
+type EnableFuturesRequest struct {
+	SubAccountId string `json:"subAccountId" binding:"required"`
+	Futures      bool   `json:"futures" binding:"required"`
+}
+
+type CreateApiKeyRequest struct {
+	SubAccountId string `json:"subAccountId" binding:"required"`
+	CanTrade     bool   `json:"canTrade" binding:"required"`
+	FuturesTrade bool   `json:"futuresTrade" binding:"required"`
+}
+
+type SubAccountApiKeyRequest struct {
+	SubAccountId     string `json:"subAccountId" binding:"required"`
+	SubAccountApiKey string `json:"subAccountApiKey" binding:"required"`
 }
