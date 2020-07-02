@@ -137,7 +137,21 @@ type CreateApiKeyRequest struct {
 	FuturesTrade bool   `json:"futuresTrade" binding:"required"`
 }
 
-type SubAccountApiKeyRequest struct {
+type DeleteApiKeyRequest struct {
 	SubAccountId     string `json:"subAccountId" binding:"required"`
 	SubAccountApiKey string `json:"subAccountApiKey" binding:"required"`
+}
+
+type ChangeApiPermissionRequest struct {
+	SubAccountId     string `json:"subAccountId" binding:"required"`
+	SubAccountApiKey string `json:"subAccountApiKey" binding:"required"`
+	CanTrade         bool   `json:"canTrade" binding:"required"`
+	FuturesTrade     bool   `json:"futuresTrade" binding:"required"`
+}
+
+type ChangeCommissionFuturesRequest struct {
+	SubAccountId    string `json:"subAccountId" binding:"required"`
+	Symbol          string `json:"symbol" binding:"required"`
+	MakerAdjustment int    `json:"makerAdjustment" binding:"required"`
+	TakerAdjustment int    `json:"takerAdjustment" binding:"required"`
 }

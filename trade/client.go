@@ -579,3 +579,28 @@ func (c *Client) NewDeleteSubAccountApiService() *DeleteSubAccountApiService {
 func (c *Client) NewGetSubAccountApiService() *GetSubAccountApiService {
 	return &GetSubAccountApiService{c: c}
 }
+
+// NewChangeSubAccountApiPermissionService init change api permission service
+func (c *Client) NewChangeSubAccountApiPermissionService() *ChangeSubAccountApiPermissionService {
+	return &ChangeSubAccountApiPermissionService{c: c}
+}
+
+// NewGetSubAccountService init query sub account service
+func (c *Client) NewGetSubAccountService() *GetSubAccountService {
+	return &GetSubAccountService{c: c}
+}
+
+// NewChangeCommissionFuturesService init change futures commission adjustment service
+func (c *Client) NewChangeCommissionFuturesService() *ChangeCommissionFuturesService {
+	return &ChangeCommissionFuturesService{c: c}
+}
+
+// NewGetCommissionFuturesService init query futures commission adjustemnet service
+func (c *Client) NewGetCommissionFuturesService() *GetCommissionFuturesService {
+	return &GetCommissionFuturesService{c: c}
+}
+
+// NewGetInfoService inint query broker account information service
+func (c *Client) NewGetInfoService() *GetInfoService {
+	return &GetInfoService{c: c}
+}
