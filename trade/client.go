@@ -604,3 +604,43 @@ func (c *Client) NewGetCommissionFuturesService() *GetCommissionFuturesService {
 func (c *Client) NewGetInfoService() *GetInfoService {
 	return &GetInfoService{c: c}
 }
+
+// NewCreateTransferService init create sub account transfer service
+func (c *Client) NewCreateTransferService() *CreateTransferService {
+	return &CreateTransferService{c: c}
+}
+
+// NewGetTransferService init get sub account transfer history service
+func (c *Client) NewGetTransferService() *GetTransferService {
+	return &GetTransferService{c: c}
+}
+
+// NewGetSubAccountDepositHistService init get sub account deposit history service
+func (c *Client) NewGetSubAccountDepositHistService() *GetSubAccountDepositHistService {
+	return &GetSubAccountDepositHistService{c: c}
+}
+
+// NewGetSubAccountSpotSummaryService init get sub account spot summary service
+func (c *Client) NewGetSubAccountSpotSummaryService() *GetSubAccountSpotSummaryService {
+	return &GetSubAccountSpotSummaryService{c: c}
+}
+
+// NewGetSubAccountFuturesSummaryService init get sub account spot summary service
+func (c *Client) NewGetSubAccountFuturesSummaryService() *GetSubAccountFuturesSummaryService {
+	return &GetSubAccountFuturesSummaryService{c: c}
+}
+
+// NewGetRebateRecentRecordService init get rebate recent record service
+func (c *Client) NewGetRebateRecentRecordService() *GetRebateRecentRecordService {
+	return &GetRebateRecentRecordService{c: c}
+}
+
+// NewGenerateRebateHistoryService init generate rebate history service
+func (c *Client) NewGenerateRebateHistoryService() *GenerateRebateHistoryService {
+	return &GenerateRebateHistoryService{c: c}
+}
+
+// NewGetRebateHistoryService init get rebate history service
+func (c *Client) NewGetRebateHistoryService() *GetRebateHistoryService {
+	return &GetRebateHistoryService{c: c}
+}

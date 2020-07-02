@@ -155,3 +155,17 @@ type ChangeCommissionFuturesRequest struct {
 	MakerAdjustment int    `json:"makerAdjustment" binding:"required"`
 	TakerAdjustment int    `json:"takerAdjustment" binding:"required"`
 }
+
+type CreateTransferRequest struct {
+	FromId       string  `json:"fromId"`
+	ToId         string  `json:"toId"`
+	ClientTranId string  `json:"clientTranId"`
+	Asset        string  `json:"asset" binding:"required"`
+	Amount       float64 `json:"amount" binding:"required"`
+}
+
+type GenerateRebateHistoryRequest struct {
+	SubAccountId string `json:"subAccountId"`
+	StartTime    uint64 `json:"startTime"`
+	EndTime      uint64 `json:"endTime"`
+}

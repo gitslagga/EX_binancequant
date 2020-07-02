@@ -6,6 +6,7 @@ import (
 	"EX_binancequant/trade"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 /**
@@ -364,34 +365,422 @@ func GetInfoService(c *gin.Context) {
 	return
 }
 
+/**
+Sub Account Transfer
+*/
 func CreateTransferService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	var createTransferRequest data.CreateTransferRequest
+	if err := c.ShouldBindJSON(&createTransferRequest); err != nil {
+		mylog.Logger.Info().Msgf("[Task Broker] CreateTransferService request param err: %v",
+			err)
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Broker] CreateTransferService request param: %v",
+		createTransferRequest)
+
+	createTransferService := trade.BAExClient.NewCreateTransferService()
+	if createTransferRequest.FromId != "" {
+		createTransferService.FromId(createTransferRequest.FromId)
+	}
+	if createTransferRequest.ToId != "" {
+		createTransferService.ToId(createTransferRequest.ToId)
+	}
+	if createTransferRequest.ClientTranId != "" {
+		createTransferService.ClientTranId(createTransferRequest.ClientTranId)
+	}
+	createTransferService.Asset(createTransferRequest.Asset)
+	createTransferService.Amount(createTransferRequest.Amount)
+
+	list, err := createTransferService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
 
+/**
+Query Sub Account Transfer History
+*/
 func GetTransferService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	subAccountId := c.Query("subAccountId")
+	clientTranId := c.Query("clientTranId")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	page := c.Query("page")
+	limit := c.Query("limit")
+
+	mylog.Logger.Info().Msgf("[Task Broker] GetTransferService request param: %v, %v, %v, %v, %v, %v",
+		subAccountId, clientTranId, startTime, endTime, page, limit)
+
+	if subAccountId == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	getTransferService := trade.BAExClient.NewGetTransferService()
+	getTransferService.SubAccountId(subAccountId)
+	if clientTranId != "" {
+		getTransferService.ClientTranId(clientTranId)
+	}
+	if startTime != "" {
+		if iStartTime, err := strconv.ParseUint(startTime, 10, 64); err == nil {
+			getTransferService.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		if iEndTime, err := strconv.ParseUint(endTime, 10, 64); err == nil {
+			getTransferService.EndTime(iEndTime)
+		}
+	}
+	if page != "" {
+		if iPage, err := strconv.Atoi(page); err == nil {
+			getTransferService.Page(iPage)
+		}
+	}
+	if limit != "" {
+		if iLimit, err := strconv.Atoi(limit); err == nil {
+			getTransferService.Limit(iLimit)
+		}
+	}
+
+	list, err := getTransferService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
 
+/**
+Get Sub Account Deposit History
+*/
 func GetSubAccountDepositHistService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	subAccountId := c.Query("subAccountId")
+	coin := c.Query("coin")
+	status := c.Query("status")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	limit := c.Query("limit")
+	offset := c.Query("offset")
+
+	mylog.Logger.Info().Msgf("[Task Broker] GetSubAccountDepositHistService request param: %v, %v, %v, %v, %v, %v, %v",
+		subAccountId, coin, status, startTime, endTime, limit, offset)
+
+	getSubAccountDepositHistService := trade.BAExClient.NewGetSubAccountDepositHistService()
+	if subAccountId != "" {
+		getSubAccountDepositHistService.SubAccountId(subAccountId)
+	}
+	if coin != "" {
+		getSubAccountDepositHistService.Coin(coin)
+	}
+	if status != "" {
+		iStatus, err := strconv.Atoi(status)
+		if err == nil {
+			getSubAccountDepositHistService.Status(iStatus)
+		}
+	}
+	if startTime != "" {
+		if iStartTime, err := strconv.ParseUint(startTime, 10, 64); err == nil {
+			getSubAccountDepositHistService.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		if iEndTime, err := strconv.ParseUint(endTime, 10, 64); err == nil {
+			getSubAccountDepositHistService.EndTime(iEndTime)
+		}
+	}
+	if limit != "" {
+		if iLimit, err := strconv.Atoi(limit); err == nil {
+			getSubAccountDepositHistService.Limit(iLimit)
+		}
+	}
+	if offset != "" {
+		if iOffset, err := strconv.Atoi(offset); err == nil {
+			getSubAccountDepositHistService.Offset(iOffset)
+		}
+	}
+
+	list, err := getSubAccountDepositHistService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
 
+/**
+Query Sub Account Spot Asset info
+*/
 func GetSubAccountSpotSummaryService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	subAccountId := c.Query("subAccountId")
+	page := c.Query("page")
+	size := c.Query("size")
+
+	mylog.Logger.Info().Msgf("[Task Broker] GetSubAccountSpotSummaryService request param: %v, %v, %v",
+		subAccountId, page, size)
+
+	getSubAccountSpotSummaryService := trade.BAExClient.NewGetSubAccountSpotSummaryService()
+	if subAccountId != "" {
+		getSubAccountSpotSummaryService.SubAccountId(subAccountId)
+	}
+	if page != "" {
+		if iPage, err := strconv.ParseUint(page, 10, 64); err == nil {
+			getSubAccountSpotSummaryService.Page(iPage)
+		}
+	}
+	if size != "" {
+		if iSize, err := strconv.ParseUint(size, 10, 64); err == nil {
+			getSubAccountSpotSummaryService.Size(iSize)
+		}
+	}
+
+	list, err := getSubAccountSpotSummaryService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
 
+/**
+Query Subaccount Futures Asset info
+*/
 func GetSubAccountFuturesSummaryService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	subAccountId := c.Query("subAccountId")
+	page := c.Query("page")
+	size := c.Query("size")
+
+	mylog.Logger.Info().Msgf("[Task Broker] GetSubAccountFuturesSummaryService request param: %v, %v, %v",
+		subAccountId, page, size)
+
+	getSubAccountFuturesSummaryService := trade.BAExClient.NewGetSubAccountFuturesSummaryService()
+	if subAccountId != "" {
+		getSubAccountFuturesSummaryService.SubAccountId(subAccountId)
+	}
+	if page != "" {
+		if iPage, err := strconv.ParseUint(page, 10, 64); err == nil {
+			getSubAccountFuturesSummaryService.Page(iPage)
+		}
+	}
+	if size != "" {
+		if iSize, err := strconv.ParseUint(size, 10, 64); err == nil {
+			getSubAccountFuturesSummaryService.Size(iSize)
+		}
+	}
+
+	list, err := getSubAccountFuturesSummaryService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
 
+/**
+Query Broker Commission Rebate Recent Record
+*/
 func GetRebateRecentRecordService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	subAccountId := c.Query("subAccountId")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	limit := c.Query("limit")
+
+	mylog.Logger.Info().Msgf("[Task Broker] GetRebateRecentRecordService request param: %v, %v, %v, %v",
+		subAccountId, startTime, endTime, limit)
+
+	if subAccountId == "" || startTime == "" || endTime == "" || limit == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	getRebateRecentRecordService := trade.BAExClient.NewGetRebateRecentRecordService()
+	getRebateRecentRecordService.SubAccountId(subAccountId)
+	if iStartTime, err := strconv.ParseUint(startTime, 10, 64); err == nil {
+		getRebateRecentRecordService.StartTime(iStartTime)
+	}
+	if iEndTime, err := strconv.ParseUint(endTime, 10, 64); err == nil {
+		getRebateRecentRecordService.EndTime(iEndTime)
+	}
+	if iLimit, err := strconv.Atoi(limit); err == nil {
+		getRebateRecentRecordService.Limit(iLimit)
+	}
+
+	list, err := getRebateRecentRecordService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
 
+/**
+Generate Broker Commission Rebate History
+*/
 func GenerateRebateHistoryService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	var generateRebateHistory data.GenerateRebateHistoryRequest
+	if err := c.ShouldBindJSON(&generateRebateHistory); err != nil {
+		mylog.Logger.Info().Msgf("[Task Broker] GenerateRebateHistoryService request param err: %v",
+			err)
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Broker] GenerateRebateHistoryService request param: %v",
+		generateRebateHistory)
+
+	generateRebateHistoryService := trade.BAExClient.NewGenerateRebateHistoryService()
+	if generateRebateHistory.SubAccountId != "" {
+		generateRebateHistoryService.SubAccountId(generateRebateHistory.SubAccountId)
+	}
+	if generateRebateHistory.StartTime != 0 {
+		generateRebateHistoryService.StartTime(generateRebateHistory.StartTime)
+	}
+	if generateRebateHistory.EndTime != 0 {
+		generateRebateHistoryService.EndTime(generateRebateHistory.EndTime)
+	}
+
+	list, err := generateRebateHistoryService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
 
+/**
+Query Broker Commission Rebate History
+*/
 func GetRebateHistoryService(c *gin.Context) {
+	out := data.CommonResp{}
 
+	subAccountId := c.Query("subAccountId")
+	startTime := c.Query("startTime")
+	endTime := c.Query("endTime")
+	limit := c.Query("limit")
+
+	mylog.Logger.Info().Msgf("[Task Broker] GetRebateHistoryService request param: %v, %v, %v, %v",
+		subAccountId, startTime, endTime, limit)
+
+	if subAccountId == "" || startTime == "" || endTime == "" || limit == "" {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	getRebateHistoryService := trade.BAExClient.NewGetRebateHistoryService()
+	if subAccountId != "" {
+		getRebateHistoryService.SubAccountId(subAccountId)
+	}
+	if startTime != "" {
+		if iStartTime, err := strconv.ParseUint(startTime, 10, 64); err == nil {
+			getRebateHistoryService.StartTime(iStartTime)
+		}
+	}
+	if endTime != "" {
+		if iEndTime, err := strconv.ParseUint(endTime, 10, 64); err == nil {
+			getRebateHistoryService.EndTime(iEndTime)
+		}
+	}
+	if limit != "" {
+		if iLimit, err := strconv.Atoi(limit); err == nil {
+			getRebateHistoryService.Limit(iLimit)
+		}
+	}
+
+	list, err := getRebateHistoryService.Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	out.ErrorCode = data.EC_NONE.Code()
+	out.ErrorMessage = data.EC_NONE.String()
+	out.Data = list
+
+	c.JSON(http.StatusOK, out)
+	return
 }
