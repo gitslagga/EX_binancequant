@@ -237,16 +237,12 @@ func GetSubAccountService(c *gin.Context) {
 	mylog.Logger.Info().Msgf("[Task Broker] GetSubAccountService request param: %v",
 		subAccountId)
 
-	if subAccountId == "" {
-		out.ErrorCode = data.EC_PARAMS_ERR
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
-		return
+	getSubAccountService := trade.BAExClient.NewGetSubAccountService()
+	if subAccountId != "" {
+		getSubAccountService.SubAccountId(subAccountId)
 	}
 
-	list, err := trade.BAExClient.NewGetSubAccountService().
-		SubAccountId(subAccountId).
-		Do(data.NewContext())
+	list, err := getSubAccountService.Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
 		out.ErrorMessage = err.Error()

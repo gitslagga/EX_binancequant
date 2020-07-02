@@ -294,7 +294,9 @@ func (s *GetSubAccountService) Do(ctx context.Context, opts ...RequestOption) (r
 		endpoint: "/sapi/v1/broker/subAccount",
 		secType:  secTypeSigned,
 	}
-	r.setParam("subAccountId", *s.subAccountId)
+	if s.subAccountId != nil {
+		r.setParam("subAccountId", *s.subAccountId)
+	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return nil, err
@@ -310,8 +312,8 @@ func (s *GetSubAccountService) Do(ctx context.Context, opts ...RequestOption) (r
 // GetSubAccount define query subAccountApi info
 type GetSubAccount struct {
 	SubAccountId    string `json:"subaccountId"`
-	MakerCommission int    `json:"makerCommission"`
-	TakerCommission int    `json:"takerCommission"`
+	MakerCommission string `json:"makerCommission"`
+	TakerCommission string `json:"takerCommission"`
 	CreateTime      uint64 `json:"createTime"`
 }
 
