@@ -128,13 +128,13 @@ type PositionMarginRequest struct {
 /*********************************** broker sub account *************************************/
 type EnableFuturesRequest struct {
 	SubAccountId string `json:"subAccountId" binding:"required"`
-	Futures      bool   `json:"futures" binding:"required"`
+	Futures      string `json:"futures" binding:"required"`
 }
 
 type CreateApiKeyRequest struct {
 	SubAccountId string `json:"subAccountId" binding:"required"`
-	CanTrade     bool   `json:"canTrade" binding:"required"`
-	FuturesTrade bool   `json:"futuresTrade" binding:"required"`
+	CanTrade     string `json:"canTrade" binding:"required"`
+	FuturesTrade string `json:"futuresTrade" binding:"required"`
 }
 
 type DeleteApiKeyRequest struct {
@@ -145,8 +145,8 @@ type DeleteApiKeyRequest struct {
 type ChangeApiPermissionRequest struct {
 	SubAccountId     string `json:"subAccountId" binding:"required"`
 	SubAccountApiKey string `json:"subAccountApiKey" binding:"required"`
-	CanTrade         bool   `json:"canTrade" binding:"required"`
-	FuturesTrade     bool   `json:"futuresTrade" binding:"required"`
+	CanTrade         string `json:"canTrade" binding:"required"`
+	FuturesTrade     string `json:"futuresTrade" binding:"required"`
 }
 
 type ChangeCommissionFuturesRequest struct {

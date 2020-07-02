@@ -46,8 +46,8 @@ endpoint = "https://api.binance.com"
 wsEndpoint = "wss://stream.binance.com:9443"
 futuresEndpoint = "https://fapi.binance.com"
 futuresWSEndpoint = "wss://fstream.binance.com"
-apiKey = "UMny424R9LuXOXFGBkfNSVABtd8fVr4OySCiGgrT5z6rgDxFQahWRIm7kjd8gNPe"
-secretKey = "ELWEXamvSCB2lh7rnE1cBlEl40gk98FSRQbU57pqi5NTAYHtKjf04mCwDVCHpSpn"
+apiKey = "EmRPRM1H1SCNYiFWsmgW33DzWDMtofEr8ITdcOVhFueOAYPKVerwPI3kroMb16jo"
+secretKey = "dOn2OEbdPOrvpl28fAH13eM4j4MsEQkNjguGIJ90pKIFRwvVm9miZWl1DZKd9TSu"
 debug = false
 futuresDebug = false
 

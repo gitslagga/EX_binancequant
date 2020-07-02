@@ -20,7 +20,7 @@ FileMaxBackups = 10
 FileMaxAge = 10
 
 [redis]
-address = "192.168.1.140:6379"
+address = "192.168.1.106:6379"
 password = "todoAdmin"
 maxActive = 10
 maxIdle = 5
@@ -46,8 +46,8 @@ endpoint = "https://api.binancezh.com"
 wsEndpoint = "wss://stream.binancezh.com:9443"
 futuresEndpoint = "https://fapi.binancezh.com"
 futuresWSEndpoint = "wss://fstream.binancezh.com"
-apiKey = "13273648906b6fab5364b5ee07b2dfd56f11ebcad244e232cf74cf62c3731811"
-secretKey = "bfe5c8f5066a1763ec88265235e0e6a86e29ea045db1ecd00cc41f36f31f7e8b"
+apiKey = "EmRPRM1H1SCNYiFWsmgW33DzWDMtofEr8ITdcOVhFueOAYPKVerwPI3kroMb16jo"
+secretKey = "dOn2OEbdPOrvpl28fAH13eM4j4MsEQkNjguGIJ90pKIFRwvVm9miZWl1DZKd9TSu"
 debug = true
 futuresDebug = true
 

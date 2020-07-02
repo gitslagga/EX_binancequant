@@ -88,3 +88,46 @@
 {"error_code":0,"error_message":"ok","data":{"leverage":100,"maxNotionalValue":"250000","symbol":"BTCUSDT"}}
 ```
 
+
+# 经纪商测试
+
+## 创建子账户
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/subAccount' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":{"subaccountId":"485396905497952257"}}
+```
+
+
+## 开启合约权限
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/subAccount/futures' --header 'Content-Type: application/json' --data-raw '{"subAccountId":"485396905497952257", "futures":"true"}'
+```
+{"error_code":0,"error_message":"ok","data":{"subaccountId":"485396905497952257","enableFutures":true,"updateTime":1593690239552}}
+```
+
+
+## 创建子账户ApiKey
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/subAccountApi' --header 'Content-Type: application/json' --data-raw '{"subAccountId":"485396905497952257", "canTrade":"true", "futuresTrade":"true"}'
+```
+{"error_code":0,"error_message":"ok","data":{"subaccountId":"485396905497952257","apikey":"RoruLyLqUI4rNaWT0hJ64Wba0q00nGTm7Y0NCLfKaKdZ8SzsFrrUXVIvcEEOk3MI","secretkey":"Kb0m2V60w4RYjGioQsBuqSNYyjN3mwB3DBdoCcjZl4OHDIgvXOLCE03NIqnaNzQp","canTrade":true,"futuresTrade":true}}
+```
+
+
+## 删除子账户ApiKey
+* curl --location --request DELETE 'http://47.57.93.231:8000/api/broker/subAccountApi' --header 'Content-Type: application/json' --data-raw '{"subAccountId":"485396905497952257", "subAccountApiKey":"RoruLyLqUI4rNaWT0hJ64Wba0q00nGTm7Y0NCLfKaKdZ8SzsFrrUXVIvcEEOk3MI"}'
+```
+{"error_code":0,"error_message":"ok"}
+```
+
+
+## 查询子账户ApiKey
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccountApi?subAccountId=485396905497952257' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok"}
+```
+
+
+## 查询子账户ApiKey
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/subAccountApi/permission' --header 'Content-Type: application/json' --data-raw '{"subAccountId":"485396905497952257", "subAccountApiKey":"BAYb7zqjwDXcuU52RIT65DlB0SLzGSk02zxE3YPbJlDFCukYXQWZWDPeHfnfm9MW", "canTrade":"true", "futuresTrade":"true"}'
+```
+{"error_code":0,"error_message":"ok"}
+```
