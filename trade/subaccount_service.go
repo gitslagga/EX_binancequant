@@ -375,7 +375,7 @@ func (s *ChangeCommissionFuturesService) Do(ctx context.Context, opts ...Request
 
 // ChangeCommissionFutures define change futures commission
 type ChangeCommissionFutures struct {
-	SubAccountId    string `json:"subaccountId"`
+	SubAccountId    uint64 `json:"subaccountId"`
 	Symbol          string `json:"symbol"`
 	MakerAdjustment int    `json:"makerAdjustment"`
 	TakerAdjustment int    `json:"takerAdjustment"`

@@ -31,12 +31,12 @@ func (s *GetInfoService) Do(ctx context.Context, opts ...RequestOption) (res *Ge
 
 // GetInfo define query broker info
 type GetInfo struct {
-	MaxMakerCommission int `json:"maxMakerCommission"`
-	MinMakerCommission int `json:"minMakerCommission"`
-	MaxTakerCommission int `json:"maxTakerCommission"`
-	MinTakerCommission int `json:"minTakerCommission"`
-	SubAccountQty      int `json:"subAccountQty"`
-	MaxSubAccountQty   int `json:"maxSubAccountQty"`
+	MaxMakerCommission string `json:"maxMakerCommission"`
+	MinMakerCommission string `json:"minMakerCommission"`
+	MaxTakerCommission string `json:"maxTakerCommission"`
+	MinTakerCommission string `json:"minTakerCommission"`
+	SubAccountQty      int    `json:"subAccountQty"`
+	MaxSubAccountQty   int    `json:"maxSubAccountQty"`
 }
 
 // CreateTransferService create sub account transfer

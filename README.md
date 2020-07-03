@@ -122,12 +122,41 @@
 ## 查询子账户ApiKey
 * curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccountApi?subAccountId=485396905497952257' --header 'Content-Type: application/json'
 ```
-{"error_code":0,"error_message":"ok"}
+{"error_code":0,"error_message":"ok","data":[{"subaccountId":"485396905497952257","apikey":"BAYb7zqjwDXcuU52RIT65DlB0SLzGSk02zxE3YPbJlDFCukYXQWZWDPeHfnfm9MW","canTrade":true,"futuresTrade":true},{"subaccountId":"485396905497952257","apikey":"iFgqdhh2n68lrwwTHldpMGUut2g4hdRi4Phffl7hybbW6KMn3mEp87nnP4S4XuIy","canTrade":true,"futuresTrade":true}]}
 ```
 
 
-## 查询子账户ApiKey
+## 更改子账户ApiKey 交易权限，合约权限
 * curl --location --request POST 'http://47.57.93.231:8000/api/broker/subAccountApi/permission' --header 'Content-Type: application/json' --data-raw '{"subAccountId":"485396905497952257", "subAccountApiKey":"BAYb7zqjwDXcuU52RIT65DlB0SLzGSk02zxE3YPbJlDFCukYXQWZWDPeHfnfm9MW", "canTrade":"true", "futuresTrade":"true"}'
 ```
 {"error_code":0,"error_message":"ok"}
 ```
+
+
+## 查询子账户
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[{"subaccountId":"485396905497952257","makerCommission":"0.0010","takerCommission":"0.0010","createTime":1593686040000}]}
+```
+
+
+## 更改子账户合约手续费
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/subAccountApi/commission/futures' --header 'Content-Type: application/json' --data-raw '{"subAccountId":"485396905497952257", "symbol":"BTCUSDT", "makerAdjustment":100, "takerAdjustment":100}'
+```
+{"error_code":0,"error_message":"ok","data":{"subAccountId":485396905497952257,"symbol":"BTCUSDT","makerAdjustment":10,"takerAdjustment":10,"makerCommission":210,"takerCommission":410}}
+```
+
+
+## 获取子账户合约手续费
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccountApi/commission/futures?subAccountId=485396905497952257&symbol=BTCUSDT' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[{"subaccountId":485396905497952257,"symbol":"BTCUSDT","makerAdjustment":10,"takerAdjustment":10,"makerCommission":210,"takerCommission":410}]}
+```
+
+
+## 获取经纪商账户信息
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/info' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":{"maxMakerCommission":"0.00200000","minMakerCommission":"0.00100000","maxTakerCommission":"0.00200000","minTakerCommission":"0.00100000","subAccountQty":7,"maxSubAccountQty":1000}}
+```
+
