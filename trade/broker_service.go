@@ -619,7 +619,7 @@ func (s *GetRebateHistoryService) Limit(limit int) *GetRebateHistoryService {
 }
 
 // Do send request
-func (s *GetRebateHistoryService) Do(ctx context.Context, opts ...RequestOption) (res []*GetRebateHistory, err error) {
+func (s *GetRebateHistoryService) Do(ctx context.Context, opts ...RequestOption) (res []byte, err error) {
 	r := &request{
 		method:   "GET",
 		endpoint: "/sapi/v1/broker/rebate/historicalRecord",
@@ -641,21 +641,5 @@ func (s *GetRebateHistoryService) Do(ctx context.Context, opts ...RequestOption)
 	if err != nil {
 		return nil, err
 	}
-	res = make([]*GetRebateHistory, 0)
-	err = json.Unmarshal(data, &res)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
-}
-
-// GetRebateHistoryService define get rebate history
-type GetRebateHistory struct {
-	SubAccountId string `json:"subaccountId"`
-	Income       string `json:"income"`
-	Asset        string `json:"asset"`
-	Symbol       string `json:"symbol"`
-	TradeId      uint64 `json:"tradeId"`
-	Time         uint64 `json:"time"`
-	Link         string `json:"link"`
+	return data, nil
 }

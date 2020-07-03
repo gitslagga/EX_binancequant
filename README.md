@@ -212,9 +212,32 @@
 ## 获取子账户合约资产
 * curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/futuresSummary' --header 'Content-Type: application/json'
 ```
-{"error_code":0,"error_message":"ok","data":{"Data":[{"subAccountId":"485396905497952257","totalBalanceOfBtc":"0.00000000"}],"sourceAddress":""}}
+{"error_code":0,"error_message":"ok","data":{"Data":[{"futuresEnable":true,"subAccountId":"485396905497952257","totalInitialMarginOfUsdt":"0","totalMaintenanceMarginOfUsdt":"0","totalWalletBalanceOfUsdt":"0","totalUnrealizedProfitOfUsdt":"0","totalMarginBalanceOfUsdt":"0","totalPositionInitialMarginOfUsdt":"0","totalOpenOrderInitialMarginOfUsdt":"0"}],"timestamp":1593745369080}}
 ```
-* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/spotSummary?subAccountId=485396905497952257' --header 'Content-Type: application/json'
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/futuresSummary?subAccountId=485396905497952257' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":{"Data":[{"futuresEnable":true,"subAccountId":"485396905497952257","totalInitialMarginOfUsdt":"0","totalMaintenanceMarginOfUsdt":"0","totalWalletBalanceOfUsdt":"0","totalUnrealizedProfitOfUsdt":"0","totalMarginBalanceOfUsdt":"0","totalPositionInitialMarginOfUsdt":"0","totalOpenOrderInitialMarginOfUsdt":"0"}],"timestamp":1593745369080}}
+```
+
+
+## 获取子账户七天返佣记录
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/rebate/recentRecord?subAccountId=485396905497952257&startTime=0&endTime=1&limit=10' --header 'Content-Type: application/json'
 ```
 {"error_code":0,"error_message":"ok","data":[]}
 ```
+
+
+## 开启子账户三十天返佣记录
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/rebate/historicalRecord' --header 'Content-Type: application/json' --data-raw '{"subAccountId":"485396905497952257", "startTime":1, "endTime":100}'
+```
+{"error_code":0,"error_message":"ok","data":{"code":200,"msg":"Historical data is collecting"}
+```
+
+
+## 获取子账户三十天返佣记录
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/rebate/historicalRecord?subAccountId=485396905497952257&startTime=0&endTime=1&limit=10' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":"https://bin-prod-user-rebate-bucket.s3.amazonaws.com/user-rebate/b4b6ca80-bcdc-11ea-8a61-0ad86c4d89f6/part-00000-d67a3f95-97ed-428f-89f0-44929fbd3405-c000.csv?AWSAccessKeyId=ASIAVL364M5ZHDRTC3ES\u0026Expires=1593833086\u0026x-amz-security-token=IQoJb3JpZ2luX2VjENP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaDmFwLW5vcnRoZWFzdC0xIkcwRQIgf3MuxZjiULuxAGXOziJj5%2FjYSCXNyr9ZYRXyT6ZSbasCIQDz45ZUTIMN%2BYpnG%2B%2FVkGFsjfd2ODO0EGfitFmkQcGgyyq%2BAwhsEAAaDDM2OTA5NjQxOTE4NiIMNwJsOnb2HzG85xU4KpsDhgfDP6h5NMC8zNXNJBKHGv%2BtLSCjijh5hrADVnUtWJGylhLrb1YQfweynzwHe4tLm7LIHHvojaT1l62lKy2kUWNaBXTjW0KwQUltuO5EuvrCLHFsuPJbu9493NLI9Bdc9Tg%2BlGgdSIDXxHwt4SGtiPRXhELNvUlKK0HHAL6zDRMMuSsFHivn9NEdm3OoGW3m0XFitK4XRhDhjgxehm8xTJsznjj1UlXq7d%2BcUqrK2rO13%2BVNhOPYQdNE%2FAIy6CA8mVyioNVGDfMmVX9%2BeuGBWFeogIv%2BlkQC%2FiGlsfLT%2FejfYHVREX3NfH5C2MzB8VffKmeUfQbxjGh7GEFeQyraprx5iH6ukVJOCoWHQAnrMlLyitCkxuT7Bc19hRDzKXrw3NnewOuz2CWGD%2Fc8ALSV6xdAhaadq4mGekjHt%2Fyph7fT3Ctjx%2BSR1EXmtzvBe2X%2BR%2FFoTw5ismACvdQdWHoigs9ef66lojfLUWU3CNwITX7nvP%2Fx27ISTduQT2RgynM1XYWMJdC4ZcxLuC71cYxnM%2B7swrbSx8Jyw3jQMLLE%2BvcFOusBQ3q3UmnqDQZ5NzISfzFQRcT1%2Fb5YuWZBttswaf2bWwYy82P%2FeV%2BoFJBjXh3zkc6oTpA0w1FfE2LW3Pz3Rh1E8jOQyGb2IQGNvdByfQVdJztV%2F%2BMtDFd5w0ZkBZwFEPleikx%2Fn5P04VVPX6%2FjY%2BYtM1RDoa8%2FaDFeAxeFQnNnYNNvXJdKF8dax9cbT2tNy1AzmOQDLAywlUwvzbMJdAJMoS04%2FAn%2FjP%2BPpbwgIjvuieHzXOY8gAuqfpod85JlbLPwgpllulGj8wd1J8Ma4wx06UxcYALC%2Bp%2FIAlsW9mVp0jE5kRuwkMe62cCVwQ%3D%3D\u0026Signature=NXEdVtbPvjY5iv0I6ZTlQGp8baw%3D"}
+```
+
+
