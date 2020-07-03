@@ -39,7 +39,7 @@ type SubAccount struct {
 type EnableSubAccountFuturesService struct {
 	c            *Client
 	subAccountId *string
-	futures      *string
+	futures      *bool
 }
 
 // SubAccountId set subAccountId
@@ -49,7 +49,7 @@ func (s *EnableSubAccountFuturesService) SubAccountId(subAccount string) *Enable
 }
 
 // Futures set futures (true, false)
-func (s *EnableSubAccountFuturesService) Futures(futures string) *EnableSubAccountFuturesService {
+func (s *EnableSubAccountFuturesService) Futures(futures bool) *EnableSubAccountFuturesService {
 	s.futures = &futures
 	return s
 }
@@ -86,8 +86,8 @@ type EnableSubAccountFutures struct {
 type CreateSubAccountApiService struct {
 	c            *Client
 	subAccountId *string
-	canTrade     *string
-	futuresTrade *string
+	canTrade     *bool
+	futuresTrade *bool
 }
 
 // SubAccountId set subAccountId
@@ -97,13 +97,13 @@ func (s *CreateSubAccountApiService) SubAccountId(subAccountId string) *CreateSu
 }
 
 // CanTrade set canTrade (true, false)
-func (s *CreateSubAccountApiService) CanTrade(canTrade string) *CreateSubAccountApiService {
+func (s *CreateSubAccountApiService) CanTrade(canTrade bool) *CreateSubAccountApiService {
 	s.canTrade = &canTrade
 	return s
 }
 
 // FuturesTrade set futuresTrade (true, false)
-func (s *CreateSubAccountApiService) FuturesTrade(futuresTrade string) *CreateSubAccountApiService {
+func (s *CreateSubAccountApiService) FuturesTrade(futuresTrade bool) *CreateSubAccountApiService {
 	s.futuresTrade = &futuresTrade
 	return s
 }
@@ -223,8 +223,8 @@ type ChangeSubAccountApiPermissionService struct {
 	c                *Client
 	subAccountId     *string
 	subAccountApiKey *string
-	canTrade         *string
-	futuresTrade     *string
+	canTrade         *bool
+	futuresTrade     *bool
 }
 
 // SubAccountId set subAccountId
@@ -240,13 +240,13 @@ func (s *ChangeSubAccountApiPermissionService) SubAccountApiKey(subAccountApiKey
 }
 
 // CanTrade set canTrade (true, false)
-func (s *ChangeSubAccountApiPermissionService) CanTrade(canTrade string) *ChangeSubAccountApiPermissionService {
+func (s *ChangeSubAccountApiPermissionService) CanTrade(canTrade bool) *ChangeSubAccountApiPermissionService {
 	s.canTrade = &canTrade
 	return s
 }
 
 // FuturesTrade set futuresTrade (true, false)
-func (s *ChangeSubAccountApiPermissionService) FuturesTrade(futuresTrade string) *ChangeSubAccountApiPermissionService {
+func (s *ChangeSubAccountApiPermissionService) FuturesTrade(futuresTrade bool) *ChangeSubAccountApiPermissionService {
 	s.futuresTrade = &futuresTrade
 	return s
 }
