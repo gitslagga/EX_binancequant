@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"time"
@@ -17,6 +18,16 @@ import (
 var (
 	client *mongo.Client
 )
+
+type UserKeys struct {
+	//struct里面获取ObjectID
+	UserKeysID   primitive.ObjectID `bson:"_id"`
+	UserID       string             `bson:"user_id"`
+	SubAccountId string             `bson:"sub_account_id"`
+	ApiKey       string             `bson:"api_key"`
+	SecretKey    string             `bson:"secret_key"`
+	CreateTime   int64              `bson:"create_time"`
+}
 
 func InitMongoCli() {
 	var err error
@@ -49,32 +60,15 @@ func getContext() context.Context {
 	return ctx
 }
 
-func getUserKeys(userID string) (*map[string]interface{}, error) {
+func getUserKeys(userID string) (*UserKeys, error) {
 	ctx := data.NewContext()
-	var userKeys map[string]interface{}
+	var userKeys UserKeys
 
 	collection := client.Database("main_quantify").Collection("user_keys")
-	errUser := collection.FindOne(ctx, bson.D{{"user_id", userID}}).Decode(&userKeys)
-	if errUser != nil {
-		if errUser == mongo.ErrNoDocuments {
-			err := collection.FindOne(ctx, bson.D{{"status", 0}}).Decode(&userKeys)
-			if err != nil {
-				mylog.Logger.Error().Msgf("[GetSpotClientByUserID] collection FindOne failed, err=%v", err)
-				return nil, err
-			}
-
-			updateResult, err := collection.UpdateOne(ctx, bson.D{{"_id", userKeys["_id"]}}, bson.D{{
-				"$set", bson.D{{"status", 1}, {"user_id", userID}},
-			}})
-			if err != nil {
-				mylog.Logger.Error().Msgf("[GetSpotClientByUserID] collection UpdateOne failed, updateResult=%v, err=%v", updateResult, err)
-				return nil, err
-			}
-
-		} else {
-			mylog.Logger.Error().Msgf("[GetSpotClientByUserID] collection FindOne failed, err=%v", errUser)
-			return nil, errUser
-		}
+	err := collection.FindOne(ctx, bson.D{{"user_id", userID}}).Decode(&userKeys)
+	if err != nil {
+		mylog.Logger.Error().Msgf("[GetSpotClientByUserID] collection FindOne failed, err=%v", err)
+		return nil, err
 	}
 
 	return &userKeys, nil
@@ -89,7 +83,7 @@ func GetSpotClientByUserID(userID string) (*trade.Client, error) {
 		return nil, err
 	}
 
-	client := trade.NewClientByParam((*userKeys)["api_key"].(string), (*userKeys)["secret_key"].(string))
+	client := trade.NewClientByParam(userKeys.ApiKey, userKeys.SecretKey)
 	return client, nil
 }
 
@@ -102,6 +96,42 @@ func GetFuturesClientByUserID(userID string) (*futures.Client, error) {
 		return nil, err
 	}
 
-	client := trade.NewFuturesClientByParam((*userKeys)["api_key"].(string), (*userKeys)["secret_key"].(string))
+	client := trade.NewFuturesClientByParam(userKeys.ApiKey, userKeys.SecretKey)
 	return client, nil
+}
+
+/**
+获取用户开户状态
+*/
+func GetActiveFuturesByUserID(userID string) bool {
+	userKeys, err := getUserKeys(userID)
+	if userKeys == nil || err != nil {
+		return false
+	}
+
+	return true
+}
+
+/**
+创建合约子账户
+*/
+func CreateFuturesSubAccount(userID, subAccountId, apiKey, secretKey string) error {
+	ctx := data.NewContext()
+
+	collection := client.Database("main_quantify").Collection("user_keys")
+	userKeys := UserKeys{
+		UserID:       userID,
+		SubAccountId: subAccountId,
+		ApiKey:       apiKey,
+		SecretKey:    secretKey,
+		CreateTime:   time.Now().Unix(),
+	}
+
+	_, err := collection.InsertOne(ctx, userKeys)
+	if err != nil {
+		mylog.Logger.Error().Msgf("[CreateFuturesSubAccount] collection InsertOne failed, err=%v", err)
+		return err
+	}
+
+	return nil
 }
