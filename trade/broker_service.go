@@ -349,7 +349,9 @@ func (s *GetSubAccountSpotSummaryService) Do(ctx context.Context, opts ...Reques
 		endpoint: "/sapi/v1/broker/subAccount/spotSummary",
 		secType:  secTypeSigned,
 	}
-	r.setParam("subAccountId", *s.subAccountId)
+	if s.subAccountId != nil {
+		r.setParam("subAccountId", *s.subAccountId)
+	}
 	if s.subAccountId != nil {
 		r.setParam("subAccountId", *s.subAccountId)
 	}
@@ -374,7 +376,7 @@ func (s *GetSubAccountSpotSummaryService) Do(ctx context.Context, opts ...Reques
 // GetSubAccountSpotSummary define get sub account spot summary
 type GetSubAccountSpotSummary struct {
 	Data      []*subAccountSpotSummary
-	Timestamp string `json:"sourceAddress"`
+	Timestamp uint64 `json:"timestamp"`
 }
 
 type subAccountSpotSummary struct {
@@ -415,7 +417,9 @@ func (s *GetSubAccountFuturesSummaryService) Do(ctx context.Context, opts ...Req
 		endpoint: "/sapi/v1/broker/subAccount/futuresSummary",
 		secType:  secTypeSigned,
 	}
-	r.setParam("subAccountId", *s.subAccountId)
+	if s.subAccountId != nil {
+		r.setParam("subAccountId", *s.subAccountId)
+	}
 	if s.subAccountId != nil {
 		r.setParam("subAccountId", *s.subAccountId)
 	}
@@ -440,12 +444,19 @@ func (s *GetSubAccountFuturesSummaryService) Do(ctx context.Context, opts ...Req
 // GetSubAccountFuturesSummary define get sub account futures summary
 type GetSubAccountFuturesSummary struct {
 	Data      []*subAccountFuturesSummary
-	Timestamp string `json:"timestamp"`
+	Timestamp uint64 `json:"timestamp"`
 }
 
 type subAccountFuturesSummary struct {
-	SubAccountId      string `json:"subAccountId"`
-	TotalBalanceOfBtc string `json:"totalBalanceOfBtc"`
+	FuturesEnable                     bool   `json:"futuresEnable"`
+	SubAccountId                      string `json:"subAccountId"`
+	TotalInitialMarginOfUsdt          string `json:"totalInitialMarginOfUsdt"`
+	TotalMaintenanceMarginOfUsdt      string `json:"totalMaintenanceMarginOfUsdt"`
+	TotalWalletBalanceOfUsdt          string `json:"totalWalletBalanceOfUsdt"`
+	TotalUnrealizedProfitOfUsdt       string `json:"totalUnrealizedProfitOfUsdt"`
+	TotalMarginBalanceOfUsdt          string `json:"totalMarginBalanceOfUsdt"`
+	TotalPositionInitialMarginOfUsdt  string `json:"totalPositionInitialMarginOfUsdt"`
+	TotalOpenOrderInitialMarginOfUsdt string `json:"totalOpenOrderInitialMarginOfUsdt"`
 }
 
 // GetRebateRecentRecordService get rebate recent record history
@@ -614,10 +625,18 @@ func (s *GetRebateHistoryService) Do(ctx context.Context, opts ...RequestOption)
 		endpoint: "/sapi/v1/broker/rebate/historicalRecord",
 		secType:  secTypeSigned,
 	}
-	r.setParam("subAccountId", *s.subAccountId)
-	r.setParam("startTime", *s.startTime)
-	r.setParam("endTime", *s.endTime)
-	r.setParam("limit", *s.limit)
+	if s.subAccountId != nil {
+		r.setParam("subAccountId", *s.subAccountId)
+	}
+	if s.startTime != nil {
+		r.setParam("startTime", *s.startTime)
+	}
+	if s.endTime != nil {
+		r.setParam("endTime", *s.endTime)
+	}
+	if s.limit != nil {
+		r.setParam("limit", *s.limit)
+	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return nil, err

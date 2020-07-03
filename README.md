@@ -138,6 +138,10 @@
 ```
 {"error_code":0,"error_message":"ok","data":[{"subaccountId":"485396905497952257","makerCommission":"0.0010","takerCommission":"0.0010","createTime":1593686040000}]}
 ```
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount?subAccountId=485396905497952257' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[{"subaccountId":"485396905497952257","makerCommission":"0.0010","takerCommission":"0.0010","createTime":1593686040000}]}
+```
 
 
 ## 更改子账户合约手续费
@@ -160,3 +164,57 @@
 {"error_code":0,"error_message":"ok","data":{"maxMakerCommission":"0.00200000","minMakerCommission":"0.00100000","maxTakerCommission":"0.00200000","minTakerCommission":"0.00100000","subAccountQty":7,"maxSubAccountQty":1000}}
 ```
 
+
+## 经纪商和子账户划转
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/transfer' --header 'Content-Type: application/json' --data-raw '{"toId":"485396905497952257", "asset":"USDT", "amount":100}'
+```
+{"error_code":30110101,"error_message":"\u003cAPIError\u003e code=-9000, msg=user have no avaliable amount"}
+```
+* curl --location --request POST 'http://47.57.93.231:8000/api/broker/transfer' --header 'Content-Type: application/json' --data-raw '{"fromId":"485396905497952257", "asset":"USDT", "amount":100}'
+```
+{"error_code":30110101,"error_message":"\u003cAPIError\u003e code=-9000, msg=user have no avaliable amount"}
+```
+
+
+## 获取经纪商和子账户划转记录
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/transfer?subAccountId=485396905497952257' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[]}
+```
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/transfer?subAccountId=485396905497952257&startTime=0&endTime=1' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[]}
+```
+
+
+## 获取子账户充币记录
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/depositHist' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[]}
+```
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/depositHist?subAccountId=485396905497952257&startTime=0&endTime=1' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[]}
+```
+
+
+## 获取子账户现货资产
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/spotSummary' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":{"Data":[{"subAccountId":"485396905497952257","totalBalanceOfBtc":"0.00000000"}],"sourceAddress":""}}
+```
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/spotSummary?subAccountId=485396905497952257' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[]}
+```
+
+
+## 获取子账户合约资产
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/futuresSummary' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":{"Data":[{"subAccountId":"485396905497952257","totalBalanceOfBtc":"0.00000000"}],"sourceAddress":""}}
+```
+* curl --location --request GET 'http://47.57.93.231:8000/api/broker/subAccount/spotSummary?subAccountId=485396905497952257' --header 'Content-Type: application/json'
+```
+{"error_code":0,"error_message":"ok","data":[]}
+```
