@@ -352,6 +352,7 @@ func CreateWithdrawService(c *gin.Context) {
 		return
 	}
 
+	//获取用户现货余额
 	account, err := client.NewGetAccountService().Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
@@ -381,6 +382,26 @@ func CreateWithdrawService(c *gin.Context) {
 		return
 	}
 
+	//获取用户子账户ID
+	subAccountID, err := db.GetSubAccountIdByUserID(userID)
+	if err != nil {
+		out.ErrorCode = data.EC_PARAMS_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	//从子账户现货账户往经纪人现货账户划转
+	_, err = trade.BAExClient.NewCreateTransferService().
+		Asset(withdrawRequest.Coin).Amount(withdrawRequest.Amount).FromId(subAccountID).Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	//经纪人api key签名发起提币
 	createWithdraw := trade.BAExClient.NewCreateWithdrawService()
 	createWithdraw.Coin(withdrawRequest.Coin)
 	createWithdraw.Address(withdrawRequest.Address)

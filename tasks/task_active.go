@@ -46,6 +46,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 		return
 	}
 
+	//创建子账户
 	createRes, err := trade.BAExClient.NewCreateSubAccountService().Do(data.NewContext())
 	if err != nil {
 		out.ErrorCode = data.EC_NETWORK_ERR
@@ -54,6 +55,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 		return
 	}
 
+	//为子账户开启合约权限
 	_, err = trade.BAExClient.NewEnableSubAccountFutures().
 		SubAccountId(createRes.SubAccountId).Futures(true).Do(data.NewContext())
 	if err != nil {
@@ -63,6 +65,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 		return
 	}
 
+	//创建子账户api key
 	createApiRes, err := trade.BAExClient.NewCreateSubAccountApiService().
 		SubAccountId(createRes.SubAccountId).CanTrade(true).FuturesTrade(true).Do(data.NewContext())
 	if err != nil {

@@ -104,12 +104,24 @@ func GetFuturesClientByUserID(userID string) (*futures.Client, error) {
 获取用户开户状态
 */
 func GetActiveFuturesByUserID(userID string) bool {
-	userKeys, err := getUserKeys(userID)
-	if userKeys == nil || err != nil {
+	_, err := getUserKeys(userID)
+	if err != nil {
 		return false
 	}
 
 	return true
+}
+
+/**
+获取子账户ID
+*/
+func GetSubAccountIdByUserID(userID string) (string, error) {
+	userKeys, err := getUserKeys(userID)
+	if err != nil {
+		return "", err
+	}
+
+	return userKeys.SubAccountId, nil
 }
 
 /**
