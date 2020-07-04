@@ -21,7 +21,7 @@ func InitRouter(r *gin.Engine) {
 	r.GET("/api/market/ticker/price", ListPricesService)
 	r.GET("/api/market/exchangeInfo", ExchangeInfoService)
 
-	/****************************** 后台 - 经纪商接口 *********************************/
+	/****************************** 后台 - 经纪人接口 *********************************/
 	//管理子账户权限
 	r.POST("/api/broker/subAccount", CreateSubAccountService)
 	r.POST("/api/broker/subAccount/futures", EnableSubAccountFuturesService)

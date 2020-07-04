@@ -10,7 +10,7 @@ import (
 )
 
 /**
-Create a Sub Account
+创建子账户
 */
 func CreateSubAccountService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -32,7 +32,7 @@ func CreateSubAccountService(c *gin.Context) {
 }
 
 /**
-Enable Futures for Sub Account
+为子帐户启用合约
 */
 func EnableSubAccountFuturesService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -70,7 +70,7 @@ func EnableSubAccountFuturesService(c *gin.Context) {
 }
 
 /**
-Create Api Key for Sub Account
+为子帐户创建Api密钥
 */
 func CreateSubAccountApiService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -109,7 +109,7 @@ func CreateSubAccountApiService(c *gin.Context) {
 }
 
 /**
-Delete Sub Account Api Key
+删除子帐户Api密钥
 */
 func DeleteSubAccountApiService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -146,7 +146,7 @@ func DeleteSubAccountApiService(c *gin.Context) {
 }
 
 /**
-Query Sub Account Api Key
+查询子帐户api密钥
 */
 func GetSubAccountApiService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -187,7 +187,7 @@ func GetSubAccountApiService(c *gin.Context) {
 }
 
 /**
-Change Sub Account Api Permission
+更改子帐户Api权限
 */
 func ChangeSubAccountApiPermissionService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -227,7 +227,7 @@ func ChangeSubAccountApiPermissionService(c *gin.Context) {
 }
 
 /**
-Query Sub Account
+查询子账户
 */
 func GetSubAccountService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -259,7 +259,7 @@ func GetSubAccountService(c *gin.Context) {
 }
 
 /**
-Change Sub Account Futures Commission Adjustment
+更改子账户合约佣金调整
 */
 func ChangeCommissionFuturesService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -299,7 +299,7 @@ func ChangeCommissionFuturesService(c *gin.Context) {
 }
 
 /**
-Query Sub Account Futures Commission Adjustment
+查询子账户合约佣金调整
 */
 func GetCommissionFuturesService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -340,7 +340,7 @@ func GetCommissionFuturesService(c *gin.Context) {
 }
 
 /**
-Broker Account Information
+经纪人账户信息
 */
 func GetInfoService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -362,7 +362,7 @@ func GetInfoService(c *gin.Context) {
 }
 
 /**
-Sub Account Transfer
+子账户划转
 */
 func CreateTransferService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -410,7 +410,7 @@ func CreateTransferService(c *gin.Context) {
 }
 
 /**
-Query Sub Account Transfer History
+查询子账户划转历史
 */
 func GetTransferService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -475,7 +475,7 @@ func GetTransferService(c *gin.Context) {
 }
 
 /**
-Get Sub Account Deposit History
+获取子账户充币历史
 */
 func GetSubAccountDepositHistService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -542,7 +542,7 @@ func GetSubAccountDepositHistService(c *gin.Context) {
 }
 
 /**
-Query Sub Account Spot Asset info
+查询子账户现货资产信息
 */
 func GetSubAccountSpotSummaryService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -586,7 +586,7 @@ func GetSubAccountSpotSummaryService(c *gin.Context) {
 }
 
 /**
-Query Subaccount Futures Asset info
+查询子账户合约资产信息
 */
 func GetSubAccountFuturesSummaryService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -630,7 +630,7 @@ func GetSubAccountFuturesSummaryService(c *gin.Context) {
 }
 
 /**
-Query Broker Commission Rebate Recent Record
+查询经纪人佣金回扣最近记录
 */
 func GetRebateRecentRecordService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -679,7 +679,7 @@ func GetRebateRecentRecordService(c *gin.Context) {
 }
 
 /**
-Generate Broker Commission Rebate History
+生成经纪人佣金回扣历史记录
 */
 func GenerateRebateHistoryService(c *gin.Context) {
 	out := data.CommonResp{}
@@ -725,7 +725,7 @@ func GenerateRebateHistoryService(c *gin.Context) {
 }
 
 /**
-Query Broker Commission Rebate History
+查询经纪人佣金回扣记录
 */
 func GetRebateHistoryService(c *gin.Context) {
 	out := data.CommonResp{}

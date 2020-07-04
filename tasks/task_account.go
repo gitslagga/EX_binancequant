@@ -352,7 +352,36 @@ func CreateWithdrawService(c *gin.Context) {
 		return
 	}
 
-	createWithdraw := client.NewCreateWithdrawService()
+	account, err := client.NewGetAccountService().Do(data.NewContext())
+	if err != nil {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = err.Error()
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	var balance float64
+	for _, v := range account.Balances {
+		if v.Asset == withdrawRequest.Coin {
+			balance, err = strconv.ParseFloat(v.Free, 64)
+			if err != nil {
+				out.ErrorCode = data.EC_NETWORK_ERR
+				out.ErrorMessage = err.Error()
+				c.JSON(http.StatusBadRequest, out)
+				return
+			}
+			break
+		}
+	}
+
+	if balance < withdrawRequest.Amount {
+		out.ErrorCode = data.EC_NETWORK_ERR
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NETWORK_ERR)
+		c.JSON(http.StatusBadRequest, out)
+		return
+	}
+
+	createWithdraw := trade.BAExClient.NewCreateWithdrawService()
 	createWithdraw.Coin(withdrawRequest.Coin)
 	createWithdraw.Address(withdrawRequest.Address)
 	createWithdraw.Amount(withdrawRequest.Amount)
