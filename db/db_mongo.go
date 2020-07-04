@@ -120,6 +120,7 @@ func CreateFuturesSubAccount(userID, subAccountId, apiKey, secretKey string) err
 
 	collection := client.Database("main_quantify").Collection("user_keys")
 	userKeys := UserKeys{
+		UserKeysID:   primitive.NewObjectID(),
 		UserID:       userID,
 		SubAccountId: subAccountId,
 		ApiKey:       apiKey,
