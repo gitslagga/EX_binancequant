@@ -365,7 +365,7 @@ func CreateWithdrawService(c *gin.Context) {
 		if v.Asset == withdrawRequest.Coin {
 			balance, err = strconv.ParseFloat(v.Free, 64)
 			if err != nil {
-				out.ErrorCode = data.EC_NETWORK_ERR
+				out.ErrorCode = data.EC_FORMAT_ERR
 				out.ErrorMessage = err.Error()
 				c.JSON(http.StatusBadRequest, out)
 				return
@@ -375,8 +375,8 @@ func CreateWithdrawService(c *gin.Context) {
 	}
 
 	if balance < withdrawRequest.Amount {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NETWORK_ERR)
+		out.ErrorCode = data.EC_NO_BALANCE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NO_BALANCE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}

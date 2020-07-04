@@ -40,8 +40,8 @@ func CreateActiveFuturesService(c *gin.Context) {
 		userID)
 
 	if active := db.GetActiveFuturesByUserID(userID); active == true {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NETWORK_ERR)
+		out.ErrorCode = data.EC_ALREADY_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_ALREADY_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}

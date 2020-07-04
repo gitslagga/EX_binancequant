@@ -22,6 +22,10 @@ const (
 	EC_INTERNAL_ERR                 = 30110102
 	EC_INTERNAL_ERR_DB              = 30110103
 	EC_INTERNAL_ERR_REDIS           = 30110104
+
+	EC_FORMAT_ERR     = 30200000 + 10
+	EC_ALREADY_ACTIVE = 30100000 + 11
+	EC_NO_BALANCE     = 30200000 + 12
 )
 
 func (c ErrorCode) Code() (r int) {
@@ -49,6 +53,12 @@ func (c ErrorCode) String() (r string) {
 	case EC_INTERNAL_ERR_REDIS:
 		r = "Server error"
 
+	case EC_ALREADY_ACTIVE:
+		r = "Already activated"
+	case EC_NO_BALANCE:
+		r = "Insufficient balance"
+	case EC_FORMAT_ERR:
+		r = "Format error"
 	default:
 	}
 	return
