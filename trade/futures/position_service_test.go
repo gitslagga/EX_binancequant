@@ -75,7 +75,7 @@ func (s *positionServiceTestSuite) TestUpdatePositionMargin() {
 	symbol := "BTCUSDT"
 	positionSide := PositionSideTypeLong
 
-	amount := "100.0"
+	amount := 100.0
 	actionType := 1
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setFormParams(params{

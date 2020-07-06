@@ -46,13 +46,13 @@ func (s *orderServiceTestSuite) TestCreateOrder() {
 	orderType := OrderTypeLimit
 	timeInForce := TimeInForceTypeGTC
 	positionSide := PositionSideTypeBoth
-	quantity := "10"
-	price := "10000"
+	quantity := 10.0
+	price := 10000.0
 	newClientOrderID := "testOrder"
 	reduceOnly := false
-	stopPrice := "0"
-	activationPrice := "1000"
-	callbackRate := "0.1"
+	stopPrice := 0.0
+	activationPrice := 1000.0
+	callbackRate := 0.1
 	workingType := WorkingTypeContractPrice
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setFormParams(params{
@@ -95,8 +95,8 @@ func (s *orderServiceTestSuite) TestCreateOrder() {
 		Type:             OrderTypeLimit,
 		UpdateTime:       1566818724722,
 		WorkingType:      WorkingTypeContractPrice,
-		ActivatePrice:    activationPrice,
-		PriceRate:        callbackRate,
+		ActivatePrice:    "1000",
+		PriceRate:        "0.1",
 	}
 	s.assertCreateOrderResponseEqual(e, res)
 }

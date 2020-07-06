@@ -35,14 +35,19 @@ func (s *premiumIndexServiceTestSuite) TestGetPremiumIndex() {
 
 	res, err := s.client.NewPremiumIndexService().Symbol(symbol).Do(newContext())
 	s.r().NoError(err)
-	e := &PremiumIndex{
-		Symbol:          symbol,
-		MarkPrice:       "11012.80409769",
-		LastFundingRate: "-0.03750000",
-		NextFundingTime: int64(1562569200000),
-		Time:            int64(1562566020000),
+	e := []*PremiumIndex{
+		{
+			Symbol:          symbol,
+			MarkPrice:       "11012.80409769",
+			LastFundingRate: "-0.03750000",
+			NextFundingTime: int64(1562569200000),
+			Time:            int64(1562566020000),
+		},
 	}
-	s.assertPremiumIndexEqual(e, res)
+	s.r().Len(res, len(e))
+	for i := 0; i < len(res); i++ {
+		s.assertPremiumIndexEqual(e[i], res[i])
+	}
 }
 
 func (s *premiumIndexServiceTestSuite) assertPremiumIndexEqual(e, a *PremiumIndex) {
