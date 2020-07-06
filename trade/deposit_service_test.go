@@ -65,7 +65,45 @@ func (s *depositServiceTestSuite) assertDepositEqual(e, a *Deposit) {
 	r.Equal(e.Amount, a.Amount, "Amount")
 	r.Equal(e.Coin, a.Coin, "Coin")
 	r.Equal(e.InsertTime, a.InsertTime, "InsertTime")
-	r.Equal(e.Coin, a.Coin, "Network")
+	r.Equal(e.Network, a.Network, "Network")
 	r.Equal(e.Status, a.Status, "Status")
 	r.Equal(e.TxID, a.TxID, "TxID")
+}
+
+func (s *depositServiceTestSuite) TestDepositAddress() {
+	data := []byte(`
+    {
+		"address": "1HPn8Rx2y6nNSfagQBKy27GB99Vbzg89wv",
+		"coin": "BTC",
+		"tag": "",
+		"url": "https://btc.com/1HPn8Rx2y6nNSfagQBKy27GB99Vbzg89wv"
+	}`)
+	s.mockDo(data, nil)
+	defer s.assertDo()
+	s.assertReq(func(r *request) {
+		e := newSignedRequest().setParams(params{
+			"coin":    "BTC",
+			"network": "BITCOIN",
+		})
+		s.assertRequestEqual(e, r)
+	})
+	address, err := s.client.NewDepositsAddressService().Coin("BTC").
+		Network("BITCOIN").Do(newContext())
+	r := s.r()
+	r.NoError(err)
+	e := &DepositAddressResponse{
+		Address: "1HPn8Rx2y6nNSfagQBKy27GB99Vbzg89wv",
+		Coin:    "BTC",
+		Tag:     "",
+		Url:     "https://btc.com/1HPn8Rx2y6nNSfagQBKy27GB99Vbzg89wv",
+	}
+	s.assertAddressEqual(e, address)
+}
+
+func (s *depositServiceTestSuite) assertAddressEqual(e, a *DepositAddressResponse) {
+	r := s.r()
+	r.Equal(e.Address, a.Address, "Address")
+	r.Equal(e.Coin, a.Coin, "Coin")
+	r.Equal(e.Tag, a.Tag, "Tag")
+	r.Equal(e.Url, a.Url, "Url")
 }
