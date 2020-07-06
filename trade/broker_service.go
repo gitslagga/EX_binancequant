@@ -202,7 +202,7 @@ type GetTransfer struct {
 	FromId       string `json:"fromId"`
 	ToId         string `json:"toId"`
 	Asset        string `json:"asset"`
-	Aty          string `json:"qty"`
+	Qty          string `json:"qty"`
 	Time         uint64 `json:"time"`
 	TxnId        string `json:"txnId"`
 	ClientTranId string `json:"clientTranId,omitempty"`
@@ -311,7 +311,7 @@ type GetSubAccountDepositHist struct {
 	Coin          string `json:"coin"`
 	InsertTime    uint64 `json:"insertTime"`
 	Network       string `json:"network"`
-	Status        string `json:"status"`
+	Status        int    `json:"status"`
 	TxId          string `json:"txId"`
 	SourceAddress string `json:"sourceAddress"`
 }
