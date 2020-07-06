@@ -12,6 +12,7 @@ require (
 	github.com/gorilla/websocket v1.4.2
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/rs/zerolog v1.19.0
+	github.com/stretchr/testify v1.5.1
 	go.mongodb.org/mongo-driver v1.3.3
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 )
