@@ -83,7 +83,7 @@ func (s *ListDepositsService) Do(ctx context.Context, opts ...RequestOption) (de
 		return
 	}
 	var res = make([]*Deposit, 0)
-	err = json.Unmarshal(data, res)
+	err = json.Unmarshal(data, &res)
 	if err != nil {
 		return
 	}
