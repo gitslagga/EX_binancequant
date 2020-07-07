@@ -83,12 +83,12 @@ func (s *depositServiceTestSuite) TestDepositAddress() {
 	s.assertReq(func(r *request) {
 		e := newSignedRequest().setParams(params{
 			"coin":    "BTC",
-			"network": "BITCOIN",
+			"network": "BTC",
 		})
 		s.assertRequestEqual(e, r)
 	})
 	address, err := s.client.NewDepositsAddressService().Coin("BTC").
-		Network("BITCOIN").Do(newContext())
+		Network("BTC").Do(newContext())
 	r := s.r()
 	r.NoError(err)
 	e := &DepositAddressResponse{
