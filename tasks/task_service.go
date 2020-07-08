@@ -122,8 +122,8 @@ func beforeHandler() gin.HandlerFunc {
 
 		if err != nil {
 			out := data.CommonResp{}
-			out.ErrorCode = data.EC_PARAMS_ERR
-			out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+			out.ErrorCode = data.EC_USER_NOT_EXIST
+			out.ErrorMessage = data.ErrorCodeMessage(data.EC_USER_NOT_EXIST)
 			c.JSON(http.StatusBadRequest, out)
 			c.Abort()
 			return

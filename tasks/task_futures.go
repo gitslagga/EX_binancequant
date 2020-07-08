@@ -33,8 +33,8 @@ func ChangePositionModeService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -69,8 +69,8 @@ func GetPositionModeService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -114,8 +114,8 @@ func CreateOrderService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -202,8 +202,8 @@ func GetOrderService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -261,8 +261,8 @@ func CancelOrderService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -318,8 +318,8 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -365,8 +365,8 @@ func ListOpenOrdersService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -415,8 +415,8 @@ func ListOrdersService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -476,8 +476,8 @@ func GetBalanceService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -521,8 +521,8 @@ func ChangeLeverageService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -570,8 +570,8 @@ func ChangeMarginTypeService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -618,8 +618,8 @@ func UpdatePositionMarginService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -672,8 +672,8 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -733,8 +733,8 @@ func GetPositionRiskService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -780,8 +780,8 @@ func GetTradeHistoryService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -854,8 +854,8 @@ func GetIncomeHistoryService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -912,8 +912,8 @@ func GetLeverageBracketService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -946,8 +946,8 @@ func StartUserStreamService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -980,8 +980,8 @@ func KeepaliveUserStreamService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -1013,8 +1013,8 @@ func CloseUserStreamService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}

@@ -23,9 +23,11 @@ const (
 	EC_INTERNAL_ERR_DB              = 30110103
 	EC_INTERNAL_ERR_REDIS           = 30110104
 
-	EC_FORMAT_ERR     = 30200000 + 10
-	EC_ALREADY_ACTIVE = 30100000 + 11
-	EC_NO_BALANCE     = 30200000 + 12
+	EC_USER_NOT_EXIST = 30200000 + 10
+	EC_NOT_ACTIVE     = 30200000 + 11
+	EC_FORMAT_ERR     = 30200000 + 12
+	EC_ALREADY_ACTIVE = 30100000 + 13
+	EC_NO_BALANCE     = 30200000 + 14
 )
 
 func (c ErrorCode) Code() (r int) {
@@ -53,6 +55,10 @@ func (c ErrorCode) String() (r string) {
 	case EC_INTERNAL_ERR_REDIS:
 		r = "Server error"
 
+	case EC_USER_NOT_EXIST:
+		r = "User does not exist"
+	case EC_NOT_ACTIVE:
+		r = "Not activated"
 	case EC_ALREADY_ACTIVE:
 		r = "Already activated"
 	case EC_NO_BALANCE:

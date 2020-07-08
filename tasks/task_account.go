@@ -32,8 +32,8 @@ func DepositsAddressService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -79,8 +79,8 @@ func ListDepositsService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -148,8 +148,8 @@ func SpotAccountService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -193,8 +193,8 @@ func FuturesTransferService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -245,8 +245,8 @@ func ListFuturesTransferService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -301,8 +301,8 @@ func FuturesAccountService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -346,8 +346,8 @@ func CreateWithdrawService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -385,8 +385,8 @@ func CreateWithdrawService(c *gin.Context) {
 	//获取用户子账户ID
 	subAccountID, err := db.GetSubAccountIdByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_PARAMS_ERR
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -456,8 +456,8 @@ func ListWithdrawsService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.ErrorCode = data.EC_NOT_ACTIVE
+		out.ErrorMessage = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
