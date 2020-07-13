@@ -17,15 +17,15 @@ func ServerTimeService(c *gin.Context) {
 
 	list, err := trade.BAExFuturesClient.NewServerTimeService().Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -44,8 +44,8 @@ func DepthService(c *gin.Context) {
 		symbol, limit)
 
 	if symbol == "" {
-		out.ErrorCode = data.EC_PARAMS_ERR
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = data.EC_PARAMS_ERR
+		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -61,15 +61,15 @@ func DepthService(c *gin.Context) {
 
 	list, err := depth.Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -88,8 +88,8 @@ func AggTradesService(c *gin.Context) {
 		symbol, limit)
 
 	if symbol == "" {
-		out.ErrorCode = data.EC_PARAMS_ERR
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = data.EC_PARAMS_ERR
+		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -105,15 +105,15 @@ func AggTradesService(c *gin.Context) {
 
 	list, err := aggTrade.Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -135,8 +135,8 @@ func KlinesService(c *gin.Context) {
 		symbol, startTime, endTime, interval, limit)
 
 	if symbol == "" {
-		out.ErrorCode = data.EC_PARAMS_ERR
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = data.EC_PARAMS_ERR
+		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -167,15 +167,15 @@ func KlinesService(c *gin.Context) {
 
 	list, err := klines.Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -199,15 +199,15 @@ func PremiumIndexService(c *gin.Context) {
 
 	list, err := premiumIndex.Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -231,15 +231,15 @@ func ListPriceChangeStatsService(c *gin.Context) {
 
 	list, err := priceChangeStats.Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -263,15 +263,15 @@ func ListPricesService(c *gin.Context) {
 
 	list, err := listPrices.Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -286,15 +286,15 @@ func ExchangeInfoService(c *gin.Context) {
 	list, err := trade.BAExFuturesClient.NewExchangeInfoService().Do(data.NewContext())
 
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = list
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
 	return

@@ -20,9 +20,9 @@ func GetActiveFuturesService(c *gin.Context) {
 	mylog.Logger.Info().Msgf("[Task Account] GetActiveFuturesService request param: %v",
 		userID)
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
-	out.Data = db.GetActiveFuturesByUserID(userID)
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
+	out.RespData = db.GetActiveFuturesByUserID(userID)
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -40,8 +40,8 @@ func CreateActiveFuturesService(c *gin.Context) {
 		userID)
 
 	if active := db.GetActiveFuturesByUserID(userID); active == true {
-		out.ErrorCode = data.EC_ALREADY_ACTIVE
-		out.ErrorMessage = data.ErrorCodeMessage(data.EC_ALREADY_ACTIVE)
+		out.RespCode = data.EC_ALREADY_ACTIVE
+		out.RespDesc = data.ErrorCodeMessage(data.EC_ALREADY_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -49,8 +49,8 @@ func CreateActiveFuturesService(c *gin.Context) {
 	//创建子账户
 	createRes, err := trade.BAExClient.NewCreateSubAccountService().Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -59,8 +59,8 @@ func CreateActiveFuturesService(c *gin.Context) {
 	_, err = trade.BAExClient.NewEnableSubAccountFutures().
 		SubAccountId(createRes.SubAccountId).Futures(true).Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -69,22 +69,22 @@ func CreateActiveFuturesService(c *gin.Context) {
 	createApiRes, err := trade.BAExClient.NewCreateSubAccountApiService().
 		SubAccountId(createRes.SubAccountId).CanTrade(true).FuturesTrade(true).Do(data.NewContext())
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	err = db.CreateFuturesSubAccount(userID, createApiRes.SubAccountId, createApiRes.ApiKey, createApiRes.SecretKey)
 	if err != nil {
-		out.ErrorCode = data.EC_NETWORK_ERR
-		out.ErrorMessage = err.Error()
+		out.RespCode = data.EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.ErrorCode = data.EC_NONE.Code()
-	out.ErrorMessage = data.EC_NONE.String()
+	out.RespCode = data.EC_NONE.Code()
+	out.RespDesc = data.EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return

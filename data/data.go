@@ -75,9 +75,9 @@ func ErrorCodeMessage(c ErrorCode) (r string) {
 }
 
 type CommonResp struct {
-	ErrorCode    int         `json:"error_code" form:"error_code"`
-	ErrorMessage string      `json:"error_message" form:"error_message"`
-	Data         interface{} `json:"data,omitempty" form:"data"`
+	RespCode int         `json:"respCode" form:"respCode"`
+	RespDesc string      `json:"respDesc" form:"respDesc"`
+	RespData interface{} `json:"respData,omitempty" form:"respData"`
 }
 
 func NewContext() context.Context {
