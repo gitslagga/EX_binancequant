@@ -16,7 +16,7 @@ var (
 type ErrorCode int
 
 const (
-	EC_NONE               ErrorCode = iota
+	EC_NONE               ErrorCode = 1
 	EC_PARAMS_ERR                   = 30110100
 	EC_NETWORK_ERR                  = 30110101
 	EC_INTERNAL_ERR                 = 30110102
@@ -43,7 +43,7 @@ func (c ErrorCode) Error() (r error) {
 func (c ErrorCode) String() (r string) {
 	switch c {
 	case EC_NONE:
-		r = "ok"
+		r = "SUCCESS"
 	case EC_NETWORK_ERR:
 		r = "Network error"
 	case EC_PARAMS_ERR:
