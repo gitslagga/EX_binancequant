@@ -41,7 +41,7 @@ func InitMongoCli() {
 	opt.SetMaxConnIdleTime(time.Duration(maxConnIdleTime) * time.Second) //指定连接可以保持空闲的最大毫秒数
 	opt.SetMaxPoolSize(maxPoolSize)                                      //使用最大的连接数
 
-	client, err = mongo.Connect(getContext(), opt)
+	client, err = mongo.Connect(data.NewContext(), opt)
 	if err != nil {
 		mylog.Logger.Fatal().Msgf("[InitMongoCli] mongo connection failed, err=%v, client=%v", err, client)
 	}
@@ -50,18 +50,14 @@ func InitMongoCli() {
 }
 
 func CloseMongoCli() {
-	client.Disconnect(getContext())
-}
-
-func getContext() context.Context {
-	timeout := config.Config.Mongo.Timeout
-	ctx, _ := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
-
-	return ctx
+	client.Disconnect(data.NewContext())
 }
 
 func getUserKeys(userID string) (*UserKeys, error) {
-	ctx := data.NewContext()
+	timeout := time.Duration(config.Config.Mongo.Timeout)
+	ctx, cancel := context.WithTimeout(data.NewContext(), timeout*time.Second)
+	defer cancel()
+
 	var userKeys UserKeys
 
 	collection := client.Database("main_quantify").Collection("user_keys")
@@ -128,7 +124,9 @@ func GetSubAccountIdByUserID(userID string) (string, error) {
 创建合约子账户
 */
 func CreateFuturesSubAccount(userID, subAccountId, apiKey, secretKey string) error {
-	ctx := data.NewContext()
+	timeout := time.Duration(config.Config.Mongo.Timeout)
+	ctx, cancel := context.WithTimeout(data.NewContext(), timeout*time.Second)
+	defer cancel()
 
 	collection := client.Database("main_quantify").Collection("user_keys")
 	userKeys := UserKeys{

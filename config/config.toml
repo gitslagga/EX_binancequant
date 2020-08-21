@@ -20,7 +20,7 @@ FileMaxBackups = 10
 FileMaxAge = 10
 
 [redis]
-address = "192.168.1.106:6379"
+address = "192.168.1.140:6379"
 password = "todoAdmin"
 maxActive = 10
 maxIdle = 5
@@ -39,7 +39,7 @@ applyURI = "mongodb://admin:123456@127.0.0.1:27017"
 localThreshold = 3
 maxConnIdleTime = 5
 maxPoolSize = 200
-timeout = 10
+timeout = 5
 
 [trade]
 endpoint = "https://api.binancezh.com"
