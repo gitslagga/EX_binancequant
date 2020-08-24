@@ -4,6 +4,7 @@ import (
 	"EX_binancequant/data"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -15,7 +16,7 @@ import (
 func CreateSubAccountService(c *gin.Context) {
 	out := data.CommonResp{}
 
-	list, err := trade.BAExClient.NewCreateSubAccountService().Do(data.NewContext())
+	list, err := trade.BAExClient.NewCreateSubAccountService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -53,7 +54,7 @@ func EnableSubAccountFuturesService(c *gin.Context) {
 	list, err := trade.BAExClient.NewEnableSubAccountFutures().
 		SubAccountId(enableFuturesRequest.SubAccountId).
 		Futures(enableFuturesRequest.Futures).
-		Do(data.NewContext())
+		Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -92,7 +93,7 @@ func CreateSubAccountApiService(c *gin.Context) {
 		SubAccountId(createApiKeyRequest.SubAccountId).
 		CanTrade(createApiKeyRequest.CanTrade).
 		FuturesTrade(createApiKeyRequest.FuturesTrade).
-		Do(data.NewContext())
+		Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -130,7 +131,7 @@ func DeleteSubAccountApiService(c *gin.Context) {
 	err := trade.BAExClient.NewDeleteSubAccountApiService().
 		SubAccountId(deleteApiKeyRequest.SubAccountId).
 		SubAccountApiKey(deleteApiKeyRequest.SubAccountApiKey).
-		Do(data.NewContext())
+		Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -170,7 +171,7 @@ func GetSubAccountApiService(c *gin.Context) {
 		getSubAccountApiService.SubAccountApiKey(subAccountApiKey)
 	}
 
-	list, err := getSubAccountApiService.Do(data.NewContext())
+	list, err := getSubAccountApiService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -210,7 +211,7 @@ func ChangeSubAccountApiPermissionService(c *gin.Context) {
 		SubAccountApiKey(changeApiPermissionRequest.SubAccountApiKey).
 		CanTrade(changeApiPermissionRequest.CanTrade).
 		FuturesTrade(changeApiPermissionRequest.FuturesTrade).
-		Do(data.NewContext())
+		Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -242,7 +243,7 @@ func GetSubAccountService(c *gin.Context) {
 		getSubAccountService.SubAccountId(subAccountId)
 	}
 
-	list, err := getSubAccountService.Do(data.NewContext())
+	list, err := getSubAccountService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -282,7 +283,7 @@ func ChangeCommissionFuturesService(c *gin.Context) {
 		Symbol(changeCommissionFuturesRequest.Symbol).
 		MakerAdjustment(changeCommissionFuturesRequest.MakerAdjustment).
 		TakerAdjustment(changeCommissionFuturesRequest.TakerAdjustment).
-		Do(data.NewContext())
+		Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -323,7 +324,7 @@ func GetCommissionFuturesService(c *gin.Context) {
 		getCommissionFuturesService.Symbol(symbol)
 	}
 
-	list, err := getCommissionFuturesService.Do(data.NewContext())
+	list, err := getCommissionFuturesService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -345,7 +346,7 @@ func GetCommissionFuturesService(c *gin.Context) {
 func GetInfoService(c *gin.Context) {
 	out := data.CommonResp{}
 
-	list, err := trade.BAExClient.NewGetInfoService().Do(data.NewContext())
+	list, err := trade.BAExClient.NewGetInfoService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -393,7 +394,7 @@ func CreateTransferService(c *gin.Context) {
 	createTransferService.Asset(createTransferRequest.Asset)
 	createTransferService.Amount(createTransferRequest.Amount)
 
-	list, err := createTransferService.Do(data.NewContext())
+	list, err := createTransferService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -458,7 +459,7 @@ func GetTransferService(c *gin.Context) {
 		}
 	}
 
-	list, err := getTransferService.Do(data.NewContext())
+	list, err := getTransferService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -525,7 +526,7 @@ func GetSubAccountDepositHistService(c *gin.Context) {
 		}
 	}
 
-	list, err := getSubAccountDepositHistService.Do(data.NewContext())
+	list, err := getSubAccountDepositHistService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -569,7 +570,7 @@ func GetSubAccountSpotSummaryService(c *gin.Context) {
 		}
 	}
 
-	list, err := getSubAccountSpotSummaryService.Do(data.NewContext())
+	list, err := getSubAccountSpotSummaryService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -613,7 +614,7 @@ func GetSubAccountFuturesSummaryService(c *gin.Context) {
 		}
 	}
 
-	list, err := getSubAccountFuturesSummaryService.Do(data.NewContext())
+	list, err := getSubAccountFuturesSummaryService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -662,7 +663,7 @@ func GetRebateRecentRecordService(c *gin.Context) {
 		getRebateRecentRecordService.Limit(iLimit)
 	}
 
-	list, err := getRebateRecentRecordService.Do(data.NewContext())
+	list, err := getRebateRecentRecordService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -708,7 +709,7 @@ func GenerateRebateHistoryService(c *gin.Context) {
 		generateRebateHistoryService.EndTime(generateRebateHistory.EndTime)
 	}
 
-	list, err := generateRebateHistoryService.Do(data.NewContext())
+	list, err := generateRebateHistoryService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -765,7 +766,7 @@ func GetRebateHistoryService(c *gin.Context) {
 		}
 	}
 
-	list, err := getRebateHistoryService.Do(data.NewContext())
+	list, err := getRebateHistoryService.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()

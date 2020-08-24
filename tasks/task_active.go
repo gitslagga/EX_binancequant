@@ -5,6 +5,7 @@ import (
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -47,7 +48,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 	}
 
 	//创建子账户
-	createRes, err := trade.BAExClient.NewCreateSubAccountService().Do(data.NewContext())
+	createRes, err := trade.BAExClient.NewCreateSubAccountService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -57,7 +58,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 
 	//为子账户开启合约权限
 	_, err = trade.BAExClient.NewEnableSubAccountFutures().
-		SubAccountId(createRes.SubAccountId).Futures(true).Do(data.NewContext())
+		SubAccountId(createRes.SubAccountId).Futures(true).Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -67,7 +68,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 
 	//创建子账户api key
 	createApiRes, err := trade.BAExClient.NewCreateSubAccountApiService().
-		SubAccountId(createRes.SubAccountId).CanTrade(true).FuturesTrade(true).Do(data.NewContext())
+		SubAccountId(createRes.SubAccountId).CanTrade(true).FuturesTrade(true).Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()

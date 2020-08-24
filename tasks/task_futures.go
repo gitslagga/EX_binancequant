@@ -5,6 +5,7 @@ import (
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade/futures"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -42,7 +43,7 @@ func ChangePositionModeService(c *gin.Context) {
 	positionMode := client.NewChangePositionModeService()
 	positionMode.DualSide(positionModeRequest.DualSidePosition)
 
-	err = positionMode.Do(data.NewContext())
+	err = positionMode.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -75,7 +76,7 @@ func GetPositionModeService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetPositionModeService().Do(data.NewContext())
+	list, err := client.NewGetPositionModeService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -161,7 +162,7 @@ func CreateOrderService(c *gin.Context) {
 		createOrder.NewOrderRespType(futures.NewOrderRespType(orderRequest.NewOrderRespType))
 	}
 
-	list, err := createOrder.Do(data.NewContext())
+	list, err := createOrder.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -220,7 +221,7 @@ func GetOrderService(c *gin.Context) {
 		getOrder.OrigClientOrderID(origClientOrderId)
 	}
 
-	list, err := getOrder.Do(data.NewContext())
+	list, err := getOrder.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -279,7 +280,7 @@ func CancelOrderService(c *gin.Context) {
 		cancelOrder.OrigClientOrderID(origClientOrderId)
 	}
 
-	list, err := cancelOrder.Do(data.NewContext())
+	list, err := cancelOrder.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -327,7 +328,7 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 	cancelAllOpenOrders := client.NewCancelAllOpenOrdersService()
 	cancelAllOpenOrders.Symbol(symbol)
 
-	err = cancelAllOpenOrders.Do(data.NewContext())
+	err = cancelAllOpenOrders.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -374,7 +375,7 @@ func ListOpenOrdersService(c *gin.Context) {
 	listOpenOrders := client.NewListOpenOrdersService()
 	listOpenOrders.Symbol(symbol)
 
-	list, err := listOpenOrders.Do(data.NewContext())
+	list, err := listOpenOrders.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -448,7 +449,7 @@ func ListOrdersService(c *gin.Context) {
 		}
 	}
 
-	list, err := listOrders.Do(data.NewContext())
+	list, err := listOrders.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -482,7 +483,7 @@ func GetBalanceService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetBalanceService().Do(data.NewContext())
+	list, err := client.NewGetBalanceService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -531,7 +532,7 @@ func ChangeLeverageService(c *gin.Context) {
 	changeLeverage.Symbol(leverageRequest.Symbol)
 	changeLeverage.Leverage(leverageRequest.Leverage)
 
-	list, err := changeLeverage.Do(data.NewContext())
+	list, err := changeLeverage.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -580,7 +581,7 @@ func ChangeMarginTypeService(c *gin.Context) {
 	changeMarginType.Symbol(marginTypeRequest.Symbol)
 	changeMarginType.MarginType(futures.MarginType(marginTypeRequest.MarginType))
 
-	err = changeMarginType.Do(data.NewContext())
+	err = changeMarginType.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -632,7 +633,7 @@ func UpdatePositionMarginService(c *gin.Context) {
 		updatePositionMargin.PositionSide(futures.PositionSideType(positionMarginRequest.PositionSide))
 	}
 
-	err = updatePositionMargin.Do(data.NewContext())
+	err = updatePositionMargin.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -705,7 +706,7 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 		}
 	}
 
-	list, err := positionMarginHistory.Do(data.NewContext())
+	list, err := positionMarginHistory.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -739,7 +740,7 @@ func GetPositionRiskService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetPositionRiskService().Do(data.NewContext())
+	list, err := client.NewGetPositionRiskService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -813,7 +814,7 @@ func GetTradeHistoryService(c *gin.Context) {
 		}
 	}
 
-	list, err := positionMarginHistory.Do(data.NewContext())
+	list, err := positionMarginHistory.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -884,7 +885,7 @@ func GetIncomeHistoryService(c *gin.Context) {
 		}
 	}
 
-	list, err := incomeHistory.Do(data.NewContext())
+	list, err := incomeHistory.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -918,7 +919,7 @@ func GetLeverageBracketService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetLeverageBracketService().Do(data.NewContext())
+	list, err := client.NewGetLeverageBracketService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -952,7 +953,7 @@ func StartUserStreamService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewStartUserStreamService().Do(data.NewContext())
+	list, err := client.NewStartUserStreamService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -986,7 +987,7 @@ func KeepaliveUserStreamService(c *gin.Context) {
 		return
 	}
 
-	err = client.NewKeepaliveUserStreamService().Do(data.NewContext())
+	err = client.NewKeepaliveUserStreamService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -1019,7 +1020,7 @@ func CloseUserStreamService(c *gin.Context) {
 		return
 	}
 
-	err = client.NewCloseUserStreamService().Do(data.NewContext())
+	err = client.NewCloseUserStreamService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()

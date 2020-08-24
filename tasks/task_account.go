@@ -5,6 +5,7 @@ import (
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -44,7 +45,7 @@ func DepositsAddressService(c *gin.Context) {
 		depositsAddress.Network(network)
 	}
 
-	list, err := depositsAddress.Do(data.NewContext())
+	list, err := depositsAddress.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -120,7 +121,7 @@ func ListDepositsService(c *gin.Context) {
 		}
 	}
 
-	list, err := listDeposits.Do(data.NewContext())
+	list, err := listDeposits.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -154,7 +155,7 @@ func SpotAccountService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetAccountService().Do(data.NewContext())
+	list, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -204,7 +205,7 @@ func FuturesTransferService(c *gin.Context) {
 	futuresTransfer.Amount(transferRequest.Amount)
 	futuresTransfer.Type(trade.FuturesTransferType(transferRequest.Type))
 
-	list, err := futuresTransfer.Do(data.NewContext())
+	list, err := futuresTransfer.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -273,7 +274,7 @@ func ListFuturesTransferService(c *gin.Context) {
 		}
 	}
 
-	list, err := futuresTransfer.Do(data.NewContext())
+	list, err := futuresTransfer.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -307,7 +308,7 @@ func FuturesAccountService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetAccountService().Do(data.NewContext())
+	list, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -353,7 +354,7 @@ func CreateWithdrawService(c *gin.Context) {
 	}
 
 	//获取用户现货余额
-	account, err := client.NewGetAccountService().Do(data.NewContext())
+	account, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -393,7 +394,7 @@ func CreateWithdrawService(c *gin.Context) {
 
 	//从子账户现货账户往经纪人现货账户划转
 	_, err = trade.BAExClient.NewCreateTransferService().
-		Asset(withdrawRequest.Coin).Amount(withdrawRequest.Amount).FromId(subAccountID).Do(data.NewContext())
+		Asset(withdrawRequest.Coin).Amount(withdrawRequest.Amount).FromId(subAccountID).Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -423,7 +424,7 @@ func CreateWithdrawService(c *gin.Context) {
 		createWithdraw.Name(withdrawRequest.Name)
 	}
 
-	err = createWithdraw.Do(data.NewContext())
+	err = createWithdraw.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -497,7 +498,7 @@ func ListWithdrawsService(c *gin.Context) {
 		}
 	}
 
-	list, err := listDeposits.Do(data.NewContext())
+	list, err := listDeposits.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()

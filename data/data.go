@@ -1,7 +1,6 @@
 package data
 
 import (
-	"context"
 	"errors"
 	"sync"
 	"time"
@@ -78,10 +77,6 @@ type CommonResp struct {
 	RespCode int         `json:"respCode" form:"respCode"`
 	RespDesc string      `json:"respDesc" form:"respDesc"`
 	RespData interface{} `json:"respData,omitempty" form:"respData"`
-}
-
-func NewContext() context.Context {
-	return context.Background()
 }
 
 /*********************************** future trading *************************************/

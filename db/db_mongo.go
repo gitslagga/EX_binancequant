@@ -2,7 +2,6 @@ package db
 
 import (
 	"EX_binancequant/config"
-	"EX_binancequant/data"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
 	"EX_binancequant/trade/futures"
@@ -41,7 +40,7 @@ func InitMongoCli() {
 	opt.SetMaxConnIdleTime(time.Duration(maxConnIdleTime) * time.Second) //指定连接可以保持空闲的最大毫秒数
 	opt.SetMaxPoolSize(maxPoolSize)                                      //使用最大的连接数
 
-	client, err = mongo.Connect(data.NewContext(), opt)
+	client, err = mongo.Connect(context.Background(), opt)
 	if err != nil {
 		mylog.Logger.Fatal().Msgf("[InitMongoCli] mongo connection failed, err=%v, client=%v", err, client)
 	}
@@ -50,12 +49,12 @@ func InitMongoCli() {
 }
 
 func CloseMongoCli() {
-	client.Disconnect(data.NewContext())
+	client.Disconnect(context.Background())
 }
 
 func getUserKeys(userID string) (*UserKeys, error) {
 	timeout := time.Duration(config.Config.Mongo.Timeout)
-	ctx, cancel := context.WithTimeout(data.NewContext(), timeout*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 
 	var userKeys UserKeys
@@ -125,7 +124,7 @@ func GetSubAccountIdByUserID(userID string) (string, error) {
 */
 func CreateFuturesSubAccount(userID, subAccountId, apiKey, secretKey string) error {
 	timeout := time.Duration(config.Config.Mongo.Timeout)
-	ctx, cancel := context.WithTimeout(data.NewContext(), timeout*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
 
 	collection := client.Database("main_quantify").Collection("user_keys")

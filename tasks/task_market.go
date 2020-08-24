@@ -4,6 +4,7 @@ import (
 	"EX_binancequant/data"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
+	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -15,7 +16,7 @@ import (
 func ServerTimeService(c *gin.Context) {
 	out := data.CommonResp{}
 
-	list, err := trade.BAExFuturesClient.NewServerTimeService().Do(data.NewContext())
+	list, err := trade.BAExFuturesClient.NewServerTimeService().Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -59,7 +60,7 @@ func DepthService(c *gin.Context) {
 		}
 	}
 
-	list, err := depth.Do(data.NewContext())
+	list, err := depth.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -103,7 +104,7 @@ func AggTradesService(c *gin.Context) {
 		}
 	}
 
-	list, err := aggTrade.Do(data.NewContext())
+	list, err := aggTrade.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -165,7 +166,7 @@ func KlinesService(c *gin.Context) {
 		}
 	}
 
-	list, err := klines.Do(data.NewContext())
+	list, err := klines.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -197,7 +198,7 @@ func PremiumIndexService(c *gin.Context) {
 		premiumIndex.Symbol(symbol)
 	}
 
-	list, err := premiumIndex.Do(data.NewContext())
+	list, err := premiumIndex.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -229,7 +230,7 @@ func ListPriceChangeStatsService(c *gin.Context) {
 		priceChangeStats.Symbol(symbol)
 	}
 
-	list, err := priceChangeStats.Do(data.NewContext())
+	list, err := priceChangeStats.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -261,7 +262,7 @@ func ListPricesService(c *gin.Context) {
 		listPrices.Symbol(symbol)
 	}
 
-	list, err := listPrices.Do(data.NewContext())
+	list, err := listPrices.Do(context.Background())
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -283,7 +284,7 @@ func ListPricesService(c *gin.Context) {
 func ExchangeInfoService(c *gin.Context) {
 	out := data.CommonResp{}
 
-	list, err := trade.BAExFuturesClient.NewExchangeInfoService().Do(data.NewContext())
+	list, err := trade.BAExFuturesClient.NewExchangeInfoService().Do(context.Background())
 
 	if err != nil {
 		out.RespCode = data.EC_NETWORK_ERR
