@@ -5,12 +5,15 @@ import (
 	"EX_binancequant/db"
 	"EX_binancequant/trade"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
 )
 
 func InitRouter(r *gin.Engine) {
+	r.Use(cors.Default())
+
 	/****************************** 通用 - 永续合约行情接口 *********************************/
 	r.GET("/api/market/time", ServerTimeService)
 	r.GET("/api/market/depth", DepthService)
