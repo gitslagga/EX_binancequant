@@ -76,3 +76,17 @@ func ConvertTokenToUserID(identity string) (string, error) {
 
 	return result, err
 }
+
+func ConvertUserTokenToUserInfo(userToken string) ([]byte, error) {
+	redisConn := redisPool.Get()
+	defer redisConn.Close()
+
+	redisKey := fmt.Sprintf("loginUser:%s", userToken)
+	result, err := redis.Bytes(redisConn.Do("GET", redisKey))
+	if err != nil {
+		mylog.Logger.Error().Msgf("redis GET %v error, err:%v", redisKey, err)
+		return nil, err
+	}
+
+	return result, err
+}

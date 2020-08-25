@@ -4,6 +4,9 @@ import (
 	"EX_binancequant/data"
 	"EX_binancequant/db"
 	"EX_binancequant/trade"
+	"EX_binancequant/utils"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -11,87 +14,91 @@ import (
 	"time"
 )
 
-func InitRouter(r *gin.Engine) {
-	r.Use(cors.Default())
+func InitRouter(router *gin.Engine) {
+	router.Use(cors.Default())
+
+	//no authorized
+	noAuthorized := router.Group("/api", requestHandler(), responseHandler())
 
 	/****************************** 通用 - 永续合约行情接口 *********************************/
-	r.GET("/api/market/time", ServerTimeService)
-	r.GET("/api/market/depth", DepthService)
-	r.GET("/api/market/aggTrades", AggTradesService)
-	r.GET("/api/market/klines", KlinesService)
-	r.GET("/api/market/premiumIndex", PremiumIndexService)
-	r.GET("/api/market/ticker/24hr", ListPriceChangeStatsService)
-	r.GET("/api/market/ticker/price", ListPricesService)
-	r.GET("/api/market/exchangeInfo", ExchangeInfoService)
+	noAuthorized.GET("/market/time", ServerTimeService)
+	noAuthorized.GET("/market/depth", DepthService)
+	noAuthorized.GET("/market/aggTrades", AggTradesService)
+	noAuthorized.GET("/market/klines", KlinesService)
+	noAuthorized.GET("/market/premiumIndex", PremiumIndexService)
+	noAuthorized.GET("/market/ticker/24hr", ListPriceChangeStatsService)
+	noAuthorized.GET("/market/ticker/price", ListPricesService)
+	noAuthorized.GET("/market/exchangeInfo", ExchangeInfoService)
 
 	/****************************** 后台 - 经纪人接口 *********************************/
-	//管理子账户权限
-	r.POST("/api/broker/subAccount", CreateSubAccountService)
-	r.POST("/api/broker/subAccount/futures", EnableSubAccountFuturesService)
-	r.POST("/api/broker/subAccountApi", CreateSubAccountApiService)
-	r.DELETE("/api/broker/subAccountApi", DeleteSubAccountApiService)
-	r.GET("/api/broker/subAccountApi", GetSubAccountApiService)
-	r.POST("/api/broker/subAccountApi/permission", ChangeSubAccountApiPermissionService)
-	r.GET("/api/broker/subAccount", GetSubAccountService)
+	//TODO Backend Authorized
+	/*//管理子账户权限
+	noAuthorized.POST("/broker/subAccount", CreateSubAccountService)
+	noAuthorized.POST("/broker/subAccount/futures", EnableSubAccountFuturesService)
+	noAuthorized.POST("/broker/subAccountApi", CreateSubAccountApiService)
+	noAuthorized.DELETE("/broker/subAccountApi", DeleteSubAccountApiService)
+	noAuthorized.GET("/broker/subAccountApi", GetSubAccountApiService)
+	noAuthorized.POST("/broker/subAccountApi/permission", ChangeSubAccountApiPermissionService)
+	noAuthorized.GET("/broker/subAccount", GetSubAccountService)
 
 	//调整子账户手续费
-	r.POST("/api/broker/subAccountApi/commission/futures", ChangeCommissionFuturesService)
-	r.GET("/api/broker/subAccountApi/commission/futures", GetCommissionFuturesService)
-	r.GET("/api/broker/info", GetInfoService)
+	noAuthorized.POST("/broker/subAccountApi/commission/futures", ChangeCommissionFuturesService)
+	noAuthorized.GET("/broker/subAccountApi/commission/futures", GetCommissionFuturesService)
+	noAuthorized.GET("/broker/info", GetInfoService)
 
 	//经纪商账户与子账户划转
-	r.POST("/api/broker/transfer", CreateTransferService)
-	r.GET("/api/broker/transfer", GetTransferService)
+	noAuthorized.POST("/broker/transfer", CreateTransferService)
+	noAuthorized.GET("/broker/transfer", GetTransferService)
 
 	//子账户充币与资产
-	r.GET("/api/broker/subAccount/depositHist", GetSubAccountDepositHistService)
-	r.GET("/api/broker/subAccount/spotSummary", GetSubAccountSpotSummaryService)
-	r.GET("/api/broker/subAccount/futuresSummary", GetSubAccountFuturesSummaryService)
+	noAuthorized.GET("/broker/subAccount/depositHist", GetSubAccountDepositHistService)
+	noAuthorized.GET("/broker/subAccount/spotSummary", GetSubAccountSpotSummaryService)
+	noAuthorized.GET("/broker/subAccount/futuresSummary", GetSubAccountFuturesSummaryService)
 
 	//查询返佣记录
-	r.GET("/api/broker/rebate/recentRecord", GetRebateRecentRecordService)
-	r.POST("/api/broker/rebate/historicalRecord", GenerateRebateHistoryService)
-	r.GET("/api/broker/rebate/historicalRecord", GetRebateHistoryService)
+	noAuthorized.GET("/broker/rebate/recentRecord", GetRebateRecentRecordService)
+	noAuthorized.POST("/broker/rebate/historicalRecord", GenerateRebateHistoryService)
+	noAuthorized.GET("/broker/rebate/historicalRecord", GetRebateHistoryService)*/
 
 	/****************************** 前台 - 永续合约接口 *********************************/
 	//开启子账户认证
-	route := r.Use(beforeHandler())
-	route.GET("/api/account/activeFutures", GetActiveFuturesService)
-	route.POST("/api/account/activeFutures", CreateActiveFuturesService)
+	authorized := router.Group("/api", tokenHandler(), requestHandler(), responseHandler())
+	authorized.GET("/account/activeFutures", GetActiveFuturesService)
+	authorized.POST("/account/activeFutures", CreateActiveFuturesService)
 
 	//子账户资产，充币，提币，划转
-	route.GET("/api/account/deposits/list", ListDepositsService)
-	route.GET("/api/account/deposits/address", DepositsAddressService)
-	route.GET("/api/account/spot", SpotAccountService)
-	route.GET("/api/account/futures", FuturesAccountService)
-	route.POST("/api/account/transfer", FuturesTransferService)
-	route.GET("/api/account/transfer", ListFuturesTransferService)
-	route.POST("/api/account/withdraw", CreateWithdrawService)
-	route.GET("/api/account/withdraw", ListWithdrawsService)
+	authorized.GET("/account/deposits/list", ListDepositsService)
+	authorized.GET("/account/deposits/address", DepositsAddressService)
+	authorized.GET("/account/spot", SpotAccountService)
+	authorized.GET("/account/futures", FuturesAccountService)
+	authorized.POST("/account/transfer", FuturesTransferService)
+	authorized.GET("/account/transfer", ListFuturesTransferService)
+	authorized.POST("/account/withdraw", CreateWithdrawService)
+	authorized.GET("/account/withdraw", ListWithdrawsService)
 
 	//永续合约交易
-	route.POST("/api/futures/position/mode", ChangePositionModeService)
-	route.GET("/api/futures/position/mode", GetPositionModeService)
-	route.POST("/api/futures/order", CreateOrderService)
-	route.GET("/api/futures/order", GetOrderService)
-	route.DELETE("/api/futures/order", CancelOrderService)
-	route.DELETE("/api/futures/allOpenOrders", CancelAllOpenOrdersService)
-	route.GET("/api/futures/openOrders", ListOpenOrdersService)
-	route.GET("/api/futures/allOrders", ListOrdersService)
-	route.GET("/api/futures/balance", GetBalanceService)
-	route.POST("/api/futures/leverage", ChangeLeverageService)
-	route.POST("/api/futures/marginType", ChangeMarginTypeService)
-	route.POST("/api/futures/positionMargin", UpdatePositionMarginService)
-	route.GET("/api/futures/positionMargin", GetPositionMarginHistoryService)
-	route.GET("/api/futures/positionRisk", GetPositionRiskService)
-	route.GET("/api/futures/userTrades", GetTradeHistoryService)
-	route.GET("/api/futures/income", GetIncomeHistoryService)
-	route.GET("/api/futures/leverageBracket", GetLeverageBracketService)
+	authorized.POST("/futures/position/mode", ChangePositionModeService)
+	authorized.GET("/futures/position/mode", GetPositionModeService)
+	authorized.POST("/futures/order", CreateOrderService)
+	authorized.GET("/futures/order", GetOrderService)
+	authorized.DELETE("/futures/order", CancelOrderService)
+	authorized.DELETE("/futures/allOpenOrders", CancelAllOpenOrdersService)
+	authorized.GET("/futures/openOrders", ListOpenOrdersService)
+	authorized.GET("/futures/allOrders", ListOrdersService)
+	authorized.GET("/futures/balance", GetBalanceService)
+	authorized.POST("/futures/leverage", ChangeLeverageService)
+	authorized.POST("/futures/marginType", ChangeMarginTypeService)
+	authorized.POST("/futures/positionMargin", UpdatePositionMarginService)
+	authorized.GET("/futures/positionMargin", GetPositionMarginHistoryService)
+	authorized.GET("/futures/positionRisk", GetPositionRiskService)
+	authorized.GET("/futures/userTrades", GetTradeHistoryService)
+	authorized.GET("/futures/income", GetIncomeHistoryService)
+	authorized.GET("/futures/leverageBracket", GetLeverageBracketService)
 
 	//WS许可证权限（每小时更新）
-	route.POST("/api/futures/listenKey", StartUserStreamService)
-	route.PUT("/api/futures/listenKey", KeepaliveUserStreamService)
-	route.DELETE("/api/futures/listenKey", CloseUserStreamService)
+	authorized.POST("/futures/listenKey", StartUserStreamService)
+	authorized.PUT("/futures/listenKey", KeepaliveUserStreamService)
+	authorized.DELETE("/futures/listenKey", CloseUserStreamService)
 }
 
 func InitFutures() {
@@ -118,21 +125,152 @@ func startPingService() {
 	fmt.Println("[Tasks] StartPingService succeed.")
 }
 
-func beforeHandler() gin.HandlerFunc {
+func tokenHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token := c.GetHeader("token")
-		userID, err := db.ConvertTokenToUserID(token)
-
-		if err != nil {
+		jwtToken := c.GetHeader("token")
+		token, valid := utils.GetVerifyToken(jwtToken)
+		if token == "" || valid == false {
 			out := data.CommonResp{}
-			out.RespCode = data.EC_USER_NOT_EXIST
-			out.RespDesc = data.ErrorCodeMessage(data.EC_USER_NOT_EXIST)
-			c.JSON(http.StatusBadRequest, out)
+			out.RespCode = data.EC_TOKEN_INVALID
+			out.RespDesc = data.ErrorCodeMessage(data.EC_TOKEN_INVALID)
+			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
 		}
 
-		c.Set("user_id", userID)
+		var userInfo data.UserInfo
+		byteUserInfo, err := db.ConvertUserTokenToUserInfo(token)
+		if err != nil {
+			out := data.CommonResp{}
+			out.RespCode = data.EC_TOKEN_INVALID
+			out.RespDesc = data.ErrorCodeMessage(data.EC_TOKEN_INVALID)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		err = json.Unmarshal(byteUserInfo, &userInfo)
+		if err != nil || userInfo.ID == 0 {
+			out := data.CommonResp{}
+			out.RespCode = data.EC_TOKEN_INVALID
+			out.RespDesc = data.ErrorCodeMessage(data.EC_TOKEN_INVALID)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		c.Set("user_id", userInfo.ID)
 		c.Next()
+	}
+}
+
+func requestHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		out := data.CommonResp{}
+		var futureRequest data.FutureRequest
+
+		if err := c.ShouldBindJSON(&futureRequest); err != nil {
+			out.RespCode = data.EC_PARAMS_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		encryptKey, err := base64.StdEncoding.DecodeString(futureRequest.Key)
+		if err != nil {
+			out.RespCode = data.EC_REQUEST_DATA_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		encryptData, err := base64.StdEncoding.DecodeString(futureRequest.Data)
+		if err != nil {
+			out.RespCode = data.EC_REQUEST_DATA_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		privateKey := []byte(`-----BEGIN PRIVATE KEY-----
+MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJzIo0OkvKH5a2NyPYuAOorElm8OX3QVrArMsX2X/8B9pBEtcp5QSe6CBx5p4TcZf73scHDgubcp0DBM6gdWEcyUFkl+Z+XKwdSgkVyHQK01klJcjJvMErjIKGeUggsFRMNduFyJePWA6pT3MJ+OKhmIKH6YhF1uiYXvnRbNvWrXAgMBAAECgYEAm5DpjsDy+rUFvVMphjXh4LdXnTJhvEmUv9KDet9LQbBpDzJNPJDmCuayMZdVhNqkSctFdntFS10N2h83R7g7R3gTOE2xLNj51XMMtPmL86HGdVsw9JyBkI4vBwJDkQ65Y7p85mtOPQ+8FP742acn1W8XdS+77x7zp6O8gWmR5aECQQDYfjnQcLe/OUiC78o6KKe/cos7zdqY/Vq/oNEQOl4fL8Fu2RojAQnpP6swGOP/5JmB/hxua5H0XOqTqC4RcvLLAkEAuWUB/eRODOSQSQWEm6sD+XJHtkEgGfFNZ8kHLo7/Guto72OoOE+rWjfUrixwBF5cxUi+IWZqpycVz44nryEKpQJAERXFEkIS/jBTHKI332cd9engOxP/0FsOMllKpnE0xFlMdqcDfQez9IhlxiHwvF0aEDwxmjU7C4HZsVVwbUgZCQJAZJ6WiyaK2eJ/ELKm+xnBCXRlyVvlQU8+lJJ9jF5dxE154Vs0JIPQ2yEsE+/YR/ay4PwO/O+p+Nh0tPZRQXJsZQJAMkYsybGSLwl76GOFQfT5xyqNHaQj3rAiBD7W5XWkLApRxbLuBzWpHk9IaV3GNEQuLIEjGcFO6tCt56w97D+QYA==
+-----END PRIVATE KEY-----`)
+		key, err := utils.RsaDecrypt(privateKey, encryptKey)
+		if err != nil {
+			out.RespCode = data.EC_REQUEST_DATA_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		requestData, err := utils.AesDecryptECB(encryptData, key)
+		if err != nil {
+			out.RespCode = data.EC_REQUEST_DATA_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		fmt.Println(string(requestData))
+		c.Set("requestData", requestData)
+	}
+}
+
+func responseHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Next()
+		out := data.CommonResp{}
+		responseData := c.MustGet("responseData").(data.CommonResp)
+		if responseData.RespCode != 1 {
+			out.RespCode = responseData.RespCode
+			out.RespDesc = responseData.RespDesc
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		err, privateKey, publicKey := utils.GenRsaKey(1024)
+		if err != nil {
+			out.RespCode = data.EC_RESPONSE_DATA_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_RESPONSE_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		randomString := utils.GetRandomString(16)
+		rsaKey, err := utils.RsaEncrypt(publicKey, randomString)
+		if err != nil {
+			out.RespCode = data.EC_RESPONSE_DATA_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_RESPONSE_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+		stringKey := base64.StdEncoding.EncodeToString(rsaKey)
+
+		if responseData.RespData == nil {
+			responseData.RespData = []byte{}
+		}
+		aesData, err := utils.AesEncryptECB(responseData.RespData.([]byte), randomString)
+		if err != nil {
+			out.RespCode = data.EC_RESPONSE_DATA_ERR
+			out.RespDesc = data.ErrorCodeMessage(data.EC_RESPONSE_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+		stringData := base64.StdEncoding.EncodeToString(aesData)
+
+		out.RespData = privateKey + "," + stringKey + "," + stringData
+		out.RespCode = data.EC_NONE.Code()
+		out.RespDesc = data.EC_NONE.String()
+
+		c.JSON(http.StatusOK, out)
 	}
 }

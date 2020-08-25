@@ -15,18 +15,19 @@ var (
 type ErrorCode int
 
 const (
-	EC_NONE               ErrorCode = 1
-	EC_PARAMS_ERR                   = 30110100
-	EC_NETWORK_ERR                  = 30110101
-	EC_INTERNAL_ERR                 = 30110102
-	EC_INTERNAL_ERR_DB              = 30110103
-	EC_INTERNAL_ERR_REDIS           = 30110104
+	EC_NONE              ErrorCode = 1
+	EC_PARAMS_ERR                  = 10000
+	EC_NETWORK_ERR                 = 9999
+	EC_JSON_MARSHAL_ERR            = 9998
+	EC_TOKEN_INVALID               = 9997
+	EC_RESPONSE_DATA_ERR           = 9996
+	EC_REQUEST_DATA_ERR            = 9995
 
-	EC_USER_NOT_EXIST = 30200000 + 10
-	EC_NOT_ACTIVE     = 30200000 + 11
-	EC_FORMAT_ERR     = 30200000 + 12
-	EC_ALREADY_ACTIVE = 30100000 + 13
-	EC_NO_BALANCE     = 30200000 + 14
+	EC_NOT_ACTIVE      = 8999
+	EC_FORMAT_ERR      = 8998
+	EC_ALREADY_ACTIVE  = 8997
+	EC_NO_BALANCE      = 8996
+	EC_INVALID_OPERATE = 8995
 )
 
 func (c ErrorCode) Code() (r int) {
@@ -44,26 +45,28 @@ func (c ErrorCode) String() (r string) {
 	case EC_NONE:
 		r = "SUCCESS"
 	case EC_NETWORK_ERR:
-		r = "Network error"
+		r = "请求错误|Request error"
 	case EC_PARAMS_ERR:
-		r = "Parameter error"
-	case EC_INTERNAL_ERR:
-		r = "Server error"
-	case EC_INTERNAL_ERR_DB:
-		r = "Server error"
-	case EC_INTERNAL_ERR_REDIS:
-		r = "Server error"
+		r = "参数错误|Params error"
+	case EC_JSON_MARSHAL_ERR:
+		r = "json格式异常|Json format exception"
+	case EC_TOKEN_INVALID:
+		r = "请登录后操作|Please log in to operate"
+	case EC_RESPONSE_DATA_ERR:
+		r = "请重新登录|Please login again"
+	case EC_REQUEST_DATA_ERR:
+		r = "非法请求|Illegal request"
 
-	case EC_USER_NOT_EXIST:
-		r = "User does not exist"
 	case EC_NOT_ACTIVE:
-		r = "Not activated"
+		r = "暂未激活|Not activated"
 	case EC_ALREADY_ACTIVE:
-		r = "Already activated"
+		r = "已经激活|Already activated"
 	case EC_NO_BALANCE:
-		r = "Insufficient balance"
+		r = "余额不足|Insufficient balance"
 	case EC_FORMAT_ERR:
-		r = "Format error"
+		r = "格式化错误|Format error"
+	case EC_INVALID_OPERATE:
+		r = "无效的操作|Invalid operate"
 	default:
 	}
 	return
@@ -80,6 +83,32 @@ type CommonResp struct {
 }
 
 /*********************************** future trading *************************************/
+type UserInfo struct {
+	ID            uint64 `json:"id"`
+	Email         string `json:"email"`
+	EmailStatus   int    `json:"emailStatus"`
+	Preliminary   string `json:"preliminary"`
+	Phone         string `json:"phone"`
+	PhoneStatus   int    `json:"phoneStatus"`
+	UserName      string `json:"userName"`
+	AvatarUrl     string `json:"avatarUrl"`
+	UserTrueName  string `json:"userTrueName"`
+	UserStatus    int    `json:"userStatus"`
+	OtcSellStatus int    `json:"otcSellStatus"`
+	LoginIp       string `json:"loginIp"`
+}
+
+type FutureRequest struct {
+	Data string `json:"d" binding:"required"`
+	Key  string `json:"k" binding:"required"`
+}
+
+type FutureResponse struct {
+	RespCode int    `json:"respCode" binding:"required"`
+	RespDesc string `json:"respDesc" binding:"required"`
+	RespData string `json:"respData,omitempty"`
+}
+
 type TransferRequest struct {
 	Asset  string  `json:"asset" binding:"required"`
 	Amount float64 `json:"amount" binding:"required"`

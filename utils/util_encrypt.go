@@ -1,75 +1,137 @@
 package utils
 
 import (
-	"bytes"
 	"crypto/aes"
-	"crypto/cipher"
-	"encoding/hex"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
+	"errors"
+	mRand "math/rand"
+	"strings"
+	"time"
 )
 
-var MyKey string = "WKqyCgplpuRgqm38"
-
-func PKCS7Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
+func RsaEncrypt(publicKey, origData []byte) ([]byte, error) {
+	//解密pem格式的公钥
+	block, _ := pem.Decode(publicKey)
+	if block == nil {
+		return nil, errors.New("public key error")
+	}
+	// 解析公钥
+	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	// 类型断言
+	pub := pubInterface.(*rsa.PublicKey)
+	//加密
+	return rsa.EncryptPKCS1v15(rand.Reader, pub, origData)
 }
 
-func PKCS7UnPadding(origData []byte) []byte {
-	length := len(origData)
-	unpadding := int(origData[length-1])
-	return origData[:(length - unpadding)]
+func RsaDecrypt(privateKey, cipherText []byte) ([]byte, error) {
+	//解密
+	block, _ := pem.Decode(privateKey)
+	if block == nil {
+		return nil, errors.New("private key error")
+	}
+
+	var priKey interface{}
+	var err error
+	if block.Type == "RSA PRIVATE KEY" {
+		//解析PKCS1格式的私钥
+		priKey, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+	} else if block.Type == "PRIVATE KEY" {
+		//解析PKCS8格式的私钥
+		priKey, err = x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// 解密
+	return rsa.DecryptPKCS1v15(rand.Reader, priKey.(*rsa.PrivateKey), cipherText)
 }
 
-func AesEncrypt(origData, key []byte) ([]byte, error) {
+func AesEncryptECB(data, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
-	blockSize := block.BlockSize()
-	origData = PKCS7Padding(origData, blockSize)
-	blockMode := cipher.NewCBCEncrypter(block, key[:blockSize])
-	crypted := make([]byte, len(origData))
-	blockMode.CryptBlocks(crypted, origData)
-	return crypted, nil
+	data = PKCS7Padding(data, block.BlockSize())
+	decrypted := make([]byte, len(data))
+	size := block.BlockSize()
+
+	for bs, be := 0, size; bs < len(data); bs, be = bs+size, be+size {
+		block.Encrypt(decrypted[bs:be], data[bs:be])
+	}
+
+	return decrypted, nil
 }
 
-func AesDecrypt(crypted, key []byte) ([]byte, error) {
+func AesDecryptECB(data, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
-	blockSize := block.BlockSize()
-	blockMode := cipher.NewCBCDecrypter(block, key[:blockSize])
-	origData := make([]byte, len(crypted))
-	blockMode.CryptBlocks(origData, crypted)
-	origData = PKCS7UnPadding(origData)
-	return origData, nil
+	decrypted := make([]byte, len(data))
+	size := block.BlockSize()
+
+	for bs, be := 0, size; bs < len(data); bs, be = bs+size, be+size {
+		block.Decrypt(decrypted[bs:be], data[bs:be])
+	}
+
+	return PKCS7UnPadding(decrypted), nil
 }
 
-func Encrypt(origData []byte) ([]byte, error) {
-	return AesEncrypt(origData, []byte(MyKey))
+func GenRsaKey(bits int) (err error, privateKey string, publicKey []byte) {
+	// 生成私钥文件
+	originKey, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		return
+	}
+
+	derStream := x509.MarshalPKCS1PrivateKey(originKey)
+	priBlock := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: derStream,
+	}
+
+	stringPrivateKey := string(pem.EncodeToMemory(priBlock))
+	slicePrivateKey := strings.Split(stringPrivateKey, "\n")
+	for i, v := range slicePrivateKey {
+		if i == 0 || i > len(slicePrivateKey)-3 {
+			continue
+		}
+
+		privateKey = privateKey + v
+	}
+
+	// 生成公钥文件
+	originPublicKey := &originKey.PublicKey
+	derPkIx, err := x509.MarshalPKIXPublicKey(originPublicKey)
+	if err != nil {
+		return
+	}
+	publicBlock := &pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: derPkIx,
+	}
+	publicKey = pem.EncodeToMemory(publicBlock)
+
+	return err, privateKey, publicKey
 }
 
-func Decrypt(origData []byte, clientos string) ([]byte, error) {
-	return AesDecrypt(origData, []byte(MyKey))
-}
+func GetRandomString(num int) []byte {
+	letterByte := []byte(`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`)
 
+	b := make([]byte, num)
+	r := mRand.New(mRand.NewSource(time.Now().UnixNano()))
+	for i := range b {
+		b[i] = letterByte[r.Intn(len(letterByte))]
+	}
 
-func HexEncode(oridata []byte) (encodestr string){
-	dstlen := hex.EncodedLen(len(oridata))
-	dst := make([]byte, dstlen)
-
-	hex.Encode(dst, oridata)
-	encodestr = string(dst)
-	return
-
-}
-
-func HexDecode(oridata []byte) (decodestr []byte){
-	hex2strlen := hex.DecodedLen(len(oridata))
-	str := make([]byte, hex2strlen)
-	hex.Decode(str, oridata)
-	decodestr = str
-	return
+	return b
 }
