@@ -1,6 +1,8 @@
 package examples
 
 import (
+	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"time"
@@ -18,24 +20,29 @@ func init() {
 
 // Example creating, signing, and encoding a JWT token using the HMAC signing method
 func ExampleNew_hmac() {
+	timeByte, _ := json.Marshal(time.Now().Unix())
+	jti := fmt.Sprintf("%x", md5.Sum(timeByte)) //将[]byte转成16进制
+
 	// Create a new token object, specifying signing method and the claims
 	// you would like it to contain.
-	token := jwt.NewWithClaims(jwt.SigningMethodHS384, jwt.MapClaims{
-		"foo": "bar",
-		"nbf": time.Date(2015, 10, 10, 12, 0, 0, 0, time.UTC).Unix(),
+	token := jwt.NewWithClaims(jwt.SigningMethodHS384, jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(time.Hour).Unix(),
+		Id:        jti,
+		IssuedAt:  time.Now().Unix(),
+		Issuer:    "Bitway",
 	})
 
 	// Sign and get the complete encoded token as a string using the secret
 	tokenString, err := token.SignedString(hmacSampleSecret)
 
 	fmt.Println(tokenString, err)
-	// Output: eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJuYmYiOjE0NDQ0Nzg0MDB9.Z_8ICMc2A-Xbs4IpqKB2OkM5OapAP0x0TGlVhgVhbLHuqd6bVkY8CgfWK4teqYw2 <nil>
+	// Output: eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTg0NDE1NTksImp0aSI6IjY3N2I2OTJjZGM2MGYwYjQ3MGNhY2QzMTNkZjQ0NjQ4IiwiaWF0IjoxNTk4NDM3OTU5LCJpc3MiOiJCaXR3YXkifQ.fEodlAS1Ov_6PGdk7Id2ZgOTZritQuPgV87_iiW06Z9Fd3wxXHVWe6YXT2STDeSW <nil>
 }
 
 // Example parsing and validating a token using the HMAC signing method
 func ExampleParse_hmac() {
 	// sample token string taken from the New example
-	tokenString := "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJuYmYiOjE0NDQ0Nzg0MDB9.Z_8ICMc2A-Xbs4IpqKB2OkM5OapAP0x0TGlVhgVhbLHuqd6bVkY8CgfWK4teqYw2"
+	tokenString := "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1OTg0NDE1NTksImp0aSI6IjY3N2I2OTJjZGM2MGYwYjQ3MGNhY2QzMTNkZjQ0NjQ4IiwiaWF0IjoxNTk4NDM3OTU5LCJpc3MiOiJCaXR3YXkifQ.fEodlAS1Ov_6PGdk7Id2ZgOTZritQuPgV87_iiW06Z9Fd3wxXHVWe6YXT2STDeSW"
 
 	// Parse takes the token string and a function for looking up the key. The latter is especially
 	// useful if you use multiple keys for your application.  The standard is to use 'kid' in the
@@ -52,10 +59,10 @@ func ExampleParse_hmac() {
 	})
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Println(claims["foo"], claims["nbf"])
+		fmt.Println(claims["exp"], claims["jti"], claims["iat"], claims["iss"])
 	} else {
 		fmt.Println(err)
 	}
 
-	// Output: bar 1.4444784e+09
+	// Output: 1.598441559e+09 677b692cdc60f0b470cacd313df44648 1.598437959e+09 Bitway
 }

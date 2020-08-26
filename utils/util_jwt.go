@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/md5"
+	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"time"
@@ -13,8 +15,11 @@ func init() {
 }
 
 func CreateToken() (string, error) {
+	timeByte, _ := json.Marshal(time.Now().Unix())
+	jti := fmt.Sprintf("%x", md5.Sum(timeByte)) //将[]byte转成16进制
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS384, jwt.MapClaims{
-		"token": "C756856B712D48A1AB124C6B12445C19",
+		"token": jti,
 		"exp":   time.Now().Add(time.Hour).Unix(),
 		"iat":   time.Now().Unix(),
 	})
