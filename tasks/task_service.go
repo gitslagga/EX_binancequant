@@ -16,52 +16,55 @@ import (
 func InitRouter(router *gin.Engine) {
 	router.Use(cors.Default())
 
-	//no authorized
-	noAuthorized := router.Group("/api", requestHandler(), responseHandler())
+	//market group
+	marketGroup := router.Group("/api", responseHandler())
 
 	/****************************** 通用 - 永续合约行情接口 *********************************/
-	noAuthorized.GET("/market/time", ServerTimeService)
-	noAuthorized.GET("/market/depth", DepthService)
-	noAuthorized.GET("/market/aggTrades", AggTradesService)
-	noAuthorized.GET("/market/klines", KlinesService)
-	noAuthorized.GET("/market/premiumIndex", PremiumIndexService)
-	noAuthorized.GET("/market/ticker/24hr", ListPriceChangeStatsService)
-	noAuthorized.GET("/market/ticker/price", ListPricesService)
-	noAuthorized.GET("/market/exchangeInfo", ExchangeInfoService)
+	marketGroup.GET("/market/time", ServerTimeService)
+	marketGroup.GET("/market/depth", DepthService)
+	marketGroup.GET("/market/aggTrades", AggTradesService)
+	marketGroup.GET("/market/klines", KlinesService)
+	marketGroup.GET("/market/premiumIndex", PremiumIndexService)
+	marketGroup.GET("/market/ticker/24hr", ListPriceChangeStatsService)
+	marketGroup.GET("/market/ticker/price", ListPricesService)
+	marketGroup.GET("/market/exchangeInfo", ExchangeInfoService)
 
 	/****************************** 后台 - 经纪人接口 *********************************/
-	//TODO Backend Authorized
-	/*//管理子账户权限
-	noAuthorized.POST("/broker/subAccount", CreateSubAccountService)
-	noAuthorized.POST("/broker/subAccount/futures", EnableSubAccountFuturesService)
-	noAuthorized.POST("/broker/subAccountApi", CreateSubAccountApiService)
-	noAuthorized.DELETE("/broker/subAccountApi", DeleteSubAccountApiService)
-	noAuthorized.GET("/broker/subAccountApi", GetSubAccountApiService)
-	noAuthorized.POST("/broker/subAccountApi/permission", ChangeSubAccountApiPermissionService)
-	noAuthorized.GET("/broker/subAccount", GetSubAccountService)
+	/*//TODO Backend Authorized
+	//backend group
+	backendGroup := router.Group("/api", tokenHandler())
+	//管理子账户权限
+	backendGroup.POST("/broker/subAccount/create", CreateSubAccountService)
+	backendGroup.POST("/broker/subAccount/enable", EnableSubAccountFuturesService)
+	backendGroup.GET("/broker/subAccount", GetSubAccountService)
+	backendGroup.POST("/broker/subAccountApi/create", CreateSubAccountApiService)
+	backendGroup.POST("/broker/subAccountApi/close", DeleteSubAccountApiService)
+	backendGroup.GET("/broker/subAccountApi", GetSubAccountApiService)
+	backendGroup.POST("/broker/subAccountApi/permission", ChangeSubAccountApiPermissionService)
 
 	//调整子账户手续费
-	noAuthorized.POST("/broker/subAccountApi/commission/futures", ChangeCommissionFuturesService)
-	noAuthorized.GET("/broker/subAccountApi/commission/futures", GetCommissionFuturesService)
-	noAuthorized.GET("/broker/info", GetInfoService)
+	backendGroup.POST("/broker/subAccountApi/commission/futures", ChangeCommissionFuturesService)
+	backendGroup.GET("/broker/subAccountApi/commission/futures", GetCommissionFuturesService)
+	backendGroup.GET("/broker/info", GetInfoService)
 
 	//经纪商账户与子账户划转
-	noAuthorized.POST("/broker/transfer", CreateTransferService)
-	noAuthorized.GET("/broker/transfer", GetTransferService)
+	backendGroup.POST("/broker/transfer", CreateTransferService)
+	backendGroup.GET("/broker/transfer", GetTransferService)
 
 	//子账户充币与资产
-	noAuthorized.GET("/broker/subAccount/depositHist", GetSubAccountDepositHistService)
-	noAuthorized.GET("/broker/subAccount/spotSummary", GetSubAccountSpotSummaryService)
-	noAuthorized.GET("/broker/subAccount/futuresSummary", GetSubAccountFuturesSummaryService)
+	backendGroup.GET("/broker/subAccount/depositHist", GetSubAccountDepositHistService)
+	backendGroup.GET("/broker/subAccount/spotSummary", GetSubAccountSpotSummaryService)
+	backendGroup.GET("/broker/subAccount/futuresSummary", GetSubAccountFuturesSummaryService)
 
 	//查询返佣记录
-	noAuthorized.GET("/broker/rebate/recentRecord", GetRebateRecentRecordService)
-	noAuthorized.POST("/broker/rebate/historicalRecord", GenerateRebateHistoryService)
-	noAuthorized.GET("/broker/rebate/historicalRecord", GetRebateHistoryService)*/
+	backendGroup.GET("/broker/rebate/recentRecord", GetRebateRecentRecordService)
+	backendGroup.POST("/broker/rebate/historicalRecord", GenerateRebateHistoryService)
+	backendGroup.GET("/broker/rebate/historicalRecord", GetRebateHistoryService)*/
 
 	/****************************** 前台 - 永续合约接口 *********************************/
 	//开启子账户认证
-	authorized := router.Group("/api", tokenHandler(), requestHandler(), responseHandler())
+	authorized := router.Group("/api", tokenHandler(), responseHandler())
+	authorizedRequest := router.Group("/api", tokenHandler(), requestHandler(), responseHandler())
 	authorized.GET("/account/activeFutures", GetActiveFuturesService)
 	authorized.POST("/account/activeFutures", CreateActiveFuturesService)
 
@@ -70,24 +73,24 @@ func InitRouter(router *gin.Engine) {
 	authorized.GET("/account/deposits/address", DepositsAddressService)
 	authorized.GET("/account/spot", SpotAccountService)
 	authorized.GET("/account/futures", FuturesAccountService)
-	authorized.POST("/account/transfer", FuturesTransferService)
+	authorizedRequest.POST("/account/transfer", FuturesTransferService)
 	authorized.GET("/account/transfer", ListFuturesTransferService)
-	authorized.POST("/account/withdraw", CreateWithdrawService)
+	authorizedRequest.POST("/account/withdraw", CreateWithdrawService)
 	authorized.GET("/account/withdraw", ListWithdrawsService)
 
 	//永续合约交易
-	authorized.POST("/futures/position/mode", ChangePositionModeService)
+	authorizedRequest.POST("/futures/position/mode", ChangePositionModeService)
 	authorized.GET("/futures/position/mode", GetPositionModeService)
-	authorized.POST("/futures/order", CreateOrderService)
+	authorizedRequest.POST("/futures/order", CreateOrderService)
 	authorized.GET("/futures/order", GetOrderService)
-	authorized.DELETE("/futures/order", CancelOrderService)
-	authorized.DELETE("/futures/allOpenOrders", CancelAllOpenOrdersService)
+	authorizedRequest.POST("/futures/order/cancel", CancelOrderService)
+	authorizedRequest.POST("/futures/order/cancelAll", CancelAllOpenOrdersService)
 	authorized.GET("/futures/openOrders", ListOpenOrdersService)
 	authorized.GET("/futures/allOrders", ListOrdersService)
 	authorized.GET("/futures/balance", GetBalanceService)
-	authorized.POST("/futures/leverage", ChangeLeverageService)
-	authorized.POST("/futures/marginType", ChangeMarginTypeService)
-	authorized.POST("/futures/positionMargin", UpdatePositionMarginService)
+	authorizedRequest.POST("/futures/leverage", ChangeLeverageService)
+	authorizedRequest.POST("/futures/marginType", ChangeMarginTypeService)
+	authorizedRequest.POST("/futures/positionMargin", UpdatePositionMarginService)
 	authorized.GET("/futures/positionMargin", GetPositionMarginHistoryService)
 	authorized.GET("/futures/positionRisk", GetPositionRiskService)
 	authorized.GET("/futures/userTrades", GetTradeHistoryService)
@@ -95,9 +98,9 @@ func InitRouter(router *gin.Engine) {
 	authorized.GET("/futures/leverageBracket", GetLeverageBracketService)
 
 	//WS许可证权限（每小时更新）
-	authorized.POST("/futures/listenKey", StartUserStreamService)
-	authorized.PUT("/futures/listenKey", KeepaliveUserStreamService)
-	authorized.DELETE("/futures/listenKey", CloseUserStreamService)
+	authorized.POST("/futures/listenKey/create", StartUserStreamService)
+	authorized.POST("/futures/listenKey/update", KeepaliveUserStreamService)
+	authorized.POST("/futures/listenKey/close", CloseUserStreamService)
 }
 
 func InitFutures() {

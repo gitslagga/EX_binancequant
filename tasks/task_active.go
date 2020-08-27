@@ -6,7 +6,6 @@ import (
 	"EX_binancequant/trade"
 	"context"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 /**
@@ -24,8 +23,7 @@ func GetActiveFuturesService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = db.GetActiveFuturesByUserID(userID)
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -42,7 +40,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 	if active := db.GetActiveFuturesByUserID(userID); active == true {
 		out.RespCode = EC_ALREADY_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_ALREADY_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -51,7 +49,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -61,7 +59,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -71,7 +69,7 @@ func CreateActiveFuturesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -79,13 +77,12 @@ func CreateActiveFuturesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }

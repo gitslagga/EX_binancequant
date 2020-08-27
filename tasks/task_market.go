@@ -5,7 +5,6 @@ import (
 	"EX_binancequant/trade"
 	"context"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"strconv"
 )
 
@@ -19,7 +18,7 @@ func ServerTimeService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -27,8 +26,7 @@ func ServerTimeService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -46,7 +44,7 @@ func DepthService(c *gin.Context) {
 	if symbol == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -63,7 +61,7 @@ func DepthService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -71,8 +69,7 @@ func DepthService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -90,7 +87,7 @@ func AggTradesService(c *gin.Context) {
 	if symbol == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -107,7 +104,7 @@ func AggTradesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -115,8 +112,7 @@ func AggTradesService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -137,7 +133,7 @@ func KlinesService(c *gin.Context) {
 	if symbol == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -169,7 +165,7 @@ func KlinesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -177,8 +173,7 @@ func KlinesService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -201,7 +196,7 @@ func PremiumIndexService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -209,8 +204,7 @@ func PremiumIndexService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -233,7 +227,7 @@ func ListPriceChangeStatsService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -241,8 +235,7 @@ func ListPriceChangeStatsService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -265,7 +258,7 @@ func ListPricesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -273,8 +266,7 @@ func ListPricesService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -288,7 +280,7 @@ func ExchangeInfoService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -296,6 +288,5 @@ func ExchangeInfoService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }

@@ -101,10 +101,32 @@ type FutureResponse struct {
 	RespData string `json:"respData,omitempty"`
 }
 
+type DepositsAddressRequest struct {
+	Coin    string `json:"coin" binding:"required"`
+	Network string `json:"network"`
+}
+
+type ListDepositsRequest struct {
+	Coin      string `json:"coin"`
+	Status    int    `json:"status"`
+	StartTime int64  `json:"startTime"`
+	EndTime   int64  `json:"endTime"`
+	Offset    int    `json:"offset"`
+	Limit     int    `json:"limit"`
+}
+
 type TransferRequest struct {
 	Asset  string  `json:"asset" binding:"required"`
 	Amount float64 `json:"amount" binding:"required"`
 	Type   int     `json:"type" binding:"required"`
+}
+
+type ListFuturesTransferRequest struct {
+	Asset     string `json:"asset" binding:"required"`
+	StartTime int64  `json:"startTime" binding:"required"`
+	EndTime   int64  `json:"endTime"`
+	Current   int64  `json:"current"`
+	Size      int64  `json:"size"`
 }
 
 type WithdrawRequest struct {
@@ -116,6 +138,15 @@ type WithdrawRequest struct {
 	AddressTag         string  `json:"addressTag"`
 	TransactionFeeFlag bool    `json:"transactionFeeFlag"`
 	Name               string  `json:"name"`
+}
+
+type ListWithdrawsRequest struct {
+	Coin      string `json:"coin"`
+	Status    int    `json:"status"`
+	StartTime int64  `json:"startTime"`
+	EndTime   int64  `json:"endTime"`
+	Offset    int    `json:"offset"`
+	Limit     int    `json:"limit"`
 }
 
 type PositionModeRequest struct {
@@ -140,6 +171,34 @@ type OrderRequest struct {
 	NewOrderRespType string  `json:"newOrderRespType"`
 }
 
+type GetOrderRequest struct {
+	Symbol            string `json:"symbol" binding:"required"`
+	OrderId           int64  `json:"orderId"`
+	OrigClientOrderId string `json:"origClientOrderId"`
+}
+
+type CancelOrderRequest struct {
+	Symbol            string `json:"symbol" binding:"required"`
+	OrderId           int64  `json:"orderId"`
+	OrigClientOrderId string `json:"origClientOrderId"`
+}
+
+type CancelAllOpenOrdersRequest struct {
+	Symbol string `json:"symbol" binding:"required"`
+}
+
+type ListOpenOrdersRequest struct {
+	Symbol string `json:"symbol" binding:"required"`
+}
+
+type ListOrdersRequest struct {
+	Symbol    string `json:"symbol" binding:"required"`
+	OrderId   int64  `json:"orderId"`
+	StartTime int64  `json:"startTime"`
+	EndTime   int64  `json:"endTime"`
+	Limit     int    `json:"limit"`
+}
+
 type LeverageRequest struct {
 	Symbol   string `json:"symbol" binding:"required"`
 	Leverage int    `json:"leverage" binding:"required"`
@@ -155,6 +214,30 @@ type PositionMarginRequest struct {
 	Amount       float64 `json:"amount"  binding:"required"`
 	Type         int     `json:"type" binding:"required"`
 	PositionSide string  `json:"positionSide"`
+}
+
+type GetPositionMarginHistoryRequest struct {
+	Symbol    string `json:"symbol" binding:"required"`
+	Type      int    `json:"type"`
+	StartTime int64  `json:"startTime"`
+	EndTime   int64  `json:"endTime"`
+	Limit     int64  `json:"limit"`
+}
+
+type GetTradeHistoryRequest struct {
+	Symbol    string `json:"symbol" binding:"required"`
+	FromId    uint64 `json:"fromId"`
+	StartTime int64  `json:"startTime"`
+	EndTime   int64  `json:"endTime"`
+	Limit     int64  `json:"limit"`
+}
+
+type GetIncomeHistoryRequest struct {
+	Symbol     string `json:"symbol" binding:"required"`
+	IncomeType string `json:"incomeType"`
+	StartTime  int64  `json:"startTime"`
+	EndTime    int64  `json:"endTime"`
+	Limit      int64  `json:"limit"`
 }
 
 /*********************************** broker sub account *************************************/

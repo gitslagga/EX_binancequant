@@ -5,8 +5,8 @@ import (
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
 	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"strconv"
 )
 
@@ -17,38 +17,38 @@ func DepositsAddressService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	coin := c.Query("coin")
-	network := c.Query("network")
 
-	mylog.Logger.Info().Msgf("[Task Account] DepositsAddressService request param: %v, %v, %v",
-		userID, coin, network)
-
-	if coin == "" {
+	var depositsAddressRequest DepositsAddressRequest
+	err := c.ShouldBindQuery(&depositsAddressRequest)
+	if err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Account] DepositsAddressService request param: %v, %v",
+		userID, depositsAddressRequest)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	depositsAddress := client.NewDepositsAddressService()
-	depositsAddress.Coin(coin)
-	if network != "" {
-		depositsAddress.Network(network)
+	depositsAddress.Coin(depositsAddressRequest.Coin)
+	if depositsAddressRequest.Network != "" {
+		depositsAddress.Network(depositsAddressRequest.Network)
 	}
 
 	list, err := depositsAddress.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -56,8 +56,7 @@ func DepositsAddressService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -67,64 +66,52 @@ func ListDepositsService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	coin := c.Query("coin")
-	status := c.Query("status")
-	startTime := c.Query("startTime")
-	endTime := c.Query("endTime")
-	offset := c.Query("offset")
-	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Account] ListDepositsService request param: %v, %v, %v, %v, %v, %v, %v",
-		userID, coin, status, startTime, endTime, offset, limit)
+	var listDepositsRequest ListDepositsRequest
+	err := c.ShouldBindQuery(&listDepositsRequest)
+	if err != nil {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Account] ListDepositsService request param: %v, %v",
+		userID, listDepositsRequest)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	listDeposits := client.NewListDepositsService()
-	if coin != "" {
-		listDeposits.Coin(coin)
+	if listDepositsRequest.Coin != "" {
+		listDeposits.Coin(listDepositsRequest.Coin)
 	}
-	if status != "" {
-		iStatus, err := strconv.Atoi(status)
-		if err == nil {
-			listDeposits.Status(iStatus)
-		}
+	if listDepositsRequest.Status != 0 {
+		listDeposits.Status(listDepositsRequest.Status)
 	}
-	if startTime != "" {
-		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
-		if err == nil {
-			listDeposits.StartTime(iStartTime)
-		}
+	if listDepositsRequest.StartTime != 0 {
+		listDeposits.StartTime(listDepositsRequest.StartTime)
 	}
-	if endTime != "" {
-		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
-		if err == nil {
-			listDeposits.EndTime(iEndTime)
-		}
+	if listDepositsRequest.EndTime != 0 {
+		listDeposits.EndTime(listDepositsRequest.EndTime)
 	}
-	if offset != "" {
-		iOffset, err := strconv.Atoi(offset)
-		if err == nil {
-			listDeposits.Offset(iOffset)
-		}
+	if listDepositsRequest.Offset != 0 {
+		listDeposits.Offset(listDepositsRequest.Offset)
 	}
-	if limit != "" {
-		iLimit, err := strconv.Atoi(limit)
-		if err == nil {
-			listDeposits.Limit(iLimit)
-		}
+	if listDepositsRequest.Limit != 0 {
+		listDeposits.Limit(listDepositsRequest.Limit)
 	}
 
 	list, err := listDeposits.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -132,8 +119,7 @@ func ListDepositsService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -150,7 +136,7 @@ func SpotAccountService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -158,7 +144,7 @@ func SpotAccountService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -166,8 +152,7 @@ func SpotAccountService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -179,12 +164,11 @@ func FuturesTransferService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	var transferRequest TransferRequest
-	if err := c.ShouldBindJSON(&transferRequest); err != nil {
-		mylog.Logger.Error().Msgf("[Task Account] FuturesTransferService request param error: %v, %v",
-			userID, err)
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &transferRequest)
+	if err != nil || transferRequest.Asset == "" || transferRequest.Amount == 0 || transferRequest.Type == 0 {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -195,7 +179,7 @@ func FuturesTransferService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -208,7 +192,7 @@ func FuturesTransferService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -216,8 +200,7 @@ func FuturesTransferService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -227,57 +210,45 @@ func ListFuturesTransferService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	asset := c.Query("asset")
-	startTime, err := strconv.ParseInt(c.Query("startTime"), 10, 64)
-	endTime := c.Query("endTime")
-	current := c.Query("current")
-	size := c.Query("size")
 
-	mylog.Logger.Info().Msgf("[Task Account] ListFuturesTransferService request param: %v, %v, %v, %v, %v, %v",
-		userID, asset, startTime, endTime, current, size)
-
-	if asset == "" || err != nil {
+	var listFuturesTransferRequest ListFuturesTransferRequest
+	err := c.ShouldBindQuery(&listFuturesTransferRequest)
+	if err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Account] ListFuturesTransferService request param: %v, %v",
+		userID, listFuturesTransferRequest)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	futuresTransfer := client.NewListFuturesTransferService()
-	futuresTransfer.Asset(asset)
-	futuresTransfer.StartTime(startTime)
-	if endTime != "" {
-		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
-		if err == nil {
-			futuresTransfer.EndTime(iEndTime)
-		}
+	futuresTransfer.Asset(listFuturesTransferRequest.Asset)
+	futuresTransfer.StartTime(listFuturesTransferRequest.StartTime)
+	if listFuturesTransferRequest.EndTime != 0 {
+		futuresTransfer.EndTime(listFuturesTransferRequest.EndTime)
 	}
-	if current != "" {
-		iCurrent, err := strconv.ParseInt(current, 10, 64)
-		if err == nil {
-			futuresTransfer.Current(iCurrent)
-		}
+	if listFuturesTransferRequest.Current != 0 {
+		futuresTransfer.Current(listFuturesTransferRequest.Current)
 	}
-	if size != "" {
-		iSize, err := strconv.ParseInt(size, 10, 64)
-		if err == nil {
-			futuresTransfer.Size(iSize)
-		}
+	if listFuturesTransferRequest.Size != 0 {
+		futuresTransfer.Size(listFuturesTransferRequest.Size)
 	}
 
 	list, err := futuresTransfer.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -285,8 +256,7 @@ func ListFuturesTransferService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -303,7 +273,7 @@ func FuturesAccountService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -311,7 +281,7 @@ func FuturesAccountService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -319,8 +289,7 @@ func FuturesAccountService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -332,12 +301,11 @@ func CreateWithdrawService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	var withdrawRequest WithdrawRequest
-	if err := c.ShouldBindJSON(&withdrawRequest); err != nil {
-		mylog.Logger.Error().Msgf("[Task Account] CreateWithdrawService request param err: %v, %v",
-			userID, err)
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &withdrawRequest)
+	if err != nil || withdrawRequest.Coin == "" || withdrawRequest.Address == "" || withdrawRequest.Amount == 0 {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -348,7 +316,7 @@ func CreateWithdrawService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -357,7 +325,7 @@ func CreateWithdrawService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -368,7 +336,7 @@ func CreateWithdrawService(c *gin.Context) {
 			if err != nil {
 				out.RespCode = EC_FORMAT_ERR
 				out.RespDesc = err.Error()
-				c.JSON(http.StatusBadRequest, out)
+				c.Set("responseData", out)
 				return
 			}
 			break
@@ -378,7 +346,7 @@ func CreateWithdrawService(c *gin.Context) {
 	if balance < withdrawRequest.Amount {
 		out.RespCode = EC_NO_BALANCE
 		out.RespDesc = ErrorCodeMessage(EC_NO_BALANCE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -387,7 +355,7 @@ func CreateWithdrawService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -397,7 +365,7 @@ func CreateWithdrawService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -427,15 +395,14 @@ func CreateWithdrawService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -445,63 +412,52 @@ func ListWithdrawsService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	coin := c.Query("coin")
-	status := c.Query("status")
-	offset := c.Query("offset")
-	limit := c.Query("limit")
-	startTime := c.Query("startTime")
-	endTime := c.Query("endTime")
-	mylog.Logger.Info().Msgf("[Task Account] ListWithdrawsService request param: %v, %v, %v, %v, %v, %v, %v",
-		userID, coin, status, startTime, endTime, offset, limit)
+
+	var listWithdrawsRequest ListWithdrawsRequest
+	err := c.ShouldBindQuery(&listWithdrawsRequest)
+	if err != nil {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Account] ListWithdrawsService request param: %v, %v",
+		userID, listWithdrawsRequest)
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	listDeposits := client.NewListWithdrawsService()
-	if coin != "" {
-		listDeposits.Coin(coin)
+	if listWithdrawsRequest.Coin != "" {
+		listDeposits.Coin(listWithdrawsRequest.Coin)
 	}
-	if status != "" {
-		iStatus, err := strconv.Atoi(status)
-		if err == nil {
-			listDeposits.Status(iStatus)
-		}
+	if listWithdrawsRequest.Status != 0 {
+		listDeposits.Status(listWithdrawsRequest.Status)
 	}
-	if offset != "" {
-		iOffset, err := strconv.Atoi(offset)
-		if err == nil {
-			listDeposits.Offset(iOffset)
-		}
+	if listWithdrawsRequest.StartTime != 0 {
+		listDeposits.StartTime(listWithdrawsRequest.StartTime)
 	}
-	if limit != "" {
-		iLimit, err := strconv.Atoi(limit)
-		if err == nil {
-			listDeposits.Limit(iLimit)
-		}
+	if listWithdrawsRequest.EndTime != 0 {
+		listDeposits.EndTime(listWithdrawsRequest.EndTime)
 	}
-	if startTime != "" {
-		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
-		if err == nil {
-			listDeposits.StartTime(iStartTime)
-		}
+	if listWithdrawsRequest.Offset != 0 {
+		listDeposits.Offset(listWithdrawsRequest.Offset)
 	}
-	if endTime != "" {
-		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
-		if err == nil {
-			listDeposits.EndTime(iEndTime)
-		}
+	if listWithdrawsRequest.Limit != 0 {
+		listDeposits.Limit(listWithdrawsRequest.Limit)
 	}
 
 	list, err := listDeposits.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -509,6 +465,5 @@ func ListWithdrawsService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }

@@ -5,9 +5,8 @@ import (
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade/futures"
 	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 /**
@@ -19,12 +18,11 @@ func ChangePositionModeService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	var positionModeRequest PositionModeRequest
-	if err := c.ShouldBindJSON(&positionModeRequest); err != nil {
-		mylog.Logger.Error().Msgf("[Task Account] ChangePositionModeService request param err: %v, %v",
-			userID, err)
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &positionModeRequest)
+	if err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -35,7 +33,7 @@ func ChangePositionModeService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -46,15 +44,14 @@ func ChangePositionModeService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -71,7 +68,7 @@ func GetPositionModeService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -79,7 +76,7 @@ func GetPositionModeService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -87,8 +84,7 @@ func GetPositionModeService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -100,12 +96,11 @@ func CreateOrderService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	var orderRequest OrderRequest
-	if err := c.ShouldBindJSON(&orderRequest); err != nil {
-		mylog.Logger.Error().Msgf("[Task Account] CreateOrderService request param err: %v, %v",
-			userID, err)
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &orderRequest)
+	if err != nil || orderRequest.Symbol == "" || orderRequest.Side == "" || orderRequest.Type == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -116,7 +111,7 @@ func CreateOrderService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -165,7 +160,7 @@ func CreateOrderService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -173,8 +168,7 @@ func CreateOrderService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -185,46 +179,41 @@ func GetOrderService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 
-	symbol := c.Query("symbol")
-	orderId := c.Query("orderId")
-	origClientOrderId := c.Query("origClientOrderId")
-
-	mylog.Logger.Info().Msgf(
-		"[Task Futures] GetOrderService request param: %v, %v, %v, %v",
-		userID, symbol, orderId, origClientOrderId)
-
-	if symbol == "" || (orderId == "" && origClientOrderId == "") {
+	var getOrderRequest GetOrderRequest
+	err := c.ShouldBindQuery(&getOrderRequest)
+	if err != nil || (getOrderRequest.OrderId == 0 && getOrderRequest.OrigClientOrderId == "") {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf(
+		"[Task Futures] GetOrderService request param: %v, %v",
+		userID, getOrderRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	getOrder := client.NewGetOrderService()
-	getOrder.Symbol(symbol)
-	if orderId != "" {
-		iOrderId, err := strconv.ParseInt(orderId, 10, 64)
-		if err == nil {
-			getOrder.OrderID(iOrderId)
-		}
+	getOrder.Symbol(getOrderRequest.Symbol)
+	if getOrderRequest.OrderId != 0 {
+		getOrder.OrderID(getOrderRequest.OrderId)
 	}
-	if origClientOrderId != "" {
-		getOrder.OrigClientOrderID(origClientOrderId)
+	if getOrderRequest.OrigClientOrderId != "" {
+		getOrder.OrigClientOrderID(getOrderRequest.OrigClientOrderId)
 	}
 
 	list, err := getOrder.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -232,8 +221,7 @@ func GetOrderService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -244,46 +232,41 @@ func CancelOrderService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 
-	symbol := c.Query("symbol")
-	orderId := c.Query("orderId")
-	origClientOrderId := c.Query("origClientOrderId")
-
-	mylog.Logger.Info().Msgf(
-		"[Task Futures] CancelOrderService request param: %v, %v, %v, %v",
-		userID, symbol, orderId, origClientOrderId)
-
-	if symbol == "" || (orderId == "" && origClientOrderId == "") {
+	var cancelOrderRequest CancelOrderRequest
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &cancelOrderRequest)
+	if err != nil || cancelOrderRequest.Symbol == "" || (cancelOrderRequest.OrderId == 0 && cancelOrderRequest.OrigClientOrderId == "") {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf(
+		"[Task Futures] CancelOrderService request param: %v, %v",
+		userID, cancelOrderRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	cancelOrder := client.NewCancelOrderService()
-	cancelOrder.Symbol(symbol)
-	if orderId != "" {
-		iOrderId, err := strconv.ParseInt(orderId, 10, 64)
-		if err == nil {
-			cancelOrder.OrderID(iOrderId)
-		}
+	cancelOrder.Symbol(cancelOrderRequest.Symbol)
+	if cancelOrderRequest.OrderId != 0 {
+		cancelOrder.OrderID(cancelOrderRequest.OrderId)
 	}
-	if origClientOrderId != "" {
-		cancelOrder.OrigClientOrderID(origClientOrderId)
+	if cancelOrderRequest.OrigClientOrderId != "" {
+		cancelOrder.OrigClientOrderID(cancelOrderRequest.OrigClientOrderId)
 	}
 
 	list, err := cancelOrder.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -291,8 +274,7 @@ func CancelOrderService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -303,43 +285,42 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 
-	symbol := c.Query("symbol")
+	var cancelAllOpenOrdersRequest CancelAllOpenOrdersRequest
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &cancelAllOpenOrdersRequest)
+	if err != nil || cancelAllOpenOrdersRequest.Symbol == "" {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.Set("responseData", out)
+		return
+	}
 
 	mylog.Logger.Info().Msgf(
 		"[Task Futures] CancelAllOpenOrdersService request param: %v, %v",
-		userID, symbol)
-
-	if symbol == "" {
-		out.RespCode = EC_PARAMS_ERR
-		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
-		return
-	}
+		userID, cancelAllOpenOrdersRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	cancelAllOpenOrders := client.NewCancelAllOpenOrdersService()
-	cancelAllOpenOrders.Symbol(symbol)
+	cancelAllOpenOrders.Symbol(cancelAllOpenOrdersRequest.Symbol)
 
 	err = cancelAllOpenOrders.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -350,35 +331,35 @@ func ListOpenOrdersService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(string)
 
-	symbol := c.Query("symbol")
+	var listOpenOrdersRequest ListOpenOrdersRequest
+	err := c.ShouldBindQuery(&listOpenOrdersRequest)
+	if err != nil {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.Set("responseData", out)
+		return
+	}
 
 	mylog.Logger.Info().Msgf(
 		"[Task Futures] ListOpenOrdersService request param: %v, %v",
-		userID, symbol)
-
-	if symbol == "" {
-		out.RespCode = EC_PARAMS_ERR
-		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
-		return
-	}
+		userID, listOpenOrdersRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	listOpenOrders := client.NewListOpenOrdersService()
-	listOpenOrders.Symbol(symbol)
+	listOpenOrders.Symbol(listOpenOrdersRequest.Symbol)
 
 	list, err := listOpenOrders.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -386,8 +367,7 @@ func ListOpenOrdersService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -397,62 +377,47 @@ func ListOrdersService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	symbol := c.Query("symbol")
-	orderId := c.Query("orderId")
-	startTime := c.Query("startTime")
-	endTime := c.Query("endTime")
-	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Futures] ListOrdersService request param: %v, %v, %v, %v, %v, %v",
-		userID, symbol, orderId, startTime, endTime, limit)
-
-	if symbol == "" {
+	var listOrdersRequest ListOrdersRequest
+	err := c.ShouldBindQuery(&listOrdersRequest)
+	if err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] ListOrdersService request param: %v, %v",
+		userID, listOrdersRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	listOrders := client.NewListOrdersService()
-	listOrders.Symbol(symbol)
-	if orderId != "" {
-		iOrderId, err := strconv.ParseInt(orderId, 10, 64)
-		if err == nil {
-			listOrders.OrderID(iOrderId)
-		}
+	listOrders.Symbol(listOrdersRequest.Symbol)
+	if listOrdersRequest.OrderId != 0 {
+		listOrders.OrderID(listOrdersRequest.OrderId)
 	}
-	if startTime != "" {
-		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
-		if err == nil {
-			listOrders.StartTime(iStartTime)
-		}
+	if listOrdersRequest.StartTime != 0 {
+		listOrders.StartTime(listOrdersRequest.StartTime)
 	}
-	if endTime != "" {
-		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
-		if err == nil {
-			listOrders.EndTime(iEndTime)
-		}
+	if listOrdersRequest.EndTime != 0 {
+		listOrders.EndTime(listOrdersRequest.EndTime)
 	}
-	if limit != "" {
-		iLimit, err := strconv.Atoi(limit)
-		if err == nil {
-			listOrders.Limit(iLimit)
-		}
+	if listOrdersRequest.Limit != 0 {
+		listOrders.Limit(listOrdersRequest.Limit)
 	}
 
 	list, err := listOrders.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -460,8 +425,7 @@ func ListOrdersService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -478,7 +442,7 @@ func GetBalanceService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -486,7 +450,7 @@ func GetBalanceService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -494,8 +458,7 @@ func GetBalanceService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -507,12 +470,11 @@ func ChangeLeverageService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	var leverageRequest LeverageRequest
-	if err := c.ShouldBindJSON(&leverageRequest); err != nil {
-		mylog.Logger.Error().Msgf("[Task Futures] ChangeLeverageService request param err: %v, %v",
-			userID, err)
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &leverageRequest)
+	if err != nil || leverageRequest.Symbol == "" || leverageRequest.Leverage == 0 {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -523,7 +485,7 @@ func ChangeLeverageService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -535,7 +497,7 @@ func ChangeLeverageService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -543,8 +505,7 @@ func ChangeLeverageService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -556,12 +517,11 @@ func ChangeMarginTypeService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	var marginTypeRequest MarginTypeRequest
-	if err := c.ShouldBindJSON(&marginTypeRequest); err != nil {
-		mylog.Logger.Error().Msgf("[Task Futures] ChangeMarginTypeService request param err: %v, %v",
-			userID, err)
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &marginTypeRequest)
+	if err != nil || marginTypeRequest.Symbol == "" || marginTypeRequest.MarginType == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -572,7 +532,7 @@ func ChangeMarginTypeService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -584,15 +544,14 @@ func ChangeMarginTypeService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -604,12 +563,11 @@ func UpdatePositionMarginService(c *gin.Context) {
 	userID := c.MustGet("user_id").(string)
 
 	var positionMarginRequest PositionMarginRequest
-	if err := c.ShouldBindJSON(&positionMarginRequest); err != nil {
-		mylog.Logger.Info().Msgf("[Task Futures] UpdatePositionMarginService request param err: %v, %v",
-			userID, err)
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &positionMarginRequest)
+	if err != nil || positionMarginRequest.Symbol == "" || positionMarginRequest.Amount == 0 || positionMarginRequest.Type == 0 {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -620,7 +578,7 @@ func UpdatePositionMarginService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -636,15 +594,14 @@ func UpdatePositionMarginService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -654,62 +611,47 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	symbol := c.Query("symbol")
-	sType := c.Query("type")
-	startTime := c.Query("startTime")
-	endTime := c.Query("endTime")
-	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Futures] GetPositionMarginHistoryService request param: %v, %v, %v, %v, %v, %v",
-		userID, symbol, sType, startTime, endTime, limit)
-
-	if symbol == "" {
+	var getPositionMarginHistoryRequest GetPositionMarginHistoryRequest
+	err := c.ShouldBindQuery(&getPositionMarginHistoryRequest)
+	if err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetPositionMarginHistoryService request param: %v, %v",
+		userID, getPositionMarginHistoryRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	positionMarginHistory := client.NewGetPositionMarginHistoryService()
-	positionMarginHistory.Symbol(symbol)
-	if sType != "" {
-		iType, err := strconv.Atoi(sType)
-		if err == nil {
-			positionMarginHistory.Type(iType)
-		}
+	positionMarginHistory.Symbol(getPositionMarginHistoryRequest.Symbol)
+	if getPositionMarginHistoryRequest.Type != 0 {
+		positionMarginHistory.Type(getPositionMarginHistoryRequest.Type)
 	}
-	if startTime != "" {
-		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
-		if err == nil {
-			positionMarginHistory.StartTime(iStartTime)
-		}
+	if getPositionMarginHistoryRequest.StartTime != 0 {
+		positionMarginHistory.StartTime(getPositionMarginHistoryRequest.StartTime)
 	}
-	if endTime != "" {
-		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
-		if err == nil {
-			positionMarginHistory.EndTime(iEndTime)
-		}
+	if getPositionMarginHistoryRequest.EndTime != 0 {
+		positionMarginHistory.EndTime(getPositionMarginHistoryRequest.EndTime)
 	}
-	if limit != "" {
-		iLimit, err := strconv.ParseInt(limit, 10, 64)
-		if err == nil {
-			positionMarginHistory.Limit(iLimit)
-		}
+	if getPositionMarginHistoryRequest.Limit != 0 {
+		positionMarginHistory.Limit(getPositionMarginHistoryRequest.Limit)
 	}
 
 	list, err := positionMarginHistory.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -717,8 +659,7 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -735,7 +676,7 @@ func GetPositionRiskService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -743,7 +684,7 @@ func GetPositionRiskService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -751,8 +692,7 @@ func GetPositionRiskService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -762,62 +702,47 @@ func GetTradeHistoryService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	symbol := c.Query("symbol")
-	startTime := c.Query("startTime")
-	endTime := c.Query("endTime")
-	fromId := c.Query("fromId")
-	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Futures] GetTradeHistoryService request param: %v, %v, %v, %v, %v, %v",
-		userID, symbol, fromId, startTime, endTime, limit)
-
-	if symbol == "" {
+	var getTradeHistoryRequest GetTradeHistoryRequest
+	err := c.ShouldBindQuery(&getTradeHistoryRequest)
+	if err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetTradeHistoryService request param: %v, %v",
+		userID, getTradeHistoryRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	positionMarginHistory := client.NewGetTradeHistoryService()
-	positionMarginHistory.Symbol(symbol)
-	if fromId != "" {
-		iFromId, err := strconv.ParseUint(fromId, 10, 64)
-		if err == nil {
-			positionMarginHistory.FromId(iFromId)
-		}
+	positionMarginHistory.Symbol(getTradeHistoryRequest.Symbol)
+	if getTradeHistoryRequest.FromId != 0 {
+		positionMarginHistory.FromId(getTradeHistoryRequest.FromId)
 	}
-	if startTime != "" {
-		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
-		if err == nil {
-			positionMarginHistory.StartTime(iStartTime)
-		}
+	if getTradeHistoryRequest.StartTime != 0 {
+		positionMarginHistory.StartTime(getTradeHistoryRequest.StartTime)
 	}
-	if endTime != "" {
-		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
-		if err == nil {
-			positionMarginHistory.EndTime(iEndTime)
-		}
+	if getTradeHistoryRequest.EndTime != 0 {
+		positionMarginHistory.EndTime(getTradeHistoryRequest.EndTime)
 	}
-	if limit != "" {
-		iLimit, err := strconv.ParseInt(limit, 10, 64)
-		if err == nil {
-			positionMarginHistory.Limit(iLimit)
-		}
+	if getTradeHistoryRequest.Limit != 0 {
+		positionMarginHistory.Limit(getTradeHistoryRequest.Limit)
 	}
 
 	list, err := positionMarginHistory.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -825,8 +750,7 @@ func GetTradeHistoryService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -836,59 +760,47 @@ func GetIncomeHistoryService(c *gin.Context) {
 	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
-	symbol := c.Query("symbol")
-	incomeType := c.Query("incomeType")
-	startTime := c.Query("startTime")
-	endTime := c.Query("endTime")
-	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Futures] GetIncomeHistoryService request param: %v, %v, %v, %v, %v, %v",
-		userID, symbol, incomeType, startTime, endTime, limit)
-
-	if symbol == "" {
+	var getIncomeHistoryRequest GetIncomeHistoryRequest
+	err := c.ShouldBindQuery(&getIncomeHistoryRequest)
+	if err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Futures] GetIncomeHistoryService request param: %v, %v",
+		userID, getIncomeHistoryRequest)
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	incomeHistory := client.NewGetIncomeHistoryService()
-	incomeHistory.Symbol(symbol)
-	if incomeType != "" {
-		incomeHistory.IncomeType(incomeType)
+	incomeHistory.Symbol(getIncomeHistoryRequest.Symbol)
+	if getIncomeHistoryRequest.IncomeType != "" {
+		incomeHistory.IncomeType(getIncomeHistoryRequest.IncomeType)
 	}
-	if startTime != "" {
-		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
-		if err == nil {
-			incomeHistory.StartTime(iStartTime)
-		}
+	if getIncomeHistoryRequest.StartTime != 0 {
+		incomeHistory.StartTime(getIncomeHistoryRequest.StartTime)
 	}
-	if endTime != "" {
-		iEndTime, err := strconv.ParseInt(endTime, 10, 64)
-		if err == nil {
-			incomeHistory.EndTime(iEndTime)
-		}
+	if getIncomeHistoryRequest.EndTime != 0 {
+		incomeHistory.EndTime(getIncomeHistoryRequest.EndTime)
 	}
-	if limit != "" {
-		iLimit, err := strconv.ParseInt(limit, 10, 64)
-		if err == nil {
-			incomeHistory.Limit(iLimit)
-		}
+	if getIncomeHistoryRequest.Limit != 0 {
+		incomeHistory.Limit(getIncomeHistoryRequest.Limit)
 	}
 
 	list, err := incomeHistory.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -896,8 +808,7 @@ func GetIncomeHistoryService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -914,7 +825,7 @@ func GetLeverageBracketService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -922,7 +833,7 @@ func GetLeverageBracketService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -930,8 +841,7 @@ func GetLeverageBracketService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -948,7 +858,7 @@ func StartUserStreamService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -956,7 +866,7 @@ func StartUserStreamService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -964,8 +874,7 @@ func StartUserStreamService(c *gin.Context) {
 	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -982,7 +891,7 @@ func KeepaliveUserStreamService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -990,15 +899,14 @@ func KeepaliveUserStreamService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
 
 /**
@@ -1015,7 +923,7 @@ func CloseUserStreamService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
@@ -1023,13 +931,12 @@ func CloseUserStreamService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.Set("responseData", out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
 
-	c.JSON(http.StatusOK, out)
-	return
+	c.Set("responseData", out)
 }
