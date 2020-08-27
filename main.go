@@ -2,7 +2,6 @@ package main
 
 import (
 	"EX_binancequant/config"
-	"EX_binancequant/data"
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/proxy"
@@ -16,14 +15,11 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 var configAddr = flag.String("config", "./config/config.toml", "base configuration files for server")
 
 func main() {
-	var err error
-
 	flag.Parse()
 
 	if *configAddr == "" {
@@ -31,10 +27,6 @@ func main() {
 	}
 	config.LoadConfig(*configAddr)
 
-	data.Location, err = time.LoadLocation(config.Config.Server.Location)
-	if err != nil {
-		panic(fmt.Sprintf("load location failed, err=%v", err))
-	}
 	mylog.ConfigLoggers()
 
 	proxy.InitProxy()
@@ -80,11 +72,4 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGKILL, syscall.SIGHUP, syscall.SIGTERM)
 	sg := <-quit
 	fmt.Printf("receive the signal:%v\n", sg)
-
-	close(data.ShutdownChan)
-
-	data.Wg.Wait()
-	fmt.Println("wg return...")
-
-	fmt.Println("main shutdown")
 }

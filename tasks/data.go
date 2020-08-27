@@ -1,15 +1,7 @@
-package data
+package tasks
 
 import (
 	"errors"
-	"sync"
-	"time"
-)
-
-var (
-	Location     *time.Location
-	Wg           sync.WaitGroup
-	ShutdownChan = make(chan int)
 )
 
 type ErrorCode int

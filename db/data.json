@@ -1,0 +1,14 @@
+{
+  "_id": {
+    "$oid": "5f000066e3f00127abdbbf8a"
+  },
+  "user_id": "188804",
+  "sub_account_id": "486024292761317377",
+  "api_key": "VrYkpPtm119fG5PsfUZEKmOTGHIESwHkmSdWc0dGZv6ZHj9kik8rBScThZLd4XO6",
+  "secret_key": "ViAK9T1Fip0HEVVrECWRBAvYWoPVdSJq8zBlRyn26SYKNj6vNVBkH2W5OtH58ocN",
+  "create_time": 1593835622
+}
+
+// mongoexport -h admin:123456@127.0.0.1:27017 -d main_quantify -c user_keys -o data.json
+
+// mongodump -h admin:123456@127.0.0.1:27017 -d main_quantify -c user_keys -o data.json

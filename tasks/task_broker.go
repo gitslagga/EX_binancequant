@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"EX_binancequant/data"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
 	"context"
@@ -14,18 +13,18 @@ import (
 创建子账户
 */
 func CreateSubAccountService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	list, err := trade.BAExClient.NewCreateSubAccountService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -36,14 +35,14 @@ func CreateSubAccountService(c *gin.Context) {
 为子帐户启用合约
 */
 func EnableSubAccountFuturesService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
-	var enableFuturesRequest data.EnableFuturesRequest
+	var enableFuturesRequest EnableFuturesRequest
 	if err := c.ShouldBindJSON(&enableFuturesRequest); err != nil {
 		mylog.Logger.Info().Msgf("[Task Broker] EnableSubAccountFuturesService request param err: %v",
 			err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -56,14 +55,14 @@ func EnableSubAccountFuturesService(c *gin.Context) {
 		Futures(enableFuturesRequest.Futures).
 		Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -74,14 +73,14 @@ func EnableSubAccountFuturesService(c *gin.Context) {
 为子帐户创建Api密钥
 */
 func CreateSubAccountApiService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
-	var createApiKeyRequest data.CreateApiKeyRequest
+	var createApiKeyRequest CreateApiKeyRequest
 	if err := c.ShouldBindJSON(&createApiKeyRequest); err != nil {
 		mylog.Logger.Info().Msgf("[Task Broker] CreateSubAccountApiService request param err: %v",
 			err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -95,14 +94,14 @@ func CreateSubAccountApiService(c *gin.Context) {
 		FuturesTrade(createApiKeyRequest.FuturesTrade).
 		Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -113,14 +112,14 @@ func CreateSubAccountApiService(c *gin.Context) {
 删除子帐户Api密钥
 */
 func DeleteSubAccountApiService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
-	var deleteApiKeyRequest data.DeleteApiKeyRequest
+	var deleteApiKeyRequest DeleteApiKeyRequest
 	if err := c.ShouldBindJSON(&deleteApiKeyRequest); err != nil {
 		mylog.Logger.Info().Msgf("[Task Broker] DeleteSubAccountApiService request param err: %v",
 			err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -133,14 +132,14 @@ func DeleteSubAccountApiService(c *gin.Context) {
 		SubAccountApiKey(deleteApiKeyRequest.SubAccountApiKey).
 		Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -150,7 +149,7 @@ func DeleteSubAccountApiService(c *gin.Context) {
 查询子帐户api密钥
 */
 func GetSubAccountApiService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	subAccountApiKey := c.Query("subAccountApiKey")
@@ -159,8 +158,8 @@ func GetSubAccountApiService(c *gin.Context) {
 		subAccountId, subAccountApiKey)
 
 	if subAccountId == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -173,14 +172,14 @@ func GetSubAccountApiService(c *gin.Context) {
 
 	list, err := getSubAccountApiService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -191,14 +190,14 @@ func GetSubAccountApiService(c *gin.Context) {
 更改子帐户Api权限
 */
 func ChangeSubAccountApiPermissionService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
-	var changeApiPermissionRequest data.ChangeApiPermissionRequest
+	var changeApiPermissionRequest ChangeApiPermissionRequest
 	if err := c.ShouldBindJSON(&changeApiPermissionRequest); err != nil {
 		mylog.Logger.Info().Msgf("[Task Broker] ChangeSubAccountApiPermissionService request param err: %v",
 			err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -213,14 +212,14 @@ func ChangeSubAccountApiPermissionService(c *gin.Context) {
 		FuturesTrade(changeApiPermissionRequest.FuturesTrade).
 		Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -231,7 +230,7 @@ func ChangeSubAccountApiPermissionService(c *gin.Context) {
 查询子账户
 */
 func GetSubAccountService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 
@@ -245,14 +244,14 @@ func GetSubAccountService(c *gin.Context) {
 
 	list, err := getSubAccountService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -263,14 +262,14 @@ func GetSubAccountService(c *gin.Context) {
 更改子账户合约佣金调整
 */
 func ChangeCommissionFuturesService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
-	var changeCommissionFuturesRequest data.ChangeCommissionFuturesRequest
+	var changeCommissionFuturesRequest ChangeCommissionFuturesRequest
 	if err := c.ShouldBindJSON(&changeCommissionFuturesRequest); err != nil {
 		mylog.Logger.Info().Msgf("[Task Broker] ChangeCommissionFuturesService request param err: %v",
 			err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -285,14 +284,14 @@ func ChangeCommissionFuturesService(c *gin.Context) {
 		TakerAdjustment(changeCommissionFuturesRequest.TakerAdjustment).
 		Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -303,7 +302,7 @@ func ChangeCommissionFuturesService(c *gin.Context) {
 查询子账户合约佣金调整
 */
 func GetCommissionFuturesService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	symbol := c.Query("symbol")
@@ -312,8 +311,8 @@ func GetCommissionFuturesService(c *gin.Context) {
 		subAccountId, symbol)
 
 	if subAccountId == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -326,14 +325,14 @@ func GetCommissionFuturesService(c *gin.Context) {
 
 	list, err := getCommissionFuturesService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -344,18 +343,18 @@ func GetCommissionFuturesService(c *gin.Context) {
 经纪人账户信息
 */
 func GetInfoService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	list, err := trade.BAExClient.NewGetInfoService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -366,14 +365,14 @@ func GetInfoService(c *gin.Context) {
 子账户划转
 */
 func CreateTransferService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
-	var createTransferRequest data.CreateTransferRequest
+	var createTransferRequest CreateTransferRequest
 	if err := c.ShouldBindJSON(&createTransferRequest); err != nil {
 		mylog.Logger.Info().Msgf("[Task Broker] CreateTransferService request param err: %v",
 			err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -396,14 +395,14 @@ func CreateTransferService(c *gin.Context) {
 
 	list, err := createTransferService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -414,7 +413,7 @@ func CreateTransferService(c *gin.Context) {
 查询子账户划转历史
 */
 func GetTransferService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	clientTranId := c.Query("clientTranId")
@@ -427,8 +426,8 @@ func GetTransferService(c *gin.Context) {
 		subAccountId, clientTranId, startTime, endTime, page, limit)
 
 	if subAccountId == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -461,14 +460,14 @@ func GetTransferService(c *gin.Context) {
 
 	list, err := getTransferService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -479,7 +478,7 @@ func GetTransferService(c *gin.Context) {
 获取子账户充币历史
 */
 func GetSubAccountDepositHistService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	coin := c.Query("coin")
@@ -528,14 +527,14 @@ func GetSubAccountDepositHistService(c *gin.Context) {
 
 	list, err := getSubAccountDepositHistService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -546,7 +545,7 @@ func GetSubAccountDepositHistService(c *gin.Context) {
 查询子账户现货资产信息
 */
 func GetSubAccountSpotSummaryService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	page := c.Query("page")
@@ -572,14 +571,14 @@ func GetSubAccountSpotSummaryService(c *gin.Context) {
 
 	list, err := getSubAccountSpotSummaryService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -590,7 +589,7 @@ func GetSubAccountSpotSummaryService(c *gin.Context) {
 查询子账户合约资产信息
 */
 func GetSubAccountFuturesSummaryService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	page := c.Query("page")
@@ -616,14 +615,14 @@ func GetSubAccountFuturesSummaryService(c *gin.Context) {
 
 	list, err := getSubAccountFuturesSummaryService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -634,7 +633,7 @@ func GetSubAccountFuturesSummaryService(c *gin.Context) {
 查询经纪人佣金回扣最近记录
 */
 func GetRebateRecentRecordService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	startTime := c.Query("startTime")
@@ -645,8 +644,8 @@ func GetRebateRecentRecordService(c *gin.Context) {
 		subAccountId, startTime, endTime, limit)
 
 	if subAccountId == "" || startTime == "" || endTime == "" || limit == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -665,14 +664,14 @@ func GetRebateRecentRecordService(c *gin.Context) {
 
 	list, err := getRebateRecentRecordService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -683,14 +682,14 @@ func GetRebateRecentRecordService(c *gin.Context) {
 生成经纪人佣金回扣历史记录
 */
 func GenerateRebateHistoryService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
-	var generateRebateHistory data.GenerateRebateHistoryRequest
+	var generateRebateHistory GenerateRebateHistoryRequest
 	if err := c.ShouldBindJSON(&generateRebateHistory); err != nil {
 		mylog.Logger.Info().Msgf("[Task Broker] GenerateRebateHistoryService request param err: %v",
 			err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -711,14 +710,14 @@ func GenerateRebateHistoryService(c *gin.Context) {
 
 	list, err := generateRebateHistoryService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -729,7 +728,7 @@ func GenerateRebateHistoryService(c *gin.Context) {
 查询经纪人佣金回扣记录
 */
 func GetRebateHistoryService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	subAccountId := c.Query("subAccountId")
 	startTime := c.Query("startTime")
@@ -740,8 +739,8 @@ func GetRebateHistoryService(c *gin.Context) {
 		subAccountId, startTime, endTime, limit)
 
 	if subAccountId == "" || startTime == "" || endTime == "" || limit == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -768,14 +767,14 @@ func GetRebateHistoryService(c *gin.Context) {
 
 	list, err := getRebateHistoryService.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = string(list)
 
 	c.JSON(http.StatusOK, out)

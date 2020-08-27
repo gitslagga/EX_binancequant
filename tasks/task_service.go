@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"EX_binancequant/data"
 	"EX_binancequant/db"
 	"EX_binancequant/trade"
 	"EX_binancequant/utils"
@@ -130,20 +129,20 @@ func tokenHandler() gin.HandlerFunc {
 		jwtToken := c.GetHeader("token")
 		token, valid := utils.GetVerifyToken(jwtToken)
 		if token == "" || valid == false {
-			out := data.CommonResp{}
-			out.RespCode = data.EC_TOKEN_INVALID
-			out.RespDesc = data.ErrorCodeMessage(data.EC_TOKEN_INVALID)
+			out := CommonResp{}
+			out.RespCode = EC_TOKEN_INVALID
+			out.RespDesc = ErrorCodeMessage(EC_TOKEN_INVALID)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
 		}
 
-		var userInfo data.UserInfo
+		var userInfo UserInfo
 		byteUserInfo, err := db.ConvertUserTokenToUserInfo(token)
 		if err != nil {
-			out := data.CommonResp{}
-			out.RespCode = data.EC_TOKEN_INVALID
-			out.RespDesc = data.ErrorCodeMessage(data.EC_TOKEN_INVALID)
+			out := CommonResp{}
+			out.RespCode = EC_TOKEN_INVALID
+			out.RespDesc = ErrorCodeMessage(EC_TOKEN_INVALID)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -151,9 +150,9 @@ func tokenHandler() gin.HandlerFunc {
 
 		err = json.Unmarshal(byteUserInfo, &userInfo)
 		if err != nil || userInfo.ID == 0 {
-			out := data.CommonResp{}
-			out.RespCode = data.EC_TOKEN_INVALID
-			out.RespDesc = data.ErrorCodeMessage(data.EC_TOKEN_INVALID)
+			out := CommonResp{}
+			out.RespCode = EC_TOKEN_INVALID
+			out.RespDesc = ErrorCodeMessage(EC_TOKEN_INVALID)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -166,12 +165,12 @@ func tokenHandler() gin.HandlerFunc {
 
 func requestHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		out := data.CommonResp{}
-		var futureRequest data.FutureRequest
+		out := CommonResp{}
+		var futureRequest FutureRequest
 
 		if err := c.ShouldBindJSON(&futureRequest); err != nil {
-			out.RespCode = data.EC_PARAMS_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+			out.RespCode = EC_PARAMS_ERR
+			out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -179,8 +178,8 @@ func requestHandler() gin.HandlerFunc {
 
 		encryptKey, err := base64.StdEncoding.DecodeString(futureRequest.Key)
 		if err != nil {
-			out.RespCode = data.EC_REQUEST_DATA_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			out.RespCode = EC_REQUEST_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_REQUEST_DATA_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -188,8 +187,8 @@ func requestHandler() gin.HandlerFunc {
 
 		encryptData, err := base64.StdEncoding.DecodeString(futureRequest.Data)
 		if err != nil {
-			out.RespCode = data.EC_REQUEST_DATA_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			out.RespCode = EC_REQUEST_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_REQUEST_DATA_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -200,8 +199,8 @@ MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJzIo0OkvKH5a2NyPYuAOorElm8OX3QV
 -----END PRIVATE KEY-----`)
 		key, err := utils.RsaDecrypt(privateKey, encryptKey)
 		if err != nil {
-			out.RespCode = data.EC_REQUEST_DATA_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			out.RespCode = EC_REQUEST_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_REQUEST_DATA_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -209,8 +208,8 @@ MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJzIo0OkvKH5a2NyPYuAOorElm8OX3QV
 
 		requestData, err := utils.AesDecryptECB(encryptData, key)
 		if err != nil {
-			out.RespCode = data.EC_REQUEST_DATA_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_REQUEST_DATA_ERR)
+			out.RespCode = EC_REQUEST_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_REQUEST_DATA_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -224,8 +223,8 @@ MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJzIo0OkvKH5a2NyPYuAOorElm8OX3QV
 func responseHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
-		out := data.CommonResp{}
-		responseData := c.MustGet("responseData").(data.CommonResp)
+		out := CommonResp{}
+		responseData := c.MustGet("responseData").(CommonResp)
 		if responseData.RespCode != 1 {
 			out.RespCode = responseData.RespCode
 			out.RespDesc = responseData.RespDesc
@@ -236,8 +235,8 @@ func responseHandler() gin.HandlerFunc {
 
 		err, privateKey, publicKey := utils.GenRsaKey(1024)
 		if err != nil {
-			out.RespCode = data.EC_RESPONSE_DATA_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_RESPONSE_DATA_ERR)
+			out.RespCode = EC_RESPONSE_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_RESPONSE_DATA_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -246,8 +245,8 @@ func responseHandler() gin.HandlerFunc {
 		randomString := utils.GetRandomString(16)
 		rsaKey, err := utils.RsaEncrypt(publicKey, randomString)
 		if err != nil {
-			out.RespCode = data.EC_RESPONSE_DATA_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_RESPONSE_DATA_ERR)
+			out.RespCode = EC_RESPONSE_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_RESPONSE_DATA_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -259,8 +258,8 @@ func responseHandler() gin.HandlerFunc {
 		}
 		aesData, err := utils.AesEncryptECB(responseData.RespData.([]byte), randomString)
 		if err != nil {
-			out.RespCode = data.EC_RESPONSE_DATA_ERR
-			out.RespDesc = data.ErrorCodeMessage(data.EC_RESPONSE_DATA_ERR)
+			out.RespCode = EC_RESPONSE_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_RESPONSE_DATA_ERR)
 			c.JSON(http.StatusOK, out)
 			c.Abort()
 			return
@@ -268,8 +267,8 @@ func responseHandler() gin.HandlerFunc {
 		stringData := base64.StdEncoding.EncodeToString(aesData)
 
 		out.RespData = privateKey + "," + stringKey + "," + stringData
-		out.RespCode = data.EC_NONE.Code()
-		out.RespDesc = data.EC_NONE.String()
+		out.RespCode = EC_NONE.Code()
+		out.RespDesc = EC_NONE.String()
 
 		c.JSON(http.StatusOK, out)
 	}

@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"EX_binancequant/data"
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
@@ -15,7 +14,7 @@ import (
 获取充值地址 (支持多网络) (USER_DATA)
 */
 func DepositsAddressService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	coin := c.Query("coin")
@@ -25,16 +24,16 @@ func DepositsAddressService(c *gin.Context) {
 		userID, coin, network)
 
 	if coin == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -47,14 +46,14 @@ func DepositsAddressService(c *gin.Context) {
 
 	list, err := depositsAddress.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -65,7 +64,7 @@ func DepositsAddressService(c *gin.Context) {
 获取充值历史（支持多网络） (USER_DATA)
 */
 func ListDepositsService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	coin := c.Query("coin")
@@ -80,8 +79,8 @@ func ListDepositsService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -123,14 +122,14 @@ func ListDepositsService(c *gin.Context) {
 
 	list, err := listDeposits.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -141,7 +140,7 @@ func ListDepositsService(c *gin.Context) {
 现货账户信息 (USER_DATA)
 */
 func SpotAccountService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -149,22 +148,22 @@ func SpotAccountService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	list, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -175,16 +174,16 @@ func SpotAccountService(c *gin.Context) {
 划转
 */
 func FuturesTransferService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	var transferRequest data.TransferRequest
+	var transferRequest TransferRequest
 	if err := c.ShouldBindJSON(&transferRequest); err != nil {
 		mylog.Logger.Error().Msgf("[Task Account] FuturesTransferService request param error: %v, %v",
 			userID, err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -194,8 +193,8 @@ func FuturesTransferService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -207,14 +206,14 @@ func FuturesTransferService(c *gin.Context) {
 
 	list, err := futuresTransfer.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -225,7 +224,7 @@ func FuturesTransferService(c *gin.Context) {
 获取划转历史
 */
 func ListFuturesTransferService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	asset := c.Query("asset")
@@ -238,16 +237,16 @@ func ListFuturesTransferService(c *gin.Context) {
 		userID, asset, startTime, endTime, current, size)
 
 	if asset == "" || err != nil {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -276,14 +275,14 @@ func ListFuturesTransferService(c *gin.Context) {
 
 	list, err := futuresTransfer.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -294,7 +293,7 @@ func ListFuturesTransferService(c *gin.Context) {
 合约账户信息 (USER_DATA)
 */
 func FuturesAccountService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -302,22 +301,22 @@ func FuturesAccountService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	list, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -328,16 +327,16 @@ func FuturesAccountService(c *gin.Context) {
 提交提现请求。
 */
 func CreateWithdrawService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	var withdrawRequest data.WithdrawRequest
+	var withdrawRequest WithdrawRequest
 	if err := c.ShouldBindJSON(&withdrawRequest); err != nil {
 		mylog.Logger.Error().Msgf("[Task Account] CreateWithdrawService request param err: %v, %v",
 			userID, err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -347,8 +346,8 @@ func CreateWithdrawService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -356,7 +355,7 @@ func CreateWithdrawService(c *gin.Context) {
 	//获取用户现货余额
 	account, err := client.NewGetAccountService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
@@ -367,7 +366,7 @@ func CreateWithdrawService(c *gin.Context) {
 		if v.Asset == withdrawRequest.Coin {
 			balance, err = strconv.ParseFloat(v.Free, 64)
 			if err != nil {
-				out.RespCode = data.EC_FORMAT_ERR
+				out.RespCode = EC_FORMAT_ERR
 				out.RespDesc = err.Error()
 				c.JSON(http.StatusBadRequest, out)
 				return
@@ -377,8 +376,8 @@ func CreateWithdrawService(c *gin.Context) {
 	}
 
 	if balance < withdrawRequest.Amount {
-		out.RespCode = data.EC_NO_BALANCE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NO_BALANCE)
+		out.RespCode = EC_NO_BALANCE
+		out.RespDesc = ErrorCodeMessage(EC_NO_BALANCE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -386,8 +385,8 @@ func CreateWithdrawService(c *gin.Context) {
 	//获取用户子账户ID
 	subAccountID, err := db.GetSubAccountIdByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -396,7 +395,7 @@ func CreateWithdrawService(c *gin.Context) {
 	_, err = trade.BAExClient.NewCreateTransferService().
 		Asset(withdrawRequest.Coin).Amount(withdrawRequest.Amount).FromId(subAccountID).Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
@@ -426,14 +425,14 @@ func CreateWithdrawService(c *gin.Context) {
 
 	err = createWithdraw.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -443,7 +442,7 @@ func CreateWithdrawService(c *gin.Context) {
 获取提币历史 (支持多网络) (USER_DATA)
 */
 func ListWithdrawsService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	coin := c.Query("coin")
@@ -457,8 +456,8 @@ func ListWithdrawsService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -500,14 +499,14 @@ func ListWithdrawsService(c *gin.Context) {
 
 	list, err := listDeposits.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)

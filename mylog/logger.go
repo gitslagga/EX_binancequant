@@ -2,7 +2,6 @@ package mylog
 
 import (
 	"EX_binancequant/config"
-	"EX_binancequant/data"
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -18,7 +17,11 @@ var (
 )
 
 func SgNow() time.Time {
-	return time.Now().In(data.Location)
+	location, err := time.LoadLocation(config.Config.Server.Location)
+	if err != nil {
+		panic(err)
+	}
+	return time.Now().In(location)
 }
 
 func ConfigLoggers() {

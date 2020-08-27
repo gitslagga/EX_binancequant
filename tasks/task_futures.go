@@ -1,7 +1,6 @@
 package tasks
 
 import (
-	"EX_binancequant/data"
 	"EX_binancequant/db"
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade/futures"
@@ -15,16 +14,16 @@ import (
 更改持仓模式（TRADE）
 */
 func ChangePositionModeService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	var positionModeRequest data.PositionModeRequest
+	var positionModeRequest PositionModeRequest
 	if err := c.ShouldBindJSON(&positionModeRequest); err != nil {
 		mylog.Logger.Error().Msgf("[Task Account] ChangePositionModeService request param err: %v, %v",
 			userID, err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -34,8 +33,8 @@ func ChangePositionModeService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -45,14 +44,14 @@ func ChangePositionModeService(c *gin.Context) {
 
 	err = positionMode.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -62,7 +61,7 @@ func ChangePositionModeService(c *gin.Context) {
 查询持仓模式（USER_DATA）
 */
 func GetPositionModeService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -70,22 +69,22 @@ func GetPositionModeService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	list, err := client.NewGetPositionModeService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -96,16 +95,16 @@ func GetPositionModeService(c *gin.Context) {
 下单 (TRADE)
 */
 func CreateOrderService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	var orderRequest data.OrderRequest
+	var orderRequest OrderRequest
 	if err := c.ShouldBindJSON(&orderRequest); err != nil {
 		mylog.Logger.Error().Msgf("[Task Account] CreateOrderService request param err: %v, %v",
 			userID, err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -115,8 +114,8 @@ func CreateOrderService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -164,14 +163,14 @@ func CreateOrderService(c *gin.Context) {
 
 	list, err := createOrder.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -182,7 +181,7 @@ func CreateOrderService(c *gin.Context) {
 查询订单 (USER_DATA)
 */
 func GetOrderService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -195,16 +194,16 @@ func GetOrderService(c *gin.Context) {
 		userID, symbol, orderId, origClientOrderId)
 
 	if symbol == "" || (orderId == "" && origClientOrderId == "") {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -223,14 +222,14 @@ func GetOrderService(c *gin.Context) {
 
 	list, err := getOrder.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -241,7 +240,7 @@ func GetOrderService(c *gin.Context) {
 撤销订单 (TRADE)
 */
 func CancelOrderService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -254,16 +253,16 @@ func CancelOrderService(c *gin.Context) {
 		userID, symbol, orderId, origClientOrderId)
 
 	if symbol == "" || (orderId == "" && origClientOrderId == "") {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -282,14 +281,14 @@ func CancelOrderService(c *gin.Context) {
 
 	list, err := cancelOrder.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -300,7 +299,7 @@ func CancelOrderService(c *gin.Context) {
 撤销全部订单 (TRADE)
 */
 func CancelAllOpenOrdersService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -311,16 +310,16 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 		userID, symbol)
 
 	if symbol == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -330,14 +329,14 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 
 	err = cancelAllOpenOrders.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -347,7 +346,7 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 查看当前全部挂单 (USER_DATA)
 */
 func ListOpenOrdersService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -358,16 +357,16 @@ func ListOpenOrdersService(c *gin.Context) {
 		userID, symbol)
 
 	if symbol == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -377,14 +376,14 @@ func ListOpenOrdersService(c *gin.Context) {
 
 	list, err := listOpenOrders.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -395,7 +394,7 @@ func ListOpenOrdersService(c *gin.Context) {
 查询所有订单（包括历史订单） (USER_DATA)
 */
 func ListOrdersService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	symbol := c.Query("symbol")
@@ -408,16 +407,16 @@ func ListOrdersService(c *gin.Context) {
 		userID, symbol, orderId, startTime, endTime, limit)
 
 	if symbol == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -451,14 +450,14 @@ func ListOrdersService(c *gin.Context) {
 
 	list, err := listOrders.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -469,7 +468,7 @@ func ListOrdersService(c *gin.Context) {
 账户余额 (USER_DATA)
 */
 func GetBalanceService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -477,22 +476,22 @@ func GetBalanceService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	list, err := client.NewGetBalanceService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -503,16 +502,16 @@ func GetBalanceService(c *gin.Context) {
 调整开仓杠杆 (TRADE)
 */
 func ChangeLeverageService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	var leverageRequest data.LeverageRequest
+	var leverageRequest LeverageRequest
 	if err := c.ShouldBindJSON(&leverageRequest); err != nil {
 		mylog.Logger.Error().Msgf("[Task Futures] ChangeLeverageService request param err: %v, %v",
 			userID, err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -522,8 +521,8 @@ func ChangeLeverageService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -534,14 +533,14 @@ func ChangeLeverageService(c *gin.Context) {
 
 	list, err := changeLeverage.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -552,16 +551,16 @@ func ChangeLeverageService(c *gin.Context) {
 变换逐全仓模式 (TRADE)
 */
 func ChangeMarginTypeService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	var marginTypeRequest data.MarginTypeRequest
+	var marginTypeRequest MarginTypeRequest
 	if err := c.ShouldBindJSON(&marginTypeRequest); err != nil {
 		mylog.Logger.Error().Msgf("[Task Futures] ChangeMarginTypeService request param err: %v, %v",
 			userID, err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -571,8 +570,8 @@ func ChangeMarginTypeService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -583,14 +582,14 @@ func ChangeMarginTypeService(c *gin.Context) {
 
 	err = changeMarginType.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -600,16 +599,16 @@ func ChangeMarginTypeService(c *gin.Context) {
 调整逐仓保证金 (TRADE)
 */
 func UpdatePositionMarginService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
-	var positionMarginRequest data.PositionMarginRequest
+	var positionMarginRequest PositionMarginRequest
 	if err := c.ShouldBindJSON(&positionMarginRequest); err != nil {
 		mylog.Logger.Info().Msgf("[Task Futures] UpdatePositionMarginService request param err: %v, %v",
 			userID, err)
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -619,8 +618,8 @@ func UpdatePositionMarginService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -635,14 +634,14 @@ func UpdatePositionMarginService(c *gin.Context) {
 
 	err = updatePositionMargin.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -652,7 +651,7 @@ func UpdatePositionMarginService(c *gin.Context) {
 逐仓保证金变动历史 (TRADE)
 */
 func GetPositionMarginHistoryService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	symbol := c.Query("symbol")
@@ -665,16 +664,16 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 		userID, symbol, sType, startTime, endTime, limit)
 
 	if symbol == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -708,14 +707,14 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 
 	list, err := positionMarginHistory.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -726,7 +725,7 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 用户持仓风险 (USER_DATA)
 */
 func GetPositionRiskService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -734,22 +733,22 @@ func GetPositionRiskService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	list, err := client.NewGetPositionRiskService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -760,7 +759,7 @@ func GetPositionRiskService(c *gin.Context) {
 账户成交历史 (USER_DATA)
 */
 func GetTradeHistoryService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	symbol := c.Query("symbol")
@@ -773,16 +772,16 @@ func GetTradeHistoryService(c *gin.Context) {
 		userID, symbol, fromId, startTime, endTime, limit)
 
 	if symbol == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -816,14 +815,14 @@ func GetTradeHistoryService(c *gin.Context) {
 
 	list, err := positionMarginHistory.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -834,7 +833,7 @@ func GetTradeHistoryService(c *gin.Context) {
 获取账户损益资金流水(USER_DATA)
 */
 func GetIncomeHistoryService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 	symbol := c.Query("symbol")
@@ -847,16 +846,16 @@ func GetIncomeHistoryService(c *gin.Context) {
 		userID, symbol, incomeType, startTime, endTime, limit)
 
 	if symbol == "" {
-		out.RespCode = data.EC_PARAMS_ERR
-		out.RespDesc = data.ErrorCodeMessage(data.EC_PARAMS_ERR)
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
@@ -887,14 +886,14 @@ func GetIncomeHistoryService(c *gin.Context) {
 
 	list, err := incomeHistory.Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -905,7 +904,7 @@ func GetIncomeHistoryService(c *gin.Context) {
 杠杆分层标准 (USER_DATA)
 */
 func GetLeverageBracketService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -913,22 +912,22 @@ func GetLeverageBracketService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	list, err := client.NewGetLeverageBracketService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -939,7 +938,7 @@ func GetLeverageBracketService(c *gin.Context) {
 生成listenKey (USER_STREAM)
 */
 func StartUserStreamService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -947,22 +946,22 @@ func StartUserStreamService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	list, err := client.NewStartUserStreamService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 	out.RespData = list
 
 	c.JSON(http.StatusOK, out)
@@ -973,7 +972,7 @@ func StartUserStreamService(c *gin.Context) {
 延长listenKey有效期 (USER_STREAM)
 */
 func KeepaliveUserStreamService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -981,22 +980,22 @@ func KeepaliveUserStreamService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	err = client.NewKeepaliveUserStreamService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
@@ -1006,7 +1005,7 @@ func KeepaliveUserStreamService(c *gin.Context) {
 关闭listenKey (USER_STREAM)
 */
 func CloseUserStreamService(c *gin.Context) {
-	out := data.CommonResp{}
+	out := CommonResp{}
 
 	userID := c.MustGet("user_id").(string)
 
@@ -1014,22 +1013,22 @@ func CloseUserStreamService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
-		out.RespCode = data.EC_NOT_ACTIVE
-		out.RespDesc = data.ErrorCodeMessage(data.EC_NOT_ACTIVE)
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
 	err = client.NewCloseUserStreamService().Do(context.Background())
 	if err != nil {
-		out.RespCode = data.EC_NETWORK_ERR
+		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.JSON(http.StatusBadRequest, out)
 		return
 	}
 
-	out.RespCode = data.EC_NONE.Code()
-	out.RespDesc = data.EC_NONE.String()
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
 
 	c.JSON(http.StatusOK, out)
 	return
