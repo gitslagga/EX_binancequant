@@ -47,15 +47,15 @@ func DepthService(c *gin.Context) {
 	symbol := c.Query("symbol")
 	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Market] DepthService request param: %v, %v",
-		symbol, limit)
-
 	if symbol == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Market] DepthService request param: %v, %v",
+		symbol, limit)
 
 	depth := trade.BAExFuturesClient.NewDepthService()
 	depth.Symbol(symbol)
@@ -98,15 +98,15 @@ func AggTradesService(c *gin.Context) {
 	symbol := c.Query("symbol")
 	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Market] AggTradesService request param: %v, %v",
-		symbol, limit)
-
 	if symbol == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.Set("responseData", out)
 		return
 	}
+
+	mylog.Logger.Info().Msgf("[Task Market] AggTradesService request param: %v, %v",
+		symbol, limit)
 
 	aggTrade := trade.BAExFuturesClient.NewAggTradesService()
 	aggTrade.Symbol(symbol)
@@ -152,18 +152,19 @@ func KlinesService(c *gin.Context) {
 	interval := c.Query("interval")
 	limit := c.Query("limit")
 
-	mylog.Logger.Info().Msgf("[Task Market] KlinesService request param: %v, %v, %v, %v, %v",
-		symbol, startTime, endTime, interval, limit)
-
-	if symbol == "" {
+	if symbol == "" || interval == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.Set("responseData", out)
 		return
 	}
 
+	mylog.Logger.Info().Msgf("[Task Market] KlinesService request param: %v, %v, %v, %v, %v",
+		symbol, startTime, endTime, interval, limit)
+
 	klines := trade.BAExFuturesClient.NewKlinesService()
 	klines.Symbol(symbol)
+	klines.Interval(interval)
 	if startTime != "" {
 		iStartTime, err := strconv.ParseInt(startTime, 10, 64)
 		if err == nil {
@@ -175,9 +176,6 @@ func KlinesService(c *gin.Context) {
 		if err == nil {
 			klines.EndTime(iEndTime)
 		}
-	}
-	if interval != "" {
-		klines.Interval(interval)
 	}
 	if limit != "" {
 		iLimit, err := strconv.Atoi(limit)
