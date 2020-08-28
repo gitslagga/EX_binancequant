@@ -4,6 +4,7 @@ import (
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
 	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -22,9 +23,17 @@ func ServerTimeService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -65,9 +74,17 @@ func DepthService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -108,9 +125,17 @@ func AggTradesService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -169,9 +194,17 @@ func KlinesService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -200,9 +233,17 @@ func PremiumIndexService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -231,9 +272,17 @@ func ListPriceChangeStatsService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -262,9 +311,17 @@ func ListPricesService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -284,9 +341,17 @@ func ExchangeInfoService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }

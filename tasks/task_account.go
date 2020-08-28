@@ -52,9 +52,17 @@ func DepositsAddressService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -115,9 +123,17 @@ func ListDepositsService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -148,9 +164,17 @@ func SpotAccountService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -196,9 +220,17 @@ func FuturesTransferService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -252,9 +284,17 @@ func ListFuturesTransferService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -285,9 +325,17 @@ func FuturesAccountService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
@@ -461,9 +509,17 @@ func ListWithdrawsService(c *gin.Context) {
 		return
 	}
 
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }

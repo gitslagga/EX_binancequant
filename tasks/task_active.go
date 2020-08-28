@@ -5,6 +5,7 @@ import (
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade"
 	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,9 +20,17 @@ func GetActiveFuturesService(c *gin.Context) {
 	mylog.Logger.Info().Msgf("[Task Account] GetActiveFuturesService request param: %v",
 		userID)
 
+	responseData, err := json.Marshal(db.GetActiveFuturesByUserID(userID))
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = db.GetActiveFuturesByUserID(userID)
+	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
