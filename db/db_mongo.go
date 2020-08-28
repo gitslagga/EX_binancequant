@@ -21,7 +21,7 @@ var (
 type UserKeys struct {
 	//struct里面获取ObjectID
 	UserKeysID   primitive.ObjectID `bson:"_id"`
-	UserID       string             `bson:"user_id"`
+	UserID       uint64             `bson:"user_id"`
 	SubAccountId string             `bson:"sub_account_id"`
 	ApiKey       string             `bson:"api_key"`
 	SecretKey    string             `bson:"secret_key"`
@@ -52,7 +52,7 @@ func CloseMongoCli() {
 	client.Disconnect(context.Background())
 }
 
-func getUserKeys(userID string) (*UserKeys, error) {
+func getUserKeys(userID uint64) (*UserKeys, error) {
 	timeout := time.Duration(config.Config.Mongo.Timeout)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()
@@ -72,7 +72,7 @@ func getUserKeys(userID string) (*UserKeys, error) {
 /**
 根据用户ID获取客户端
 */
-func GetSpotClientByUserID(userID string) (*trade.Client, error) {
+func GetSpotClientByUserID(userID uint64) (*trade.Client, error) {
 	userKeys, err := getUserKeys(userID)
 	if err != nil {
 		return nil, err
@@ -85,7 +85,7 @@ func GetSpotClientByUserID(userID string) (*trade.Client, error) {
 /**
 根据用户ID获取合约客户端
 */
-func GetFuturesClientByUserID(userID string) (*futures.Client, error) {
+func GetFuturesClientByUserID(userID uint64) (*futures.Client, error) {
 	userKeys, err := getUserKeys(userID)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func GetFuturesClientByUserID(userID string) (*futures.Client, error) {
 /**
 获取用户开户状态
 */
-func GetActiveFuturesByUserID(userID string) bool {
+func GetActiveFuturesByUserID(userID uint64) bool {
 	_, err := getUserKeys(userID)
 	if err != nil {
 		return false
@@ -110,7 +110,7 @@ func GetActiveFuturesByUserID(userID string) bool {
 /**
 获取子账户ID
 */
-func GetSubAccountIdByUserID(userID string) (string, error) {
+func GetSubAccountIdByUserID(userID uint64) (string, error) {
 	userKeys, err := getUserKeys(userID)
 	if err != nil {
 		return "", err
@@ -122,7 +122,7 @@ func GetSubAccountIdByUserID(userID string) (string, error) {
 /**
 创建合约子账户
 */
-func CreateFuturesSubAccount(userID, subAccountId, apiKey, secretKey string) error {
+func CreateFuturesSubAccount(userID uint64, subAccountId, apiKey, secretKey string) error {
 	timeout := time.Duration(config.Config.Mongo.Timeout)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout*time.Second)
 	defer cancel()

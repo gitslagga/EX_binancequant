@@ -15,7 +15,7 @@ import (
 func ChangePositionModeService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var positionModeRequest PositionModeRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &positionModeRequest)
@@ -60,7 +60,7 @@ func ChangePositionModeService(c *gin.Context) {
 func GetPositionModeService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Futures] FuturesAccountService request param: %v", userID)
 
@@ -93,7 +93,7 @@ func GetPositionModeService(c *gin.Context) {
 func CreateOrderService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var orderRequest OrderRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &orderRequest)
@@ -177,7 +177,7 @@ func CreateOrderService(c *gin.Context) {
 func GetOrderService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var getOrderRequest GetOrderRequest
 	err := c.ShouldBindQuery(&getOrderRequest)
@@ -230,7 +230,7 @@ func GetOrderService(c *gin.Context) {
 func CancelOrderService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var cancelOrderRequest CancelOrderRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &cancelOrderRequest)
@@ -283,7 +283,7 @@ func CancelOrderService(c *gin.Context) {
 func CancelAllOpenOrdersService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var cancelAllOpenOrdersRequest CancelAllOpenOrdersRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &cancelAllOpenOrdersRequest)
@@ -329,7 +329,7 @@ func CancelAllOpenOrdersService(c *gin.Context) {
 func ListOpenOrdersService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var listOpenOrdersRequest ListOpenOrdersRequest
 	err := c.ShouldBindQuery(&listOpenOrdersRequest)
@@ -376,7 +376,7 @@ func ListOpenOrdersService(c *gin.Context) {
 func ListOrdersService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var listOrdersRequest ListOrdersRequest
 	err := c.ShouldBindQuery(&listOrdersRequest)
@@ -434,7 +434,7 @@ func ListOrdersService(c *gin.Context) {
 func GetBalanceService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Futures] GetBalanceService request param: %v", userID)
 
@@ -467,7 +467,7 @@ func GetBalanceService(c *gin.Context) {
 func ChangeLeverageService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var leverageRequest LeverageRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &leverageRequest)
@@ -514,7 +514,7 @@ func ChangeLeverageService(c *gin.Context) {
 func ChangeMarginTypeService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var marginTypeRequest MarginTypeRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &marginTypeRequest)
@@ -560,7 +560,7 @@ func ChangeMarginTypeService(c *gin.Context) {
 func UpdatePositionMarginService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var positionMarginRequest PositionMarginRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &positionMarginRequest)
@@ -610,7 +610,7 @@ func UpdatePositionMarginService(c *gin.Context) {
 func GetPositionMarginHistoryService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var getPositionMarginHistoryRequest GetPositionMarginHistoryRequest
 	err := c.ShouldBindQuery(&getPositionMarginHistoryRequest)
@@ -668,7 +668,7 @@ func GetPositionMarginHistoryService(c *gin.Context) {
 func GetPositionRiskService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Futures] GetPositionRiskService request param: %v", userID)
 
@@ -701,7 +701,7 @@ func GetPositionRiskService(c *gin.Context) {
 func GetTradeHistoryService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var getTradeHistoryRequest GetTradeHistoryRequest
 	err := c.ShouldBindQuery(&getTradeHistoryRequest)
@@ -759,7 +759,7 @@ func GetTradeHistoryService(c *gin.Context) {
 func GetIncomeHistoryService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var getIncomeHistoryRequest GetIncomeHistoryRequest
 	err := c.ShouldBindQuery(&getIncomeHistoryRequest)
@@ -817,7 +817,7 @@ func GetIncomeHistoryService(c *gin.Context) {
 func GetLeverageBracketService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Futures] GetLeverageBracketService request param: %v", userID)
 
@@ -850,7 +850,7 @@ func GetLeverageBracketService(c *gin.Context) {
 func StartUserStreamService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Futures] StartUserStreamService request param: %v", userID)
 
@@ -883,7 +883,7 @@ func StartUserStreamService(c *gin.Context) {
 func KeepaliveUserStreamService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Futures] KeepaliveUserStreamService request param: %v", userID)
 
@@ -915,7 +915,7 @@ func KeepaliveUserStreamService(c *gin.Context) {
 func CloseUserStreamService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Futures] CloseUserStreamService request param: %v", userID)
 

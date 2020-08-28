@@ -16,7 +16,7 @@ import (
 func DepositsAddressService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var depositsAddressRequest DepositsAddressRequest
 	err := c.ShouldBindQuery(&depositsAddressRequest)
@@ -65,7 +65,7 @@ func DepositsAddressService(c *gin.Context) {
 func ListDepositsService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var listDepositsRequest ListDepositsRequest
 	err := c.ShouldBindQuery(&listDepositsRequest)
@@ -128,7 +128,7 @@ func ListDepositsService(c *gin.Context) {
 func SpotAccountService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Account] SpotAccountService request param: %v", userID)
 
@@ -161,7 +161,7 @@ func SpotAccountService(c *gin.Context) {
 func FuturesTransferService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var transferRequest TransferRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &transferRequest)
@@ -209,7 +209,7 @@ func FuturesTransferService(c *gin.Context) {
 func ListFuturesTransferService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var listFuturesTransferRequest ListFuturesTransferRequest
 	err := c.ShouldBindQuery(&listFuturesTransferRequest)
@@ -265,7 +265,7 @@ func ListFuturesTransferService(c *gin.Context) {
 func FuturesAccountService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountService request param: %v", userID)
 
@@ -298,7 +298,7 @@ func FuturesAccountService(c *gin.Context) {
 func CreateWithdrawService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var withdrawRequest WithdrawRequest
 	err := json.Unmarshal(c.MustGet("requestData").([]byte), &withdrawRequest)
@@ -411,7 +411,7 @@ func CreateWithdrawService(c *gin.Context) {
 func ListWithdrawsService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	var listWithdrawsRequest ListWithdrawsRequest
 	err := c.ShouldBindQuery(&listWithdrawsRequest)

@@ -14,7 +14,7 @@ import (
 func GetActiveFuturesService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Account] GetActiveFuturesService request param: %v",
 		userID)
@@ -32,7 +32,7 @@ func GetActiveFuturesService(c *gin.Context) {
 func CreateActiveFuturesService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(string)
+	userID := c.MustGet("user_id").(uint64)
 
 	mylog.Logger.Info().Msgf("[Task Account] CreateActiveFuturesService request param: %v",
 		userID)

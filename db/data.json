@@ -8,7 +8,3 @@
   "secret_key": "ViAK9T1Fip0HEVVrECWRBAvYWoPVdSJq8zBlRyn26SYKNj6vNVBkH2W5OtH58ocN",
   "create_time": 1593835622
 }
-
-// mongoexport -h admin:123456@127.0.0.1:27017 -d main_quantify -c user_keys -o data.json
-
-// mongodump -h admin:123456@127.0.0.1:27017 -d main_quantify -c user_keys -o data.json
