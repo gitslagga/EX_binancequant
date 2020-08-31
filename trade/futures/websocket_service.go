@@ -383,28 +383,29 @@ func WsCombinedTradeDataServe(params []string, handler WsTradeDataHandler, errHa
 			errHandler(err)
 			return
 		}
-		d := j.Get("data")
 		s := j.Get("stream").MustString()
 		var tradeData []byte
 
 		if strings.Contains(s, "@kline_") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "!markPrice@arr") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "!ticker@arr") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "!miniTicker@arr") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "@aggTrade") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "@depth") {
-			tradeData, err = json.Marshal(depthHandler(d))
+			tradeData, err = json.Marshal(depthHandler(j))
 		} else if strings.Contains(s, "@markPrice") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "@ticker") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
+		} else if strings.Contains(s, "@miniTicker") {
+			tradeData = message
 		} else {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		}
 		if err != nil {
 			errHandler(err)
@@ -416,8 +417,15 @@ func WsCombinedTradeDataServe(params []string, handler WsTradeDataHandler, errHa
 	return wsServe(cfg, wsHandler, errHandler)
 }
 
-func depthHandler(j *simplejson.Json) *WsDepthEvent {
+type WSStreamDepthEvent struct {
+	Stream string        `json:"stream"`
+	Data   *WsDepthEvent `json:"data"`
+}
+
+func depthHandler(j *simplejson.Json) *WSStreamDepthEvent {
 	event := new(WsDepthEvent)
+	s := j.Get("stream").MustString()
+	j = j.Get("data")
 	event.Event = j.Get("e").MustString()
 	event.Time = j.Get("E").MustInt64()
 	event.TradeTime = j.Get("T").MustInt64()
@@ -444,5 +452,8 @@ func depthHandler(j *simplejson.Json) *WsDepthEvent {
 		}
 	}
 
-	return event
+	return &WSStreamDepthEvent{
+		Stream: s,
+		Data:   event,
+	}
 }
