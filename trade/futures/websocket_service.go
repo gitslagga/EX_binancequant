@@ -14,6 +14,7 @@ var (
 
 	baseURL         = "wss://fstream.binance.com/ws"
 	combinedBaseURL = "wss://fstream.binance.com/stream?streams="
+	tradeDataURL    = "wss://fstream.binance.com/stream"
 	// WebsocketTimeout is an interval for sending ping/pong messages if WebsocketKeepalive is enabled
 	WebsocketTimeout = time.Second * 60
 	// WebsocketKeepalive enables sending ping/pong messages to check the connection stability
@@ -370,13 +371,8 @@ type WsMarketStatEvent struct {
 type WsTradeDataHandler func([]byte)
 
 // WsCombinedTradeDataServe is push all trade data
-func WsCombinedTradeDataServe(params []string, handler WsTradeDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := combinedBaseURL
-	for _, v := range params {
-		endpoint += v + "/"
-	}
-	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint)
+func WsCombinedTradeDataServe(reqMessage []byte, handler WsTradeDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	cfg := newWsConfig(tradeDataURL)
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -414,7 +410,7 @@ func WsCombinedTradeDataServe(params []string, handler WsTradeDataHandler, errHa
 
 		handler(tradeData)
 	}
-	return wsServe(cfg, wsHandler, errHandler)
+	return wsWriteServe(cfg, reqMessage, wsHandler, errHandler)
 }
 
 type WSStreamDepthEvent struct {
