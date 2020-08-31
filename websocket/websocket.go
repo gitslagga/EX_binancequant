@@ -3,6 +3,7 @@ package websocket
 import (
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade/futures"
+	"encoding/json"
 	"errors"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/websocket"
@@ -136,6 +137,35 @@ func (wsConn *wsConnection) wsClose() {
 }
 
 /**
+启动一个gouroutine发送心跳
+*/
+func heartBeat(wsConn *wsConnection) {
+	for {
+		if wsConn.isClosed {
+			break
+		}
+
+		time.Sleep(60 * time.Second)
+
+		jsonResponse := new(JsonResponse)
+		jsonResponse.Result = "pong"
+		jsonResponse.ID = 0
+		response, err := json.Marshal(jsonResponse)
+		if err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
+			wsConn.wsClose()
+			break
+		}
+
+		if err := wsConn.wsWrite(MessageType, response); err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
+			wsConn.wsClose()
+			break
+		}
+	}
+}
+
+/**
 注意控制并发goroutine的数量!!!
 */
 func dataHandler(wsConn *wsConnection) {
@@ -146,7 +176,7 @@ func dataHandler(wsConn *wsConnection) {
 
 		msg, err := wsConn.wsRead()
 		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
+			//mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
 			wsConn.wsClose()
 			break
 		}
