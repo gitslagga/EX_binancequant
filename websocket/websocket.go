@@ -2,7 +2,7 @@ package websocket
 
 import (
 	"EX_binancequant/mylog"
-	"encoding/json"
+	"EX_binancequant/trade/futures"
 	"errors"
 	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/websocket"
@@ -81,7 +81,6 @@ closed:
 }
 
 func (wsConn *wsConnection) procLoop() {
-	go heartBeat(wsConn)
 	go dataHandler(wsConn)
 }
 
@@ -137,35 +136,6 @@ func (wsConn *wsConnection) wsClose() {
 }
 
 /**
-启动一个gouroutine发送心跳
-*/
-func heartBeat(wsConn *wsConnection) {
-	for {
-		if wsConn.isClosed {
-			break
-		}
-
-		time.Sleep(60 * time.Second)
-
-		jsonResponse := new(JsonResponse)
-		jsonResponse.Result = "pong"
-		jsonResponse.ID = 0
-		response, err := json.Marshal(jsonResponse)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
-			wsConn.wsClose()
-			break
-		}
-
-		if err := wsConn.wsWrite(MessageType, response); err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
-			wsConn.wsClose()
-			break
-		}
-	}
-}
-
-/**
 注意控制并发goroutine的数量!!!
 */
 func dataHandler(wsConn *wsConnection) {
@@ -191,47 +161,38 @@ func dataHandler(wsConn *wsConnection) {
 		}
 
 		jsonRequest := new(JsonRequest)
-		jsonResponse := new(JsonResponse)
-		jsonRequest.Method = j.Get("method").MustString()
-		jsonRequest.Symbol = j.Get("symbol").MustString()
-		jsonRequest.Interval = j.Get("interval").MustString()
-		jsonRequest.Levels = j.Get("levels").MustString()
-		jsonRequest.ListenKey = j.Get("listenKey").MustString()
 		jsonRequest.ID = j.Get("id").MustInt64()
+		jsonRequest.Method = j.Get("method").MustString()
+		jsonRequest.Params = j.Get("params").MustStringArray()
 
-		jsonResponse.Result = ""
-		jsonResponse.ID = jsonRequest.ID
-		response, err := json.Marshal(jsonResponse)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
-			wsConn.wsClose()
-			break
+		// 推送币安交易数据
+		go wsConn.PushTradeData(jsonRequest)
+	}
+}
+
+func (wsConn *wsConnection) PushTradeData(jsonRequest *JsonRequest) {
+	wsDepthHandler := func(event []byte) {
+		if !wsConn.isClosed {
+			err := wsConn.wsWrite(MessageType, event)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[PushTradeData] write message fail err: %v", err)
+			}
 		}
+	}
+	errHandler := func(err error) {
+		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe handler fail err: %v", err)
+	}
 
-		switch jsonRequest.Method {
-		case "normal":
-			// 推送BasicMessageData
-			go PushAllMarkPrice(wsConn)
-			go PushKline(wsConn, jsonRequest.Symbol, jsonRequest.Interval)
-			go PushAggTrade(wsConn, jsonRequest.Symbol)
-			go PushAllMarketsStat(wsConn)
-			go PushDepth(wsConn, jsonRequest.Symbol)
-			go PushUserData(wsConn, jsonRequest.ListenKey)
-		case "kline":
-			// 推送KlineMessageData
-			go PushKlineInterval(wsConn, jsonRequest.Symbol, jsonRequest.Interval)
-		case "depth":
-			// 推送KlineMessageData
-			go PushDepthLevels(wsConn, jsonRequest.Symbol, jsonRequest.Levels)
-		default:
-			mylog.DataLogger.Error().Msgf("[Websocket] read message param err")
-			jsonResponse.Result = "request message param err"
-		}
+	_, stopC, err := futures.WsCombinedTradeDataServe(jsonRequest.Params, wsDepthHandler, errHandler)
+	if err != nil {
+		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe dial fail err: %v", err)
+		return
+	}
 
-		err = wsConn.wsWrite(msg.messageType, response)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] write message fail err: %v", err)
-			wsConn.wsClose()
+	for {
+		time.Sleep(60 * time.Second)
+		if wsConn.isClosed {
+			stopC <- struct{}{}
 			break
 		}
 	}

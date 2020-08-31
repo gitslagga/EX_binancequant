@@ -3,6 +3,7 @@ package futures
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/bitly/go-simplejson"
 	"strings"
 	"time"
 )
@@ -363,4 +364,85 @@ type WsMarketStatEvent struct {
 	FirstID            int64  `json:"F"`
 	LastID             int64  `json:"L"`
 	Count              int64  `json:"n"`
+}
+
+// WsTradeDataHandler handle websocket trade data event
+type WsTradeDataHandler func([]byte)
+
+// WsCombinedTradeDataServe is push all trade data
+func WsCombinedTradeDataServe(params []string, handler WsTradeDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := combinedBaseURL
+	for _, v := range params {
+		endpoint += v + "/"
+	}
+	endpoint = endpoint[:len(endpoint)-1]
+	cfg := newWsConfig(endpoint)
+	wsHandler := func(message []byte) {
+		j, err := newJSON(message)
+		if err != nil {
+			errHandler(err)
+			return
+		}
+		d := j.Get("data")
+		s := j.Get("stream").MustString()
+		var tradeData []byte
+
+		if strings.Contains(s, "@kline_") {
+			tradeData, err = d.MarshalJSON()
+		} else if strings.Contains(s, "!markPrice@arr") {
+			tradeData, err = d.MarshalJSON()
+		} else if strings.Contains(s, "!ticker@arr") {
+			tradeData, err = d.MarshalJSON()
+		} else if strings.Contains(s, "!miniTicker@arr") {
+			tradeData, err = d.MarshalJSON()
+		} else if strings.Contains(s, "@aggTrade") {
+			tradeData, err = d.MarshalJSON()
+		} else if strings.Contains(s, "@depth") {
+			tradeData, err = json.Marshal(depthHandler(d))
+		} else if strings.Contains(s, "@markPrice") {
+			tradeData, err = d.MarshalJSON()
+		} else if strings.Contains(s, "@ticker") {
+			tradeData, err = d.MarshalJSON()
+		} else {
+			tradeData, err = d.MarshalJSON()
+		}
+		if err != nil {
+			errHandler(err)
+			return
+		}
+
+		handler(tradeData)
+	}
+	return wsServe(cfg, wsHandler, errHandler)
+}
+
+func depthHandler(j *simplejson.Json) *WsDepthEvent {
+	event := new(WsDepthEvent)
+	event.Event = j.Get("e").MustString()
+	event.Time = j.Get("E").MustInt64()
+	event.TradeTime = j.Get("T").MustInt64()
+	event.Symbol = j.Get("s").MustString()
+	event.FirstUpdateID = j.Get("U").MustInt64()
+	event.LastUpdateID = j.Get("u").MustInt64()
+	event.PreviousID = j.Get("pu").MustInt64()
+	bidsLen := len(j.Get("b").MustArray())
+	event.Bids = make([]Bid, bidsLen)
+	for i := 0; i < bidsLen; i++ {
+		item := j.Get("b").GetIndex(i)
+		event.Bids[i] = Bid{
+			Price:    item.GetIndex(0).MustString(),
+			Quantity: item.GetIndex(1).MustString(),
+		}
+	}
+	asksLen := len(j.Get("a").MustArray())
+	event.Asks = make([]Ask, asksLen)
+	for i := 0; i < asksLen; i++ {
+		item := j.Get("a").GetIndex(i)
+		event.Asks[i] = Ask{
+			Price:    item.GetIndex(0).MustString(),
+			Quantity: item.GetIndex(1).MustString(),
+		}
+	}
+
+	return event
 }
