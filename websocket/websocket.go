@@ -194,6 +194,11 @@ func dataHandler(wsConn *wsConnection) {
 		jsonRequest.ID = j.Get("id").MustInt64()
 		jsonRequest.Method = j.Get("method").MustString()
 		jsonRequest.Params = j.Get("params").MustStringArray()
+		if jsonRequest.ID <= 0 || jsonRequest.Method == "" || jsonRequest.Params == nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] jsonRequest param err")
+			wsConn.wsClose()
+			break
+		}
 
 		// 推送币安交易数据
 		go wsConn.PushTradeData(jsonRequest)
