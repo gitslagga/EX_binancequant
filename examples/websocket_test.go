@@ -3,6 +3,7 @@ package examples
 import (
 	"EX_binancequant/trade/futures"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"testing"
 	"time"
 )
@@ -169,4 +170,71 @@ func Test_MarketsStat(t *testing.T) {
 		return
 	}
 	<-doneC
+}
+
+func Test_BinanceStream(t *testing.T) {
+	ws := new(wsConnection)
+
+	ws.binanceRequest([]byte(`{
+		"method": "SUBSCRIBE",
+		"params":
+		[
+			"btcusdt@aggTrade",
+			"btcusdt@depth"
+		],
+		"id": 1
+	}`))
+
+	time.Sleep(10 * time.Second)
+
+	ws.binanceRequest([]byte(`{
+		"method": "LIST_SUBSCRIPTIONS",
+		"id": 3
+	}`))
+
+	time.Sleep(20 * time.Second)
+}
+
+type wsConnection struct {
+}
+
+var entityChannel = make(map[*wsConnection]*websocket.Conn, 10000)
+
+func (w *wsConnection) binanceRequest(message []byte) (stopC chan struct{}) {
+	if _, ok := entityChannel[w]; ok {
+		fmt.Printf("len entityChannel: %v \n", len(entityChannel))
+		entityChannel[w].WriteMessage(websocket.TextMessage, message)
+		return
+	}
+
+	c, _, err := websocket.DefaultDialer.Dial("wss://fstream.binancezh.com/stream", nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	entityChannel[w] = c
+	c.WriteMessage(websocket.TextMessage, message)
+
+	stopC = make(chan struct{})
+
+	go func() {
+		defer c.Close()
+
+		for {
+			select {
+			case <-stopC:
+				return
+			default:
+				_, message, err := c.ReadMessage()
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				fmt.Println(string(message))
+			}
+		}
+	}()
+
+	return
 }
