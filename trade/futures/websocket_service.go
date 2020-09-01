@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bitly/go-simplejson"
+	"github.com/gorilla/websocket"
 	"strings"
 	"time"
 )
@@ -14,7 +15,6 @@ var (
 
 	baseURL         = "wss://fstream.binance.com/ws"
 	combinedBaseURL = "wss://fstream.binance.com/stream?streams="
-	tradeDataURL    = "wss://fstream.binance.com/stream"
 	// WebsocketTimeout is an interval for sending ping/pong messages if WebsocketKeepalive is enabled
 	WebsocketTimeout = time.Second * 60
 	// WebsocketKeepalive enables sending ping/pong messages to check the connection stability
@@ -371,8 +371,7 @@ type WsMarketStatEvent struct {
 type WsTradeDataHandler func([]byte)
 
 // WsCombinedTradeDataServe is push all trade data
-func WsCombinedTradeDataServe(reqMessage []byte, handler WsTradeDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	cfg := newWsConfig(tradeDataURL)
+func WsCombinedTradeDataServe(c *websocket.Conn, handler WsTradeDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -410,7 +409,7 @@ func WsCombinedTradeDataServe(reqMessage []byte, handler WsTradeDataHandler, err
 
 		handler(tradeData)
 	}
-	return wsWriteServe(cfg, reqMessage, wsHandler, errHandler)
+	return wsWriteServe(c, wsHandler, errHandler)
 }
 
 type WSStreamDepthEvent struct {

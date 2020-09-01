@@ -18,6 +18,7 @@ var wsUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+	EnableCompression: true,
 }
 
 // 客户端读写消息
@@ -38,7 +39,13 @@ type wsConnection struct {
 }
 
 //数据发送类型
-var MessageType = websocket.TextMessage
+var messageType = websocket.TextMessage
+
+//一对一通道
+var entityChannel map[*wsConnection]*websocket.Conn
+
+//最大的实体通道
+var maxEntity = 10000
 
 func (wsConn *wsConnection) wsReadLoop() {
 	for {
@@ -157,7 +164,7 @@ func heartBeat(wsConn *wsConnection) {
 			break
 		}
 
-		if err := wsConn.wsWrite(MessageType, response); err != nil {
+		if err := wsConn.wsWrite(messageType, response); err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
 			wsConn.wsClose()
 			break
@@ -206,9 +213,37 @@ func dataHandler(wsConn *wsConnection) {
 }
 
 func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
+	if len(entityChannel) > maxEntity {
+		mylog.DataLogger.Error().Msgf("[Websocket] len entityChannel gt maxEntity err: %v", maxEntity)
+		wsConn.wsClose()
+		return
+	}
+	if _, ok := entityChannel[wsConn]; ok {
+		err := entityChannel[wsConn].WriteMessage(messageType, reqMessage)
+		if err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
+			wsConn.wsClose()
+			return
+		}
+	} else {
+		c, _, err := websocket.DefaultDialer.Dial("wss://fstream.binance.com/stream", nil)
+		if err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] websocket DefaultDialer err: %v", err)
+			wsConn.wsClose()
+			return
+		}
+		err = c.WriteMessage(messageType, reqMessage)
+		if err != nil {
+			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
+			wsConn.wsClose()
+			return
+		}
+		entityChannel[wsConn] = c
+	}
+
 	wsDepthHandler := func(event []byte) {
 		if !wsConn.isClosed {
-			err := wsConn.wsWrite(MessageType, event)
+			err := wsConn.wsWrite(messageType, event)
 			if err != nil {
 				mylog.DataLogger.Error().Msgf("[PushTradeData] write message fail err: %v", err)
 			}
@@ -218,7 +253,7 @@ func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe handler fail err: %v", err)
 	}
 
-	_, stopC, err := futures.WsCombinedTradeDataServe(reqMessage, wsDepthHandler, errHandler)
+	_, stopC, err := futures.WsCombinedTradeDataServe(entityChannel[wsConn], wsDepthHandler, errHandler)
 	if err != nil {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe dial fail err: %v", err)
 		return
