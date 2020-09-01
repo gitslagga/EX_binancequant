@@ -14,6 +14,7 @@ var (
 
 	baseURL         = "wss://fstream.binance.com/ws"
 	combinedBaseURL = "wss://fstream.binance.com/stream?streams="
+	tradeDataURL    = "wss://fstream.binance.com/stream"
 	// WebsocketTimeout is an interval for sending ping/pong messages if WebsocketKeepalive is enabled
 	WebsocketTimeout = time.Second * 60
 	// WebsocketKeepalive enables sending ping/pong messages to check the connection stability
@@ -370,41 +371,37 @@ type WsMarketStatEvent struct {
 type WsTradeDataHandler func([]byte)
 
 // WsCombinedTradeDataServe is push all trade data
-func WsCombinedTradeDataServe(params []string, handler WsTradeDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := combinedBaseURL
-	for _, v := range params {
-		endpoint += v + "/"
-	}
-	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint)
+func WsCombinedTradeDataServe(reqMessage []byte, handler WsTradeDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	cfg := newWsConfig(tradeDataURL)
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
 			errHandler(err)
 			return
 		}
-		d := j.Get("data")
 		s := j.Get("stream").MustString()
 		var tradeData []byte
 
 		if strings.Contains(s, "@kline_") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "!markPrice@arr") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "!ticker@arr") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "!miniTicker@arr") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "@aggTrade") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "@depth") {
-			tradeData, err = json.Marshal(depthHandler(d))
+			tradeData, err = json.Marshal(depthHandler(j))
 		} else if strings.Contains(s, "@markPrice") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		} else if strings.Contains(s, "@ticker") {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
+		} else if strings.Contains(s, "@miniTicker") {
+			tradeData = message
 		} else {
-			tradeData, err = d.MarshalJSON()
+			tradeData = message
 		}
 		if err != nil {
 			errHandler(err)
@@ -413,11 +410,18 @@ func WsCombinedTradeDataServe(params []string, handler WsTradeDataHandler, errHa
 
 		handler(tradeData)
 	}
-	return wsServe(cfg, wsHandler, errHandler)
+	return wsWriteServe(cfg, reqMessage, wsHandler, errHandler)
 }
 
-func depthHandler(j *simplejson.Json) *WsDepthEvent {
+type WSStreamDepthEvent struct {
+	Stream string        `json:"stream"`
+	Data   *WsDepthEvent `json:"data"`
+}
+
+func depthHandler(j *simplejson.Json) *WSStreamDepthEvent {
 	event := new(WsDepthEvent)
+	s := j.Get("stream").MustString()
+	j = j.Get("data")
 	event.Event = j.Get("e").MustString()
 	event.Time = j.Get("E").MustInt64()
 	event.TradeTime = j.Get("T").MustInt64()
@@ -444,5 +448,8 @@ func depthHandler(j *simplejson.Json) *WsDepthEvent {
 		}
 	}
 
-	return event
+	return &WSStreamDepthEvent{
+		Stream: s,
+		Data:   event,
+	}
 }

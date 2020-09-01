@@ -185,7 +185,7 @@ func dataHandler(wsConn *wsConnection) {
 
 		j, err := simplejson.NewJson(msg.data)
 		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
+			//mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
 			wsConn.wsClose()
 			break
 		}
@@ -194,18 +194,18 @@ func dataHandler(wsConn *wsConnection) {
 		jsonRequest.ID = j.Get("id").MustInt64()
 		jsonRequest.Method = j.Get("method").MustString()
 		jsonRequest.Params = j.Get("params").MustStringArray()
-		if jsonRequest.ID <= 0 || jsonRequest.Method == "" || jsonRequest.Params == nil {
+		if jsonRequest.ID <= 0 || jsonRequest.Method == "" {
 			mylog.DataLogger.Error().Msgf("[Websocket] jsonRequest param err")
 			wsConn.wsClose()
 			break
 		}
 
 		// 推送币安交易数据
-		go wsConn.PushTradeData(jsonRequest)
+		go wsConn.PushTradeData(msg.data)
 	}
 }
 
-func (wsConn *wsConnection) PushTradeData(jsonRequest *JsonRequest) {
+func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 	wsDepthHandler := func(event []byte) {
 		if !wsConn.isClosed {
 			err := wsConn.wsWrite(MessageType, event)
@@ -218,7 +218,7 @@ func (wsConn *wsConnection) PushTradeData(jsonRequest *JsonRequest) {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe handler fail err: %v", err)
 	}
 
-	_, stopC, err := futures.WsCombinedTradeDataServe(jsonRequest.Params, wsDepthHandler, errHandler)
+	_, stopC, err := futures.WsCombinedTradeDataServe(reqMessage, wsDepthHandler, errHandler)
 	if err != nil {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe dial fail err: %v", err)
 		return

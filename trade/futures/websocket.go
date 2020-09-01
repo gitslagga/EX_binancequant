@@ -59,6 +59,48 @@ var wsServe = func(cfg *WsConfig, handler WsHandler, errHandler ErrHandler) (don
 	return
 }
 
+var wsWriteServe = func(cfg *WsConfig, message []byte, handler WsHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	c, _, err := websocket.DefaultDialer.Dial(cfg.Endpoint, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = c.WriteMessage(websocket.TextMessage, message)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	doneC = make(chan struct{})
+	stopC = make(chan struct{})
+	go func() {
+		defer func() {
+			cerr := c.Close()
+			if cerr != nil {
+				errHandler(cerr)
+			}
+		}()
+		defer close(doneC)
+		if WebsocketKeepalive {
+			keepAlive(c, WebsocketTimeout)
+		}
+
+		for {
+			select {
+			case <-stopC:
+				return
+			default:
+				_, message, err := c.ReadMessage()
+				if err != nil {
+					errHandler(err)
+					return
+				}
+				handler(message)
+			}
+		}
+	}()
+	return
+}
+
 func keepAlive(c *websocket.Conn, timeout time.Duration) {
 	ticker := time.NewTicker(timeout)
 
