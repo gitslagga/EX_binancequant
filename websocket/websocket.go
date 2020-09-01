@@ -208,30 +208,6 @@ func dataHandler(wsConn *wsConnection) {
 }
 
 func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
-	if _, ok := entityChannel[wsConn]; ok {
-		err := entityChannel[wsConn].WriteMessage(messageType, reqMessage)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
-			wsConn.wsClose()
-			return
-		}
-	} else {
-		c, _, err := websocket.DefaultDialer.Dial("wss://fstream.binance.com/stream", nil)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] websocket DefaultDialer err: %v", err)
-			wsConn.wsClose()
-			return
-		}
-		err = c.WriteMessage(messageType, reqMessage)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
-			wsConn.wsClose()
-			return
-		}
-
-		entityChannel[wsConn] = c
-	}
-
 	wsDepthHandler := func(event []byte) {
 		if !wsConn.isClosed {
 			err := wsConn.wsWrite(messageType, event)
@@ -244,9 +220,10 @@ func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe handler fail err: %v", err)
 	}
 
-	_, stopC, err := futures.WsCombinedTradeDataServe(entityChannel[wsConn], wsDepthHandler, errHandler)
+	_, stopC, err := futures.WsCombinedTradeDataServe(reqMessage, wsDepthHandler, errHandler)
 	if err != nil {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe dial fail err: %v", err)
+		return
 	}
 
 	for {

@@ -59,7 +59,17 @@ var wsServe = func(cfg *WsConfig, handler WsHandler, errHandler ErrHandler) (don
 	return
 }
 
-var wsWriteServe = func(c *websocket.Conn, handler WsHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+var wsWriteServe = func(cfg *WsConfig, message []byte, handler WsHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	c, _, err := websocket.DefaultDialer.Dial(cfg.Endpoint, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = c.WriteMessage(websocket.TextMessage, message)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	doneC = make(chan struct{})
 	stopC = make(chan struct{})
 	go func() {
