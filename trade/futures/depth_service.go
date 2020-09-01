@@ -73,12 +73,12 @@ type DepthResponse struct {
 
 // Bid define bid info with price and quantity
 type Bid struct {
-	Price    string
-	Quantity string
+	Price    string `json:"price"`
+	Quantity string `json:"quantity"`
 }
 
 // Ask define ask info with price and quantity
 type Ask struct {
-	Price    string
-	Quantity string
+	Price    string `json:"price"`
+	Quantity string `json:"quantity"`
 }
