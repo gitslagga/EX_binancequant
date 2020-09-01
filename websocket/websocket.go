@@ -42,7 +42,7 @@ type wsConnection struct {
 var messageType = websocket.TextMessage
 
 //一对一通道
-var entityChannel map[*wsConnection]*websocket.Conn
+var entityChannel = make(map[*wsConnection]*websocket.Conn, 10000)
 
 //最大的实体通道
 var maxEntity = 10000
@@ -67,6 +67,7 @@ func (wsConn *wsConnection) wsReadLoop() {
 	}
 error:
 	wsConn.wsClose()
+	delete(entityChannel, wsConn)
 closed:
 }
 
@@ -85,6 +86,7 @@ func (wsConn *wsConnection) wsWriteLoop() {
 	}
 error:
 	wsConn.wsClose()
+	delete(entityChannel, wsConn)
 closed:
 }
 
@@ -161,12 +163,14 @@ func heartBeat(wsConn *wsConnection) {
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			break
 		}
 
 		if err := wsConn.wsWrite(messageType, response); err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			break
 		}
 	}
@@ -185,6 +189,7 @@ func dataHandler(wsConn *wsConnection) {
 		if err != nil {
 			//mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			break
 		}
 
@@ -194,6 +199,7 @@ func dataHandler(wsConn *wsConnection) {
 		if err != nil {
 			//mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			break
 		}
 
@@ -204,6 +210,7 @@ func dataHandler(wsConn *wsConnection) {
 		if jsonRequest.ID <= 0 || jsonRequest.Method == "" {
 			mylog.DataLogger.Error().Msgf("[Websocket] jsonRequest param err")
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			break
 		}
 
@@ -213,9 +220,10 @@ func dataHandler(wsConn *wsConnection) {
 }
 
 func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
-	if len(entityChannel) > maxEntity {
+	if len(entityChannel) >= maxEntity {
 		mylog.DataLogger.Error().Msgf("[Websocket] len entityChannel gt maxEntity err: %v", maxEntity)
 		wsConn.wsClose()
+		delete(entityChannel, wsConn)
 		return
 	}
 	if _, ok := entityChannel[wsConn]; ok {
@@ -223,6 +231,7 @@ func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			return
 		}
 	} else {
@@ -230,12 +239,14 @@ func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] websocket DefaultDialer err: %v", err)
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			return
 		}
 		err = c.WriteMessage(messageType, reqMessage)
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
 			wsConn.wsClose()
+			delete(entityChannel, wsConn)
 			return
 		}
 		entityChannel[wsConn] = c
