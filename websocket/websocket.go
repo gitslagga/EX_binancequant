@@ -3,9 +3,7 @@ package websocket
 import (
 	"EX_binancequant/mylog"
 	"EX_binancequant/trade/futures"
-	"encoding/json"
 	"errors"
-	"github.com/bitly/go-simplejson"
 	"github.com/gorilla/websocket"
 	"net/http"
 	"sync"
@@ -44,9 +42,6 @@ var messageType = websocket.TextMessage
 //一对一通道
 var entityChannel = make(map[*wsConnection]*websocket.Conn, 10000)
 
-//最大的实体通道
-var maxEntity = 10000
-
 func (wsConn *wsConnection) wsReadLoop() {
 	for {
 		// 读一个message
@@ -67,7 +62,6 @@ func (wsConn *wsConnection) wsReadLoop() {
 	}
 error:
 	wsConn.wsClose()
-	delete(entityChannel, wsConn)
 closed:
 }
 
@@ -86,7 +80,6 @@ func (wsConn *wsConnection) wsWriteLoop() {
 	}
 error:
 	wsConn.wsClose()
-	delete(entityChannel, wsConn)
 closed:
 }
 
@@ -148,33 +141,31 @@ func (wsConn *wsConnection) wsClose() {
 /**
 启动一个gouroutine发送心跳
 */
-func heartBeat(wsConn *wsConnection) {
-	for {
-		if wsConn.isClosed {
-			break
-		}
-
-		time.Sleep(60 * time.Second)
-
-		jsonResponse := new(JsonResponse)
-		jsonResponse.Result = "pong"
-		jsonResponse.ID = 0
-		response, err := json.Marshal(jsonResponse)
-		if err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
-			wsConn.wsClose()
-			delete(entityChannel, wsConn)
-			break
-		}
-
-		if err := wsConn.wsWrite(messageType, response); err != nil {
-			mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
-			wsConn.wsClose()
-			delete(entityChannel, wsConn)
-			break
-		}
-	}
-}
+//func heartBeat(wsConn *wsConnection) {
+//	for {
+//		if wsConn.isClosed {
+//			break
+//		}
+//
+//		time.Sleep(60 * time.Second)
+//
+//		jsonResponse := new(JsonResponse)
+//		jsonResponse.Result = "pong"
+//		jsonResponse.ID = 0
+//		response, err := json.Marshal(jsonResponse)
+//		if err != nil {
+//			mylog.DataLogger.Error().Msgf("[Websocket] json Marshal fail err: %v", err)
+//			wsConn.wsClose()
+//			break
+//		}
+//
+//		if err := wsConn.wsWrite(messageType, response); err != nil {
+//			mylog.DataLogger.Error().Msgf("[Websocket] pong write fail err: %v", err)
+//			wsConn.wsClose()
+//			break
+//		}
+//	}
+//}
 
 /**
 注意控制并发goroutine的数量!!!
@@ -189,30 +180,27 @@ func dataHandler(wsConn *wsConnection) {
 		if err != nil {
 			//mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
 			wsConn.wsClose()
-			delete(entityChannel, wsConn)
 			break
 		}
 
 		mylog.DataLogger.Info().Msgf("[Websocket] read message data: %v", string(msg.data))
 
-		j, err := simplejson.NewJson(msg.data)
-		if err != nil {
-			//mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
-			wsConn.wsClose()
-			delete(entityChannel, wsConn)
-			break
-		}
-
-		jsonRequest := new(JsonRequest)
-		jsonRequest.ID = j.Get("id").MustInt64()
-		jsonRequest.Method = j.Get("method").MustString()
-		jsonRequest.Params = j.Get("params").MustStringArray()
-		if jsonRequest.ID <= 0 || jsonRequest.Method == "" {
-			mylog.DataLogger.Error().Msgf("[Websocket] jsonRequest param err")
-			wsConn.wsClose()
-			delete(entityChannel, wsConn)
-			break
-		}
+		//j, err := simplejson.NewJson(msg.data)
+		//if err != nil {
+		//	//mylog.DataLogger.Error().Msgf("[Websocket] read message fail err: %v", err)
+		//	wsConn.wsClose()
+		//	break
+		//}
+		//
+		//jsonRequest := new(JsonRequest)
+		//jsonRequest.ID = j.Get("id").MustInt64()
+		//jsonRequest.Method = j.Get("method").MustString()
+		//jsonRequest.Params = j.Get("params").MustStringArray()
+		//if jsonRequest.ID <= 0 || jsonRequest.Method == "" {
+		//	mylog.DataLogger.Error().Msgf("[Websocket] jsonRequest param err")
+		//	wsConn.wsClose()
+		//	break
+		//}
 
 		// 推送币安交易数据
 		go wsConn.PushTradeData(msg.data)
@@ -220,18 +208,11 @@ func dataHandler(wsConn *wsConnection) {
 }
 
 func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
-	if len(entityChannel) >= maxEntity {
-		mylog.DataLogger.Error().Msgf("[Websocket] len entityChannel gt maxEntity err: %v", maxEntity)
-		wsConn.wsClose()
-		delete(entityChannel, wsConn)
-		return
-	}
 	if _, ok := entityChannel[wsConn]; ok {
 		err := entityChannel[wsConn].WriteMessage(messageType, reqMessage)
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
 			wsConn.wsClose()
-			delete(entityChannel, wsConn)
 			return
 		}
 	} else {
@@ -239,16 +220,15 @@ func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] websocket DefaultDialer err: %v", err)
 			wsConn.wsClose()
-			delete(entityChannel, wsConn)
 			return
 		}
 		err = c.WriteMessage(messageType, reqMessage)
 		if err != nil {
 			mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
 			wsConn.wsClose()
-			delete(entityChannel, wsConn)
 			return
 		}
+
 		entityChannel[wsConn] = c
 	}
 
@@ -267,12 +247,12 @@ func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 	_, stopC, err := futures.WsCombinedTradeDataServe(entityChannel[wsConn], wsDepthHandler, errHandler)
 	if err != nil {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe dial fail err: %v", err)
-		return
 	}
 
 	for {
 		time.Sleep(60 * time.Second)
 		if wsConn.isClosed {
+			delete(entityChannel, wsConn)
 			stopC <- struct{}{}
 			break
 		}
