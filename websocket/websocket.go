@@ -42,6 +42,9 @@ var messageType = websocket.TextMessage
 //一对一通道
 var entityChannel = make(map[*wsConnection]*websocket.Conn, 10000)
 
+//币安永续合约websocket stream
+var combinedFutureUrl = "wss://fstream.binance.com/stream"
+
 func (wsConn *wsConnection) wsReadLoop() {
 	for {
 		// 读一个message
@@ -202,12 +205,32 @@ func dataHandler(wsConn *wsConnection) {
 		//	break
 		//}
 
+		if c, ok := entityChannel[wsConn]; ok {
+			err := c.WriteMessage(messageType, msg.data)
+			if err != nil {
+				mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
+			}
+
+			continue
+		}
+
 		// 推送币安交易数据
 		go wsConn.PushTradeData(msg.data)
 	}
 }
 
-func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
+func (wsConn *wsConnection) PushTradeData(message []byte) {
+	c, _, err := websocket.DefaultDialer.Dial(combinedFutureUrl, nil)
+	if err != nil {
+		mylog.DataLogger.Error().Msgf("[Websocket] websocket DefaultDialer err: %v", err)
+		return
+	}
+	err = c.WriteMessage(messageType, message)
+	if err != nil {
+		mylog.DataLogger.Error().Msgf("[Websocket] conn WriteMessage err: %v", err)
+		return
+	}
+
 	wsDepthHandler := func(event []byte) {
 		if !wsConn.isClosed {
 			err := wsConn.wsWrite(messageType, event)
@@ -220,18 +243,21 @@ func (wsConn *wsConnection) PushTradeData(reqMessage []byte) {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe handler fail err: %v", err)
 	}
 
-	_, stopC, err := futures.WsCombinedTradeDataServe(reqMessage, wsDepthHandler, errHandler)
+	_, stopC, err := futures.WsCombinedTradeDataServe(c, wsDepthHandler, errHandler)
 	if err != nil {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe dial fail err: %v", err)
 		return
 	}
 
+	entityChannel[wsConn] = c
 	for {
+		time.Sleep(60 * time.Second)
+
 		if wsConn.isClosed {
+			mylog.DataLogger.Info().Msgf("[Websocket] len entityChannel: %v", len(entityChannel))
 			delete(entityChannel, wsConn)
 			stopC <- struct{}{}
 			break
 		}
-		time.Sleep(60 * time.Second)
 	}
 }

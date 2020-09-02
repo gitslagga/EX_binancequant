@@ -173,9 +173,10 @@ func Test_MarketsStat(t *testing.T) {
 }
 
 func Test_BinanceStream(t *testing.T) {
-	ws := new(wsConnection)
+	ws := &wsConnection{Data: "TestBinanceStream"}
 
-	ws.binanceRequest([]byte(`{
+	go func() {
+		ws.binanceRequest([]byte(`{
 		"method": "SUBSCRIBE",
 		"params":
 		[
@@ -184,18 +185,27 @@ func Test_BinanceStream(t *testing.T) {
 		],
 		"id": 1
 	}`))
+	}()
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(60 * time.Second)
 
-	ws.binanceRequest([]byte(`{
-		"method": "LIST_SUBSCRIPTIONS",
-		"id": 3
-	}`))
+	go func() {
+		ws.binanceRequest([]byte(`{
+			"method": "UNSUBSCRIBE",
+			"params":
+			[
+			"btcusdt@aggTrade",
+			"btcusdt@depth"
+			],
+			"id": 312
+		}`))
+	}()
 
-	time.Sleep(20 * time.Second)
+	time.Sleep(60 * time.Second)
 }
 
 type wsConnection struct {
+	Data string
 }
 
 var entityChannel = make(map[*wsConnection]*websocket.Conn, 10000)
@@ -235,6 +245,15 @@ func (w *wsConnection) binanceRequest(message []byte) (stopC chan struct{}) {
 			}
 		}
 	}()
+
+	for {
+		time.Sleep(5 * time.Second)
+
+		fmt.Printf("[Websocket] conn entityChannel data: %v \n", w)
+		fmt.Printf("[Websocket] conn entityChannel data: %v \n", entityChannel[w])
+	}
+
+	fmt.Println("binanceRequest finished")
 
 	return
 }
