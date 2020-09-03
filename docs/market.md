@@ -1,14 +1,14 @@
 # 市场行情
 
 ## 获取服务器时间 
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/time'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/time'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":1598599523041}
 ```
 
 
 ## 获取深度信息
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/depth?symbol=BTCUSDT&limit=1'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/depth?symbol=BTCUSDT&limit=1'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":{
       "lastUpdateId": 55396372838,
@@ -62,7 +62,7 @@
 
 
 ## 获取近期成交
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/aggTrades?symbol=BTCUSDT&limit=1'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/aggTrades?symbol=BTCUSDT&limit=1'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":[
       {
@@ -80,7 +80,7 @@
 
 
 ## 获取K线数据
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/klines?symbol=BTCUSDT&interval=1d&limit=1'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/klines?symbol=BTCUSDT&interval=1d&limit=1'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":[
       {
@@ -102,7 +102,7 @@
 
 
 ## 最新标记价格和资金费率
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/premiumIndex?symbol=BTCUSDT'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/premiumIndex?symbol=BTCUSDT'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":[
       {
@@ -118,7 +118,7 @@
 
 
 ## 24hr价格变动情况
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/ticker/24hr?symbol=BTCUSDT'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/ticker/24hr?symbol=BTCUSDT'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":[
       {
@@ -146,7 +146,7 @@
 
 
 ## 最新价格
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/ticker/price?symbol=BTCUSDT'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/ticker/price?symbol=BTCUSDT'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":[
       {
@@ -159,7 +159,7 @@
 
 
 ## 获取交易规则和交易对
-* curl --location --request GET 'http://127.0.0.1:8000/api/market/exchangeInfo?symbol=BTCUSDT'
+* curl --location --request GET 'http://127.0.0.1:8000/binance/market/exchangeInfo?symbol=BTCUSDT'
 ```
 {"respCode":1,"respDesc":"SUCCESS","respData":{
       "timezone": "UTC",
