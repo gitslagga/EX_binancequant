@@ -17,7 +17,7 @@ func InitRouter(router *gin.Engine) {
 	router.Use(cors.Default())
 
 	//market group
-	marketGroup := router.Group("/api", responseHandler())
+	marketGroup := router.Group("/binance", responseHandler())
 
 	/****************************** 通用 - 永续合约行情接口 *********************************/
 	marketGroup.GET("/market/time", ServerTimeService)
@@ -32,7 +32,7 @@ func InitRouter(router *gin.Engine) {
 	/****************************** 后台 - 经纪人接口 *********************************/
 	/*//TODO Backend Authorized
 	//backend group
-	backendGroup := router.Group("/api", tokenHandler())
+	backendGroup := router.Group("/binance", tokenHandler())
 	//管理子账户权限
 	backendGroup.POST("/broker/subAccount/create", CreateSubAccountService)
 	backendGroup.POST("/broker/subAccount/enable", EnableSubAccountFuturesService)
@@ -63,8 +63,8 @@ func InitRouter(router *gin.Engine) {
 
 	/****************************** 前台 - 永续合约接口 *********************************/
 	//开启子账户认证
-	authorized := router.Group("/api", tokenHandler(), responseHandler())
-	authorizedRequest := router.Group("/api", tokenHandler(), requestHandler(), responseHandler())
+	authorized := router.Group("/binance", tokenHandler(), responseHandler())
+	authorizedRequest := router.Group("/binance", tokenHandler(), requestHandler(), responseHandler())
 	authorized.GET("/account/activeFutures", GetActiveFuturesService)
 	authorized.POST("/account/activeFutures", CreateActiveFuturesService)
 
