@@ -126,8 +126,8 @@ func GetBalanceNoTokenService(c *gin.Context) {
 
 	client, err := db.GetFuturesClientByUserID(getBalanceNoTokenRequest.UserId)
 	if err != nil {
-		out.RespCode = EC_NOT_ACTIVE
-		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusOK, out)
 		return
 	}
@@ -175,18 +175,23 @@ func CreateTransferNoTokenService(c *gin.Context) {
 
 	client, err := db.GetSpotClientByUserID(createTransferNoTokenRequest.UserId)
 	if err != nil {
-		out.RespCode = EC_NOT_ACTIVE
-		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
 		c.JSON(http.StatusOK, out)
 		return
 	}
 
 	createTransferService := client.NewCreateTransferService()
-	if createTransferNoTokenRequest.FromId != "" {
-		createTransferService.FromId(createTransferNoTokenRequest.FromId)
-	}
-	if createTransferNoTokenRequest.ToId != "" {
-		createTransferService.ToId(createTransferNoTokenRequest.ToId)
+	if createTransferNoTokenRequest.Type == 1 {
+		subAccountID, err := db.GetSubAccountIdByUserID(createTransferNoTokenRequest.UserId)
+		if err != nil {
+			out.RespCode = EC_NETWORK_ERR
+			out.RespDesc = err.Error()
+			c.JSON(http.StatusOK, out)
+			return
+		}
+
+		createTransferService.ToId(subAccountID)
 	}
 
 	createTransferService.FuturesType(createTransferNoTokenRequest.FuturesType)
@@ -197,21 +202,14 @@ func CreateTransferNoTokenService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.Set("responseData", out)
-		return
-	}
-
-	responseData, err := json.Marshal(list)
-	if err != nil {
-		out.RespCode = EC_JSON_MARSHAL_ERR
-		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
-		c.Set("responseData", out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = responseData
+	out.RespData = list
 
-	c.Set("responseData", out)
+	c.JSON(http.StatusOK, out)
+	return
 }

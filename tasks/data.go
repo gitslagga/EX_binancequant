@@ -291,8 +291,7 @@ type GetBalanceNoTokenRequest struct {
 
 type CreateTransferNoTokenRequest struct {
 	UserId      uint64  `json:"userId" binding:"required"`
-	FromId      string  `json:"fromId"`
-	ToId        string  `json:"toId"`
+	Type        int     `json:"type" binding:"required"`
 	FuturesType int     `json:"futuresType" binding:"required"`
 	Asset       string  `json:"asset" binding:"required"`
 	Amount      float64 `json:"amount" binding:"required"`
