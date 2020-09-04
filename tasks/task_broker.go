@@ -387,9 +387,8 @@ func CreateTransferService(c *gin.Context) {
 	if createTransferRequest.ToId != "" {
 		createTransferService.ToId(createTransferRequest.ToId)
 	}
-	if createTransferRequest.ClientTranId != "" {
-		createTransferService.ClientTranId(createTransferRequest.ClientTranId)
-	}
+
+	createTransferService.FuturesType(createTransferRequest.FuturesType)
 	createTransferService.Asset(createTransferRequest.Asset)
 	createTransferService.Amount(createTransferRequest.Amount)
 

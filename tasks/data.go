@@ -272,11 +272,11 @@ type ChangeCommissionFuturesRequest struct {
 }
 
 type CreateTransferRequest struct {
-	FromId       string  `json:"fromId"`
-	ToId         string  `json:"toId"`
-	ClientTranId string  `json:"clientTranId"`
-	Asset        string  `json:"asset" binding:"required"`
-	Amount       float64 `json:"amount" binding:"required"`
+	FromId      string  `json:"fromId"`
+	ToId        string  `json:"toId"`
+	FuturesType int     `json:"futuresType" binding:"required"`
+	Asset       string  `json:"asset" binding:"required"`
+	Amount      float64 `json:"amount" binding:"required"`
 }
 
 type GenerateRebateHistoryRequest struct {

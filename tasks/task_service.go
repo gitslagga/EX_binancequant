@@ -67,6 +67,7 @@ func InitRouter(router *gin.Engine) {
 	authorizedRequest := router.Group("/binance", tokenHandler(), requestHandler(), responseHandler())
 	authorized.GET("/account/activeFutures", GetActiveFuturesService)
 	authorized.POST("/account/activeFutures", CreateActiveFuturesService)
+	authorized.POST("/account/transfer/futures", CreateTransferFuturesService)
 
 	//子账户资产，充币，提币，划转
 	authorized.GET("/account/deposits/list", ListDepositsService)

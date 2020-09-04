@@ -41,12 +41,12 @@ type GetInfo struct {
 
 // CreateTransferService create sub account transfer
 type CreateTransferService struct {
-	c            *Client
-	fromId       *string
-	toId         *string
-	clientTranId *string
-	asset        *string
-	amount       *float64
+	c           *Client
+	fromId      *string
+	toId        *string
+	futuresType *int
+	asset       *string
+	amount      *float64
 }
 
 // FromId set fromId
@@ -61,9 +61,9 @@ func (s *CreateTransferService) ToId(toId string) *CreateTransferService {
 	return s
 }
 
-// ClientTranId set clientTranId
-func (s *CreateTransferService) ClientTranId(clientTranId string) *CreateTransferService {
-	s.clientTranId = &clientTranId
+// FuturesType set futuresType 1:USDT Futures,2: COIN Futures
+func (s *CreateTransferService) FuturesType(futuresType int) *CreateTransferService {
+	s.futuresType = &futuresType
 	return s
 }
 
@@ -92,9 +92,7 @@ func (s *CreateTransferService) Do(ctx context.Context, opts ...RequestOption) (
 	if s.toId != nil {
 		r.setParam("toId", *s.toId)
 	}
-	if s.clientTranId != nil {
-		r.setParam("clientTranId", *s.clientTranId)
-	}
+	r.setParam("futuresType", *s.futuresType)
 	r.setParam("asset", *s.asset)
 	r.setParam("amount", *s.amount)
 	data, err := s.c.callAPI(ctx, r, opts...)

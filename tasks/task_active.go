@@ -95,3 +95,66 @@ func CreateActiveFuturesService(c *gin.Context) {
 
 	c.Set("responseData", out)
 }
+
+/**
+子母账户合约资产划转
+*/
+func CreateTransferFuturesService(c *gin.Context) {
+	out := CommonResp{}
+
+	userID := c.MustGet("user_id").(uint64)
+
+	var createTransferRequest CreateTransferRequest
+	err := json.Unmarshal(c.MustGet("requestData").([]byte), &createTransferRequest)
+	if err != nil || createTransferRequest.FuturesType == 0 || createTransferRequest.Asset == "" || createTransferRequest.Amount == 0 {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Account] CreateTransferFuturesService request param: %v",
+		createTransferRequest)
+
+	client, err := db.GetSpotClientByUserID(userID)
+	if err != nil {
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
+		c.Set("responseData", out)
+		return
+	}
+
+	createTransferService := client.NewCreateTransferService()
+	if createTransferRequest.FromId != "" {
+		createTransferService.FromId(createTransferRequest.FromId)
+	}
+	if createTransferRequest.ToId != "" {
+		createTransferService.ToId(createTransferRequest.ToId)
+	}
+
+	createTransferService.FuturesType(createTransferRequest.FuturesType)
+	createTransferService.Asset(createTransferRequest.Asset)
+	createTransferService.Amount(createTransferRequest.Amount)
+
+	list, err := createTransferService.Do(context.Background())
+	if err != nil {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
+		c.Set("responseData", out)
+		return
+	}
+
+	responseData, err := json.Marshal(list)
+	if err != nil {
+		out.RespCode = EC_JSON_MARSHAL_ERR
+		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
+	out.RespData = responseData
+
+	c.Set("responseData", out)
+}

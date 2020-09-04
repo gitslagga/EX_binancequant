@@ -408,7 +408,7 @@ func CreateWithdrawService(c *gin.Context) {
 	}
 
 	//从子账户现货账户往经纪人现货账户划转
-	_, err = trade.BAExClient.NewCreateTransferService().
+	_, err = trade.BAExClient.NewCreateTransferService().FuturesType(1).
 		Asset(withdrawRequest.Coin).Amount(withdrawRequest.Amount).FromId(subAccountID).Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
