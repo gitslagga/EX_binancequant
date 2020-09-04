@@ -106,25 +106,25 @@ func CreateActiveFuturesService(c *gin.Context) {
 func FuturesAccountNoTokenService(c *gin.Context) {
 	out := CommonResp{}
 
-	var userID uint64
-	if err := c.ShouldBindJSON(&userID); err != nil {
+	var futuresAccountNoTokenRequest FuturesAccountNoTokenRequest
+	if err := c.ShouldBindJSON(&futuresAccountNoTokenRequest); err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusOK, out)
 		return
 	}
 
-	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountNoTokenService request param: %v", userID)
+	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountNoTokenService request param: %v", futuresAccountNoTokenRequest)
 
-	if active := db.GetActiveFuturesByUserID(userID); active == false {
-		out = activeFutures(userID)
+	if active := db.GetActiveFuturesByUserID(futuresAccountNoTokenRequest.UserID); active == false {
+		out = activeFutures(futuresAccountNoTokenRequest.UserID)
 		if out.RespCode != EC_NONE.Code() {
 			c.JSON(http.StatusOK, out)
 			return
 		}
 	}
 
-	client, err := db.GetFuturesClientByUserID(userID)
+	client, err := db.GetFuturesClientByUserID(futuresAccountNoTokenRequest.UserID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
@@ -155,7 +155,7 @@ func CreateTransferNoTokenService(c *gin.Context) {
 	out := CommonResp{}
 
 	var createTransferNoTokenRequest CreateTransferNoTokenRequest
-	if err := c.ShouldBindJSON(createTransferNoTokenRequest); err != nil {
+	if err := c.ShouldBindJSON(&createTransferNoTokenRequest); err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusOK, out)
