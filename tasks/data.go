@@ -285,6 +285,10 @@ type GenerateRebateHistoryRequest struct {
 	EndTime      uint64 `json:"endTime"`
 }
 
+type GetBalanceNoTokenRequest struct {
+	UserId uint64 `json:"userId" binding:"required"`
+}
+
 type CreateTransferNoTokenRequest struct {
 	UserId      uint64  `json:"userId" binding:"required"`
 	FromId      string  `json:"fromId"`
