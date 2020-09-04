@@ -18,7 +18,7 @@ func InitRouter(router *gin.Engine) {
 
 	//no need token group
 	noTokenGroup := router.Group("/binance")
-	noTokenGroup.POST("/account/futures/noToken", FuturesAccountNoTokenService)
+	noTokenGroup.POST("/futures/balance/noToken", GetBalanceNoTokenService)
 	noTokenGroup.POST("/broker/transfer/noToken", CreateTransferNoTokenService)
 
 	//market group

@@ -101,30 +101,30 @@ func CreateActiveFuturesService(c *gin.Context) {
 }
 
 /**
-合约账户信息 (USER_DATA)
+合约账户余额 (USER_DATA)
 */
-func FuturesAccountNoTokenService(c *gin.Context) {
+func GetBalanceNoTokenService(c *gin.Context) {
 	out := CommonResp{}
 
-	var futuresAccountNoTokenRequest FuturesAccountNoTokenRequest
-	if err := c.ShouldBindJSON(&futuresAccountNoTokenRequest); err != nil {
+	var userId uint64
+	if err := c.ShouldBindJSON(&userId); err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
 		c.JSON(http.StatusOK, out)
 		return
 	}
 
-	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountNoTokenService request param: %v", futuresAccountNoTokenRequest)
+	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountNoTokenService request param: %v", userId)
 
-	if active := db.GetActiveFuturesByUserID(futuresAccountNoTokenRequest.UserID); active == false {
-		out = activeFutures(futuresAccountNoTokenRequest.UserID)
+	if active := db.GetActiveFuturesByUserID(userId); active == false {
+		out = activeFutures(userId)
 		if out.RespCode != EC_NONE.Code() {
 			c.JSON(http.StatusOK, out)
 			return
 		}
 	}
 
-	client, err := db.GetFuturesClientByUserID(futuresAccountNoTokenRequest.UserID)
+	client, err := db.GetFuturesClientByUserID(userId)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
@@ -132,7 +132,7 @@ func FuturesAccountNoTokenService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetAccountService().Do(context.Background())
+	list, err := client.NewGetBalanceService().Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -165,15 +165,15 @@ func CreateTransferNoTokenService(c *gin.Context) {
 	mylog.Logger.Info().Msgf("[Task Account] CreateTransferNoTokenService request param: %v",
 		createTransferNoTokenRequest)
 
-	if active := db.GetActiveFuturesByUserID(createTransferNoTokenRequest.UserID); active == false {
-		out = activeFutures(createTransferNoTokenRequest.UserID)
+	if active := db.GetActiveFuturesByUserID(createTransferNoTokenRequest.UserId); active == false {
+		out = activeFutures(createTransferNoTokenRequest.UserId)
 		if out.RespCode != EC_NONE.Code() {
 			c.JSON(http.StatusOK, out)
 			return
 		}
 	}
 
-	client, err := db.GetSpotClientByUserID(createTransferNoTokenRequest.UserID)
+	client, err := db.GetSpotClientByUserID(createTransferNoTokenRequest.UserId)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)

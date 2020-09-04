@@ -285,12 +285,8 @@ type GenerateRebateHistoryRequest struct {
 	EndTime      uint64 `json:"endTime"`
 }
 
-type FuturesAccountNoTokenRequest struct {
-	UserID uint64 `json:"user_id" binding:"required"`
-}
-
 type CreateTransferNoTokenRequest struct {
-	UserID      uint64  `json:"user_id" binding:"required"`
+	UserId      uint64  `json:"userId" binding:"required"`
 	FromId      string  `json:"fromId"`
 	ToId        string  `json:"toId"`
 	FuturesType int     `json:"futuresType" binding:"required"`
