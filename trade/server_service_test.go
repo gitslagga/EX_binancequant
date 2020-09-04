@@ -65,7 +65,7 @@ func (s *serverServiceTestSuite) TestServerTimeBadRequest() {
 	s.mockDo([]byte(`{
         "code": -1121,
         "msg": "Invalid symbol."
-    }`), nil, http.StatusBadRequest)
+    }`), nil, http.StatusOK)
 	defer s.assertDo()
 
 	s.assertReq(func(r *request) {

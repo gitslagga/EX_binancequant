@@ -19,7 +19,7 @@ func CreateSubAccountService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -43,7 +43,7 @@ func EnableSubAccountFuturesService(c *gin.Context) {
 			err)
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -57,7 +57,7 @@ func EnableSubAccountFuturesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -81,7 +81,7 @@ func CreateSubAccountApiService(c *gin.Context) {
 			err)
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -96,7 +96,7 @@ func CreateSubAccountApiService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -120,7 +120,7 @@ func DeleteSubAccountApiService(c *gin.Context) {
 			err)
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -134,7 +134,7 @@ func DeleteSubAccountApiService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -160,7 +160,7 @@ func GetSubAccountApiService(c *gin.Context) {
 	if subAccountId == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -174,7 +174,7 @@ func GetSubAccountApiService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -198,7 +198,7 @@ func ChangeSubAccountApiPermissionService(c *gin.Context) {
 			err)
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -214,7 +214,7 @@ func ChangeSubAccountApiPermissionService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -246,7 +246,7 @@ func GetSubAccountService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -270,7 +270,7 @@ func ChangeCommissionFuturesService(c *gin.Context) {
 			err)
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -286,7 +286,7 @@ func ChangeCommissionFuturesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -313,7 +313,7 @@ func GetCommissionFuturesService(c *gin.Context) {
 	if subAccountId == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -327,7 +327,7 @@ func GetCommissionFuturesService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -349,7 +349,7 @@ func GetInfoService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -373,7 +373,7 @@ func CreateTransferService(c *gin.Context) {
 			err)
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -396,7 +396,7 @@ func CreateTransferService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -427,7 +427,7 @@ func GetTransferService(c *gin.Context) {
 	if subAccountId == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -461,7 +461,7 @@ func GetTransferService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -528,7 +528,7 @@ func GetSubAccountDepositHistService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -572,7 +572,7 @@ func GetSubAccountSpotSummaryService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -616,7 +616,7 @@ func GetSubAccountFuturesSummaryService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -645,7 +645,7 @@ func GetRebateRecentRecordService(c *gin.Context) {
 	if subAccountId == "" || startTime == "" || endTime == "" || limit == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -665,7 +665,7 @@ func GetRebateRecentRecordService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -689,7 +689,7 @@ func GenerateRebateHistoryService(c *gin.Context) {
 			err)
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -711,7 +711,7 @@ func GenerateRebateHistoryService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -740,7 +740,7 @@ func GetRebateHistoryService(c *gin.Context) {
 	if subAccountId == "" || startTime == "" || endTime == "" || limit == "" {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
@@ -768,7 +768,7 @@ func GetRebateHistoryService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
-		c.JSON(http.StatusBadRequest, out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
