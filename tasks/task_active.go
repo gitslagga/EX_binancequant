@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 /**
@@ -35,6 +36,47 @@ func GetActiveFuturesService(c *gin.Context) {
 	c.Set("responseData", out)
 }
 
+func activeFutures(userID uint64) CommonResp {
+	out := CommonResp{}
+
+	//创建子账户
+	createRes, err := trade.BAExClient.NewCreateSubAccountService().Do(context.Background())
+	if err != nil {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
+		return out
+	}
+
+	//为子账户开启合约权限
+	_, err = trade.BAExClient.NewEnableSubAccountFutures().
+		SubAccountId(createRes.SubAccountId).Futures(true).Do(context.Background())
+	if err != nil {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
+		return out
+	}
+
+	//创建子账户api key
+	createApiRes, err := trade.BAExClient.NewCreateSubAccountApiService().
+		SubAccountId(createRes.SubAccountId).CanTrade(true).FuturesTrade(true).Do(context.Background())
+	if err != nil {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
+		return out
+	}
+
+	err = db.CreateFuturesSubAccount(userID, createApiRes.SubAccountId, createApiRes.ApiKey, createApiRes.SecretKey)
+	if err != nil {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
+		return out
+	}
+
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
+	return out
+}
+
 /**
 为用户申请子账户，创建API
 */
@@ -53,88 +95,103 @@ func CreateActiveFuturesService(c *gin.Context) {
 		return
 	}
 
-	//创建子账户
-	createRes, err := trade.BAExClient.NewCreateSubAccountService().Do(context.Background())
-	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
-		c.Set("responseData", out)
-		return
-	}
-
-	//为子账户开启合约权限
-	_, err = trade.BAExClient.NewEnableSubAccountFutures().
-		SubAccountId(createRes.SubAccountId).Futures(true).Do(context.Background())
-	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
-		c.Set("responseData", out)
-		return
-	}
-
-	//创建子账户api key
-	createApiRes, err := trade.BAExClient.NewCreateSubAccountApiService().
-		SubAccountId(createRes.SubAccountId).CanTrade(true).FuturesTrade(true).Do(context.Background())
-	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
-		c.Set("responseData", out)
-		return
-	}
-
-	err = db.CreateFuturesSubAccount(userID, createApiRes.SubAccountId, createApiRes.ApiKey, createApiRes.SecretKey)
-	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
-		c.Set("responseData", out)
-		return
-	}
-
-	out.RespCode = EC_NONE.Code()
-	out.RespDesc = EC_NONE.String()
+	out = activeFutures(userID)
 
 	c.Set("responseData", out)
 }
 
 /**
-子母账户合约资产划转
+合约账户信息 (USER_DATA)
 */
-func CreateTransferFuturesService(c *gin.Context) {
+func FuturesAccountNoTokenService(c *gin.Context) {
 	out := CommonResp{}
 
-	userID := c.MustGet("user_id").(uint64)
-
-	var createTransferRequest CreateTransferRequest
-	err := json.Unmarshal(c.MustGet("requestData").([]byte), &createTransferRequest)
-	if err != nil || createTransferRequest.FuturesType == 0 || createTransferRequest.Asset == "" || createTransferRequest.Amount == 0 {
+	var userID uint64
+	if err := c.ShouldBindJSON(&userID); err != nil {
 		out.RespCode = EC_PARAMS_ERR
 		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
-		c.Set("responseData", out)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
-	mylog.Logger.Info().Msgf("[Task Account] CreateTransferFuturesService request param: %v",
-		createTransferRequest)
+	mylog.Logger.Info().Msgf("[Task Account] FuturesAccountNoTokenService request param: %v", userID)
 
-	client, err := db.GetSpotClientByUserID(userID)
+	if active := db.GetActiveFuturesByUserID(userID); active == false {
+		out = activeFutures(userID)
+		if out.RespCode != EC_NONE.Code() {
+			c.JSON(http.StatusOK, out)
+			return
+		}
+	}
+
+	client, err := db.GetFuturesClientByUserID(userID)
 	if err != nil {
 		out.RespCode = EC_NOT_ACTIVE
 		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
-		c.Set("responseData", out)
+		c.JSON(http.StatusOK, out)
+		return
+	}
+
+	list, err := client.NewGetAccountService().Do(context.Background())
+	if err != nil {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
+		c.JSON(http.StatusOK, out)
+		return
+	}
+
+	out.RespCode = EC_NONE.Code()
+	out.RespDesc = EC_NONE.String()
+	out.RespData = list
+
+	c.JSON(http.StatusOK, out)
+	return
+}
+
+/**
+子母账户合约资产划转
+*/
+func CreateTransferNoTokenService(c *gin.Context) {
+	out := CommonResp{}
+
+	var createTransferNoTokenRequest CreateTransferNoTokenRequest
+	if err := c.ShouldBindJSON(createTransferNoTokenRequest); err != nil {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.JSON(http.StatusOK, out)
+		return
+	}
+
+	mylog.Logger.Info().Msgf("[Task Account] CreateTransferNoTokenService request param: %v",
+		createTransferNoTokenRequest)
+
+	if active := db.GetActiveFuturesByUserID(createTransferNoTokenRequest.UserID); active == false {
+		out = activeFutures(createTransferNoTokenRequest.UserID)
+		if out.RespCode != EC_NONE.Code() {
+			c.JSON(http.StatusOK, out)
+			return
+		}
+	}
+
+	client, err := db.GetSpotClientByUserID(createTransferNoTokenRequest.UserID)
+	if err != nil {
+		out.RespCode = EC_NOT_ACTIVE
+		out.RespDesc = ErrorCodeMessage(EC_NOT_ACTIVE)
+		c.JSON(http.StatusOK, out)
 		return
 	}
 
 	createTransferService := client.NewCreateTransferService()
-	if createTransferRequest.FromId != "" {
-		createTransferService.FromId(createTransferRequest.FromId)
+	if createTransferNoTokenRequest.FromId != "" {
+		createTransferService.FromId(createTransferNoTokenRequest.FromId)
 	}
-	if createTransferRequest.ToId != "" {
-		createTransferService.ToId(createTransferRequest.ToId)
+	if createTransferNoTokenRequest.ToId != "" {
+		createTransferService.ToId(createTransferNoTokenRequest.ToId)
 	}
 
-	createTransferService.FuturesType(createTransferRequest.FuturesType)
-	createTransferService.Asset(createTransferRequest.Asset)
-	createTransferService.Amount(createTransferRequest.Amount)
+	createTransferService.FuturesType(createTransferNoTokenRequest.FuturesType)
+	createTransferService.Asset(createTransferNoTokenRequest.Asset)
+	createTransferService.Amount(createTransferNoTokenRequest.Amount)
 
 	list, err := createTransferService.Do(context.Background())
 	if err != nil {

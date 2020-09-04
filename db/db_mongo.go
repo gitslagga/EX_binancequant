@@ -101,7 +101,10 @@ func GetFuturesClientByUserID(userID uint64) (*futures.Client, error) {
 func GetActiveFuturesByUserID(userID uint64) bool {
 	_, err := getUserKeys(userID)
 	if err != nil {
-		return false
+		if err == mongo.ErrNoDocuments {
+			return false
+		}
+		return true
 	}
 
 	return true

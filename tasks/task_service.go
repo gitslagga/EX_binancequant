@@ -16,6 +16,11 @@ import (
 func InitRouter(router *gin.Engine) {
 	router.Use(cors.Default())
 
+	//no need token group
+	noTokenGroup := router.Group("/binance")
+	noTokenGroup.POST("/account/futures/noToken", FuturesAccountNoTokenService)
+	noTokenGroup.POST("/broker/transfer/noToken", CreateTransferNoTokenService)
+
 	//market group
 	marketGroup := router.Group("/binance", responseHandler())
 
@@ -67,9 +72,8 @@ func InitRouter(router *gin.Engine) {
 	authorizedRequest := router.Group("/binance", tokenHandler(), requestHandler(), responseHandler())
 	authorized.GET("/account/activeFutures", GetActiveFuturesService)
 	authorized.POST("/account/activeFutures", CreateActiveFuturesService)
-	authorized.POST("/account/transfer/futures", CreateTransferFuturesService)
 
-	//子账户资产，充币，提币，划转
+	/*//子账户资产，充币，提币，划转
 	authorized.GET("/account/deposits/list", ListDepositsService)
 	authorized.GET("/account/deposits/address", DepositsAddressService)
 	authorized.GET("/account/spot", SpotAccountService)
@@ -77,7 +81,7 @@ func InitRouter(router *gin.Engine) {
 	authorizedRequest.POST("/account/transfer", FuturesTransferService)
 	authorized.GET("/account/transfer", ListFuturesTransferService)
 	authorizedRequest.POST("/account/withdraw", CreateWithdrawService)
-	authorized.GET("/account/withdraw", ListWithdrawsService)
+	authorized.GET("/account/withdraw", ListWithdrawsService)*/
 
 	//永续合约交易
 	authorizedRequest.POST("/futures/position/mode", ChangePositionModeService)
