@@ -181,17 +181,19 @@ func CreateTransferNoTokenService(c *gin.Context) {
 		return
 	}
 
+	subAccountID, err := db.GetSubAccountIdByUserID(createTransferNoTokenRequest.UserId)
+	if err != nil {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = err.Error()
+		c.JSON(http.StatusOK, out)
+		return
+	}
+
 	createTransferService := client.NewCreateTransferService()
 	if createTransferNoTokenRequest.Type == 1 {
-		subAccountID, err := db.GetSubAccountIdByUserID(createTransferNoTokenRequest.UserId)
-		if err != nil {
-			out.RespCode = EC_NETWORK_ERR
-			out.RespDesc = err.Error()
-			c.JSON(http.StatusOK, out)
-			return
-		}
-
 		createTransferService.ToId(subAccountID)
+	} else if createTransferNoTokenRequest.Type == 2 {
+		createTransferService.FromId(subAccountID)
 	}
 
 	createTransferService.FuturesType(createTransferNoTokenRequest.FuturesType)
