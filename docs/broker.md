@@ -75,11 +75,11 @@
 
 
 ## 经纪商和子账户划转
-* curl --location --request POST 'http://127.0.0.1:8000/binance/broker/transfer' --header 'Content-Type: application/json' --data-raw '{"toId":"485396905497952257", "asset":"USDT", "amount":100}'
+* curl --location --request POST 'http://127.0.0.1:8000/binance/broker/transfer' --header 'Content-Type: application/json' --data-raw '{"toId":"485396905497952257", "futuresType":1, "asset":"USDT", "amount":100}'
 ```
 {"respCode":30110101,"respDesc":"\u003cAPIError\u003e code=-9000, msg=user have no avaliable amount"}
 ```
-* curl --location --request POST 'http://127.0.0.1:8000/binance/broker/transfer' --header 'Content-Type: application/json' --data-raw '{"fromId":"485396905497952257", "asset":"USDT", "amount":100}'
+* curl --location --request POST 'http://127.0.0.1:8000/binance/broker/transfer' --header 'Content-Type: application/json' --data-raw '{"fromId":"485396905497952257", "futuresType":1, "asset":"USDT", "amount":100}'
 ```
 {"respCode":30110101,"respDesc":"\u003cAPIError\u003e code=-9000, msg=user have no avaliable amount"}
 ```

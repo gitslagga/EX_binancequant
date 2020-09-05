@@ -173,14 +173,6 @@ func CreateTransferNoTokenService(c *gin.Context) {
 		}
 	}
 
-	client, err := db.GetSpotClientByUserID(createTransferNoTokenRequest.UserId)
-	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
-		c.JSON(http.StatusOK, out)
-		return
-	}
-
 	subAccountID, err := db.GetSubAccountIdByUserID(createTransferNoTokenRequest.UserId)
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
@@ -189,7 +181,7 @@ func CreateTransferNoTokenService(c *gin.Context) {
 		return
 	}
 
-	createTransferService := client.NewCreateTransferService()
+	createTransferService := trade.BAExClient.NewCreateTransferService()
 	if createTransferNoTokenRequest.Type == 1 {
 		createTransferService.ToId(subAccountID)
 	} else if createTransferNoTokenRequest.Type == 2 {
