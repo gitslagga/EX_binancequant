@@ -75,6 +75,7 @@ type tradeConfig struct {
 
 type serviceConfig struct {
 	NotifyUrl string
+	WhiteUrl  string
 }
 
 func LoadConfig(pathToToml string) {

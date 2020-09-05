@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"EX_binancequant/config"
 	"EX_binancequant/db"
 	"EX_binancequant/trade"
 	"EX_binancequant/utils"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -17,28 +19,13 @@ func InitRouter(router *gin.Engine) {
 	router.Use(cors.Default())
 
 	//no need token group
-	noTokenGroup := router.Group("/binance")
+	noTokenGroup := router.Group("/binance", whiteListHandler())
 	noTokenGroup.POST("/futures/balance/noToken", GetBalanceNoTokenService)
 	noTokenGroup.POST("/broker/transfer/noToken", CreateTransferNoTokenService)
 
-	//market group
-	marketGroup := router.Group("/binance", responseHandler())
-
-	/****************************** 通用 - 永续合约行情接口 *********************************/
-	marketGroup.GET("/market/time", ServerTimeService)
-	marketGroup.GET("/market/depth", DepthService)
-	marketGroup.GET("/market/aggTrades", AggTradesService)
-	marketGroup.GET("/market/klines", KlinesService)
-	marketGroup.GET("/market/premiumIndex", PremiumIndexService)
-	marketGroup.GET("/market/ticker/24hr", ListPriceChangeStatsService)
-	marketGroup.GET("/market/ticker/price", ListPricesService)
-	marketGroup.GET("/market/exchangeInfo", ExchangeInfoService)
-
 	/****************************** 后台 - 经纪人接口 *********************************/
-	/*//TODO Backend Authorized
-	//backend group
-	backendGroup := router.Group("/binance", tokenHandler())
 	//管理子账户权限
+	backendGroup := router.Group("/binance", whiteListHandler())
 	backendGroup.POST("/broker/subAccount/create", CreateSubAccountService)
 	backendGroup.POST("/broker/subAccount/enable", EnableSubAccountFuturesService)
 	backendGroup.GET("/broker/subAccount", GetSubAccountService)
@@ -64,7 +51,18 @@ func InitRouter(router *gin.Engine) {
 	//查询返佣记录
 	backendGroup.GET("/broker/rebate/recentRecord", GetRebateRecentRecordService)
 	backendGroup.POST("/broker/rebate/historicalRecord", GenerateRebateHistoryService)
-	backendGroup.GET("/broker/rebate/historicalRecord", GetRebateHistoryService)*/
+	backendGroup.GET("/broker/rebate/historicalRecord", GetRebateHistoryService)
+
+	/****************************** 通用 - 永续合约行情接口 *********************************/
+	marketGroup := router.Group("/binance", responseHandler())
+	marketGroup.GET("/market/time", ServerTimeService)
+	marketGroup.GET("/market/depth", DepthService)
+	marketGroup.GET("/market/aggTrades", AggTradesService)
+	marketGroup.GET("/market/klines", KlinesService)
+	marketGroup.GET("/market/premiumIndex", PremiumIndexService)
+	marketGroup.GET("/market/ticker/24hr", ListPriceChangeStatsService)
+	marketGroup.GET("/market/ticker/price", ListPricesService)
+	marketGroup.GET("/market/exchangeInfo", ExchangeInfoService)
 
 	/****************************** 前台 - 永续合约接口 *********************************/
 	//开启子账户认证
@@ -130,6 +128,35 @@ func startPingService() {
 	}()
 
 	fmt.Println("[Tasks] StartPingService succeed.")
+}
+
+func whiteListHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		whiteList := strings.Split(config.Config.Service.WhiteUrl, ",")
+
+		ip := c.ClientIP()
+		fmt.Println(ip)
+
+		flag := false
+
+		for _, host := range whiteList {
+			if ip == host {
+				flag = true
+				break
+			}
+		}
+
+		if !flag {
+			out := CommonResp{}
+			out.RespCode = EC_REQUEST_DATA_ERR
+			out.RespDesc = ErrorCodeMessage(EC_REQUEST_DATA_ERR)
+			c.JSON(http.StatusOK, out)
+			c.Abort()
+			return
+		}
+
+		c.Next()
+	}
 }
 
 func tokenHandler() gin.HandlerFunc {
@@ -225,6 +252,7 @@ MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJzIo0OkvKH5a2NyPYuAOorElm8OX3QV
 
 		fmt.Println(string(requestData))
 		c.Set("requestData", requestData)
+		c.Next()
 	}
 }
 
