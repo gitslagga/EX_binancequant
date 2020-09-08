@@ -210,12 +210,12 @@ type CreateOrderResponse struct {
 // ListOpenOrdersService list opened orders
 type ListOpenOrdersService struct {
 	c      *Client
-	symbol string
+	symbol *string
 }
 
 // Symbol set symbol
 func (s *ListOpenOrdersService) Symbol(symbol string) *ListOpenOrdersService {
-	s.symbol = symbol
+	s.symbol = &symbol
 	return s
 }
 
@@ -226,8 +226,8 @@ func (s *ListOpenOrdersService) Do(ctx context.Context, opts ...RequestOption) (
 		endpoint: "/fapi/v1/openOrders",
 		secType:  secTypeSigned,
 	}
-	if s.symbol != "" {
-		r.setParam("symbol", s.symbol)
+	if s.symbol != nil {
+		r.setParam("symbol", *s.symbol)
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {

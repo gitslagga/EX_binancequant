@@ -69,9 +69,9 @@ func ErrorCodeMessage(c ErrorCode) (r string) {
 }
 
 type CommonResp struct {
-	RespCode int         `json:"respCode" form:"respCode"`
-	RespDesc string      `json:"respDesc" form:"respDesc"`
-	RespData interface{} `json:"respData,omitempty" form:"respData"`
+	RespCode int         `form:"respCode" json:"respCode"`
+	RespDesc string      `form:"respDesc" json:"respDesc"`
+	RespData interface{} `form:"respData,omitempty" json:"respData,omitempty"`
 }
 
 /*********************************** future trading *************************************/
@@ -102,17 +102,17 @@ type FutureResponse struct {
 }
 
 type DepositsAddressRequest struct {
-	Coin    string `json:"coin" binding:"required"`
-	Network string `json:"network"`
+	Coin    string `form:"coin" json:"coin" binding:"required"`
+	Network string `form:"network" json:"network"`
 }
 
 type ListDepositsRequest struct {
-	Coin      string `json:"coin"`
-	Status    int    `json:"status"`
-	StartTime int64  `json:"startTime"`
-	EndTime   int64  `json:"endTime"`
-	Offset    int    `json:"offset"`
-	Limit     int    `json:"limit"`
+	Coin      string `form:"coin" json:"coin"`
+	Status    int    `form:"status" json:"status"`
+	StartTime int64  `form:"startTime" json:"startTime"`
+	EndTime   int64  `form:"endTime" json:"endTime"`
+	Offset    int    `form:"offset" json:"offset"`
+	Limit     int    `form:"limit" json:"limit"`
 }
 
 type TransferRequest struct {
@@ -122,11 +122,11 @@ type TransferRequest struct {
 }
 
 type ListFuturesTransferRequest struct {
-	Asset     string `json:"asset" binding:"required"`
-	StartTime int64  `json:"startTime" binding:"required"`
-	EndTime   int64  `json:"endTime"`
-	Current   int64  `json:"current"`
-	Size      int64  `json:"size"`
+	Asset     string `form:"asset" json:"asset" binding:"required"`
+	StartTime int64  `form:"startTime" json:"startTime" binding:"required"`
+	EndTime   int64  `form:"endTime" json:"endTime"`
+	Current   int64  `form:"current" json:"current"`
+	Size      int64  `form:"size" json:"size"`
 }
 
 type WithdrawRequest struct {
@@ -141,12 +141,12 @@ type WithdrawRequest struct {
 }
 
 type ListWithdrawsRequest struct {
-	Coin      string `json:"coin"`
-	Status    int    `json:"status"`
-	StartTime int64  `json:"startTime"`
-	EndTime   int64  `json:"endTime"`
-	Offset    int    `json:"offset"`
-	Limit     int    `json:"limit"`
+	Coin      string `form:"coin" json:"coin"`
+	Status    int    `form:"status" json:"status"`
+	StartTime int64  `form:"startTime" json:"startTime"`
+	EndTime   int64  `form:"endTime" json:"endTime"`
+	Offset    int    `form:"offset" json:"offset"`
+	Limit     int    `form:"limit" json:"limit"`
 }
 
 type PositionModeRequest struct {
@@ -172,9 +172,9 @@ type OrderRequest struct {
 }
 
 type GetOrderRequest struct {
-	Symbol            string `json:"symbol" binding:"required"`
-	OrderId           int64  `json:"orderId"`
-	OrigClientOrderId string `json:"origClientOrderId"`
+	Symbol            string `form:"symbol" json:"symbol" binding:"required"`
+	OrderId           int64  `form:"orderId" json:"orderId"`
+	OrigClientOrderId string `form:"origClientOrderId" json:"origClientOrderId"`
 }
 
 type CancelOrderRequest struct {
@@ -188,15 +188,15 @@ type CancelAllOpenOrdersRequest struct {
 }
 
 type ListOpenOrdersRequest struct {
-	Symbol string `json:"symbol" binding:"required"`
+	Symbol string `form:"symbol" json:"symbol"`
 }
 
 type ListOrdersRequest struct {
-	Symbol    string `json:"symbol" binding:"required"`
-	OrderId   int64  `json:"orderId"`
-	StartTime int64  `json:"startTime"`
-	EndTime   int64  `json:"endTime"`
-	Limit     int    `json:"limit"`
+	Symbol    string `form:"symbol" json:"symbol" binding:"required"`
+	OrderId   int64  `form:"orderId" json:"orderId"`
+	StartTime int64  `form:"startTime" json:"startTime"`
+	EndTime   int64  `form:"endTime" json:"endTime"`
+	Limit     int    `form:"limit" json:"limit"`
 }
 
 type LeverageRequest struct {
@@ -217,27 +217,35 @@ type PositionMarginRequest struct {
 }
 
 type GetPositionMarginHistoryRequest struct {
-	Symbol    string `json:"symbol" binding:"required"`
-	Type      int    `json:"type"`
-	StartTime int64  `json:"startTime"`
-	EndTime   int64  `json:"endTime"`
-	Limit     int64  `json:"limit"`
+	Symbol    string `form:"symbol" json:"symbol" binding:"required"`
+	Type      int    `form:"type" json:"type"`
+	StartTime int64  `form:"startTime" json:"startTime"`
+	EndTime   int64  `form:"endTime" json:"endTime"`
+	Limit     int64  `form:"limit" json:"limit"`
+}
+
+type GetPositionRiskRequest struct {
+	Symbol string `form:"symbol" json:"symbol"`
 }
 
 type GetTradeHistoryRequest struct {
-	Symbol    string `json:"symbol" binding:"required"`
-	FromId    uint64 `json:"fromId"`
-	StartTime int64  `json:"startTime"`
-	EndTime   int64  `json:"endTime"`
-	Limit     int64  `json:"limit"`
+	Symbol    string `form:"symbol" json:"symbol" binding:"required"`
+	FromId    uint64 `form:"fromId" json:"fromId"`
+	StartTime int64  `form:"startTime" json:"startTime"`
+	EndTime   int64  `form:"endTime" json:"endTime"`
+	Limit     int64  `form:"limit" json:"limit"`
 }
 
 type GetIncomeHistoryRequest struct {
-	Symbol     string `json:"symbol" binding:"required"`
-	IncomeType string `json:"incomeType"`
-	StartTime  int64  `json:"startTime"`
-	EndTime    int64  `json:"endTime"`
-	Limit      int64  `json:"limit"`
+	Symbol     string `form:"symbol" json:"symbol"`
+	IncomeType string `form:"incomeType" json:"incomeType"`
+	StartTime  int64  `form:"startTime" json:"startTime"`
+	EndTime    int64  `form:"endTime" json:"endTime"`
+	Limit      int64  `form:"limit" json:"limit"`
+}
+
+type GetLeverageBracketRequest struct {
+	Symbol string `form:"symbol" json:"symbol"`
 }
 
 /*********************************** broker sub account *************************************/
@@ -285,14 +293,15 @@ type GenerateRebateHistoryRequest struct {
 	EndTime      uint64 `json:"endTime"`
 }
 
+/*********************************** internal no token *************************************/
 type GetBalanceNoTokenRequest struct {
-	UserId uint64 `json:"userId" binding:"required"`
+	UserId uint64 `form:"userId" json:"userId" binding:"required"`
 }
 
 type CreateTransferNoTokenRequest struct {
-	UserId      uint64  `json:"userId" binding:"required"`
-	Type        int     `json:"type" binding:"gte=1,lte=2"`
-	FuturesType int     `json:"futuresType" binding:"required"`
-	Asset       string  `json:"asset" binding:"required"`
-	Amount      float64 `json:"amount" binding:"required"`
+	UserId      uint64  `form:"userId" json:"userId" binding:"required"`
+	Type        int     `form:"type" json:"type" binding:"gte=1,lte=2"`
+	FuturesType int     `form:"futuresType" json:"futuresType" binding:"required"`
+	Asset       string  `form:"asset" json:"asset" binding:"required"`
+	Amount      float64 `form:"amount" json:"amount" binding:"required"`
 }

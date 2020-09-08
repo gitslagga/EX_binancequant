@@ -124,12 +124,12 @@ type FundingRate struct {
 // GetLeverageBracketService get funding rate
 type GetLeverageBracketService struct {
 	c      *Client
-	symbol string
+	symbol *string
 }
 
 // Symbol set symbol
 func (s *GetLeverageBracketService) Symbol(symbol string) *GetLeverageBracketService {
-	s.symbol = symbol
+	s.symbol = &symbol
 	return s
 }
 
@@ -140,16 +140,15 @@ func (s *GetLeverageBracketService) Do(ctx context.Context, opts ...RequestOptio
 		endpoint: "/fapi/v1/leverageBracket",
 		secType:  secTypeSigned,
 	}
-	r.setParam("symbol", s.symbol)
-	if s.symbol != "" {
-		r.setParam("symbol", s.symbol)
+	if s.symbol != nil {
+		r.setParam("symbol", *s.symbol)
 	}
 	data, err := s.c.callAPI(ctx, r, opts...)
 	if err != nil {
 		return []*LeverageBracket{}, err
 	}
 
-	if s.symbol != "" {
+	if s.symbol != nil {
 		data = common.ToJSONList(data)
 	}
 

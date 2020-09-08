@@ -385,7 +385,9 @@ func ListOpenOrdersService(c *gin.Context) {
 	}
 
 	listOpenOrders := client.NewListOpenOrdersService()
-	listOpenOrders.Symbol(listOpenOrdersRequest.Symbol)
+	if listOpenOrdersRequest.Symbol != "" {
+		listOpenOrders.Symbol(listOpenOrdersRequest.Symbol)
+	}
 
 	list, err := listOpenOrders.Do(context.Background())
 	if err != nil {
@@ -742,6 +744,15 @@ func GetPositionRiskService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(uint64)
 
+	var getPositionRiskRequest GetPositionRiskRequest
+	err := c.ShouldBindQuery(&getPositionRiskRequest)
+	if err != nil {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	mylog.Logger.Info().Msgf("[Task Futures] GetPositionRiskService request param: %v", userID)
 
 	client, err := db.GetFuturesClientByUserID(userID)
@@ -752,7 +763,12 @@ func GetPositionRiskService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetPositionRiskService().Do(context.Background())
+	positionRisk := client.NewGetPositionRiskService()
+	if getPositionRiskRequest.Symbol != "" {
+		positionRisk.Symbol(getPositionRiskRequest.Symbol)
+	}
+
+	list, err := positionRisk.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
@@ -870,7 +886,9 @@ func GetIncomeHistoryService(c *gin.Context) {
 	}
 
 	incomeHistory := client.NewGetIncomeHistoryService()
-	incomeHistory.Symbol(getIncomeHistoryRequest.Symbol)
+	if getIncomeHistoryRequest.Symbol != "" {
+		incomeHistory.Symbol(getIncomeHistoryRequest.Symbol)
+	}
 	if getIncomeHistoryRequest.IncomeType != "" {
 		incomeHistory.IncomeType(getIncomeHistoryRequest.IncomeType)
 	}
@@ -915,6 +933,15 @@ func GetLeverageBracketService(c *gin.Context) {
 
 	userID := c.MustGet("user_id").(uint64)
 
+	var getLeverageBracketRequest GetLeverageBracketRequest
+	err := c.ShouldBindQuery(&getLeverageBracketRequest)
+	if err != nil {
+		out.RespCode = EC_PARAMS_ERR
+		out.RespDesc = ErrorCodeMessage(EC_PARAMS_ERR)
+		c.Set("responseData", out)
+		return
+	}
+
 	mylog.Logger.Info().Msgf("[Task Futures] GetLeverageBracketService request param: %v", userID)
 
 	client, err := db.GetFuturesClientByUserID(userID)
@@ -925,7 +952,12 @@ func GetLeverageBracketService(c *gin.Context) {
 		return
 	}
 
-	list, err := client.NewGetLeverageBracketService().Do(context.Background())
+	leverageBracket := client.NewGetLeverageBracketService()
+	if getLeverageBracketRequest.Symbol != "" {
+		leverageBracket.Symbol(getLeverageBracketRequest.Symbol)
+	}
+
+	list, err := leverageBracket.Do(context.Background())
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()

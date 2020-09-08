@@ -8,8 +8,8 @@ import (
 // GetIncomeHistoryService get position margin history service
 type GetIncomeHistoryService struct {
 	c          *Client
-	symbol     string
-	incomeType string
+	symbol     *string
+	incomeType *string
 	startTime  *int64
 	endTime    *int64
 	limit      *int64
@@ -17,13 +17,13 @@ type GetIncomeHistoryService struct {
 
 // Symbol set symbol
 func (s *GetIncomeHistoryService) Symbol(symbol string) *GetIncomeHistoryService {
-	s.symbol = symbol
+	s.symbol = &symbol
 	return s
 }
 
 // IncomeType set income type
 func (s *GetIncomeHistoryService) IncomeType(incomeType string) *GetIncomeHistoryService {
-	s.incomeType = incomeType
+	s.incomeType = &incomeType
 	return s
 }
 
@@ -52,9 +52,11 @@ func (s *GetIncomeHistoryService) Do(ctx context.Context, opts ...RequestOption)
 		endpoint: "/fapi/v1/income",
 		secType:  secTypeSigned,
 	}
-	r.setParam("symbol", s.symbol)
-	if s.incomeType != "" {
-		r.setParam("incomeType", s.incomeType)
+	if s.symbol != nil {
+		r.setParam("symbol", *s.symbol)
+	}
+	if s.incomeType != nil {
+		r.setParam("incomeType", *s.incomeType)
 	}
 	if s.startTime != nil {
 		r.setParam("startTime", *s.startTime)
