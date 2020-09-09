@@ -323,7 +323,7 @@ type Order struct {
 // ListOrdersService all account orders; active, canceled, or filled
 type ListOrdersService struct {
 	c         *Client
-	symbol    string
+	symbol    *string
 	orderID   *int64
 	startTime *int64
 	endTime   *int64
@@ -332,7 +332,7 @@ type ListOrdersService struct {
 
 // Symbol set symbol
 func (s *ListOrdersService) Symbol(symbol string) *ListOrdersService {
-	s.symbol = symbol
+	s.symbol = &symbol
 	return s
 }
 
@@ -367,7 +367,9 @@ func (s *ListOrdersService) Do(ctx context.Context, opts ...RequestOption) (res 
 		endpoint: "/fapi/v1/allOrders",
 		secType:  secTypeSigned,
 	}
-	r.setParam("symbol", s.symbol)
+	if s.symbol != nil {
+		r.setParam("symbol", *s.symbol)
+	}
 	if s.orderID != nil {
 		r.setParam("orderId", *s.orderID)
 	}

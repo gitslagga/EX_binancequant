@@ -192,7 +192,7 @@ type ListOpenOrdersRequest struct {
 }
 
 type ListOrdersRequest struct {
-	Symbol    string `form:"symbol" json:"symbol" binding:"required"`
+	Symbol    string `form:"symbol" json:"symbol"`
 	OrderId   int64  `form:"orderId" json:"orderId"`
 	StartTime int64  `form:"startTime" json:"startTime"`
 	EndTime   int64  `form:"endTime" json:"endTime"`
@@ -229,7 +229,7 @@ type GetPositionRiskRequest struct {
 }
 
 type GetTradeHistoryRequest struct {
-	Symbol    string `form:"symbol" json:"symbol" binding:"required"`
+	Symbol    string `form:"symbol" json:"symbol"`
 	FromId    uint64 `form:"fromId" json:"fromId"`
 	StartTime int64  `form:"startTime" json:"startTime"`
 	EndTime   int64  `form:"endTime" json:"endTime"`

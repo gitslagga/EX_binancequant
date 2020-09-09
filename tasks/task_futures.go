@@ -441,6 +441,9 @@ func ListOrdersService(c *gin.Context) {
 	}
 
 	listOrders := client.NewListOrdersService()
+	if listOrdersRequest.Symbol != "" {
+		listOrders.Symbol(listOrdersRequest.Symbol)
+	}
 	listOrders.Symbol(listOrdersRequest.Symbol)
 	if listOrdersRequest.OrderId != 0 {
 		listOrders.OrderID(listOrdersRequest.OrderId)
@@ -820,6 +823,9 @@ func GetTradeHistoryService(c *gin.Context) {
 	}
 
 	positionMarginHistory := client.NewGetTradeHistoryService()
+	if getTradeHistoryRequest.Symbol != "" {
+		positionMarginHistory.Symbol(getTradeHistoryRequest.Symbol)
+	}
 	positionMarginHistory.Symbol(getTradeHistoryRequest.Symbol)
 	if getTradeHistoryRequest.FromId != 0 {
 		positionMarginHistory.FromId(getTradeHistoryRequest.FromId)

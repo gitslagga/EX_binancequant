@@ -8,7 +8,7 @@ import (
 // GetTradeHistoryService get order history after fromId
 type GetTradeHistoryService struct {
 	c         *Client
-	symbol    string
+	symbol    *string
 	fromId    *uint64
 	startTime *int64
 	endTime   *int64
@@ -17,7 +17,7 @@ type GetTradeHistoryService struct {
 
 // Symbol set symbol
 func (s *GetTradeHistoryService) Symbol(symbol string) *GetTradeHistoryService {
-	s.symbol = symbol
+	s.symbol = &symbol
 	return s
 }
 
@@ -52,9 +52,11 @@ func (s *GetTradeHistoryService) Do(ctx context.Context, opts ...RequestOption) 
 		endpoint: "/fapi/v1/userTrades",
 		secType:  secTypeSigned,
 	}
-	r.setParam("symbol", s.symbol)
+	if s.symbol != nil {
+		r.setParam("symbol", *s.symbol)
+	}
 	if s.fromId != nil {
-		r.setParam("fromId", s.fromId)
+		r.setParam("fromId", *s.fromId)
 	}
 	if s.startTime != nil {
 		r.setParam("startTime", *s.startTime)
