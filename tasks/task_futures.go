@@ -507,17 +507,20 @@ func GetBalanceService(c *gin.Context) {
 		return
 	}
 
-	responseData, err := json.Marshal(list)
-	if err != nil {
-		out.RespCode = EC_JSON_MARSHAL_ERR
-		out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
-		c.Set("responseData", out)
-		return
+	if len(list) > 0 {
+		responseData, err := json.Marshal(list[0])
+		if err != nil {
+			out.RespCode = EC_JSON_MARSHAL_ERR
+			out.RespDesc = ErrorCodeMessage(EC_JSON_MARSHAL_ERR)
+			c.Set("responseData", out)
+			return
+		}
+
+		out.RespData = responseData
 	}
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = responseData
 
 	c.Set("responseData", out)
 }
