@@ -142,7 +142,9 @@ func GetBalanceNoTokenService(c *gin.Context) {
 
 	out.RespCode = EC_NONE.Code()
 	out.RespDesc = EC_NONE.String()
-	out.RespData = list
+	if len(list) > 0 {
+		out.RespData = list[0]
+	}
 
 	c.JSON(http.StatusOK, out)
 	return
