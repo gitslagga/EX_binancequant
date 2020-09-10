@@ -71,7 +71,7 @@ func InitRouter(router *gin.Engine) {
 	authorized.GET("/account/activeFutures", GetActiveFuturesService)
 	authorized.POST("/account/activeFutures", CreateActiveFuturesService)
 
-	/*//子账户资产，充币，提币，划转
+	//子账户资产，充币，提币，划转
 	authorized.GET("/account/deposits/list", ListDepositsService)
 	authorized.GET("/account/deposits/address", DepositsAddressService)
 	authorized.GET("/account/spot", SpotAccountService)
@@ -79,7 +79,7 @@ func InitRouter(router *gin.Engine) {
 	authorizedRequest.POST("/account/transfer", FuturesTransferService)
 	authorized.GET("/account/transfer", ListFuturesTransferService)
 	authorizedRequest.POST("/account/withdraw", CreateWithdrawService)
-	authorized.GET("/account/withdraw", ListWithdrawsService)*/
+	authorized.GET("/account/withdraw", ListWithdrawsService)
 
 	//永续合约交易
 	authorizedRequest.POST("/futures/position/mode", ChangePositionModeService)
