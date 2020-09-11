@@ -83,7 +83,7 @@ func (s *CreateTransferService) Amount(amount float64) *CreateTransferService {
 func (s *CreateTransferService) Do(ctx context.Context, opts ...RequestOption) (res *CreateTransfer, err error) {
 	r := &request{
 		method:   "POST",
-		endpoint: "/sapi/v1/broker/transfer",
+		endpoint: "/sapi/v1/broker/transfer/futures",
 		secType:  secTypeSigned,
 	}
 	if s.fromId != nil {
