@@ -109,7 +109,7 @@ func (s *CreateTransferService) Do(ctx context.Context, opts ...RequestOption) (
 
 // CreateTransfer define create sub account transfer
 type CreateTransfer struct {
-	TxnId        string `json:"txnId"`
+	TxnId        uint64 `json:"txnId"`
 	ClientTranId string `json:"clientTranId,omitempty"`
 }
 

@@ -54,7 +54,7 @@ func (s *brokerServiceTestSuite) assertBrokerEqual(e, a *GetInfo) {
 
 func (s *brokerServiceTestSuite) TestCreateTransfer() {
 	data := []byte(`{
-		"txnId":"2966662589",
+		"txnId":2966662589,
 		"clientTranId":"testClientId"
 	}`)
 	s.mockDo(data, nil)
@@ -77,11 +77,11 @@ func (s *brokerServiceTestSuite) TestCreateTransfer() {
 	})
 
 	res, err := s.client.NewCreateTransferService().FromId(fromId).ToId(toId).
-		ClientTranId(clientTranId).Asset(asset).Amount(amount).Do(newContext())
+		FuturesType(1).Asset(asset).Amount(amount).Do(newContext())
 	r := s.r()
 	r.NoError(err)
 	e := &CreateTransfer{
-		TxnId:        "2966662589",
+		TxnId:        2966662589,
 		ClientTranId: "testClientId",
 	}
 	s.assertCreateTransferEqual(e, res)
