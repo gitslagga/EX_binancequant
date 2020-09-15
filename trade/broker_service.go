@@ -109,8 +109,8 @@ func (s *CreateTransferService) Do(ctx context.Context, opts ...RequestOption) (
 
 // CreateTransfer define create sub account transfer
 type CreateTransfer struct {
-	TxnId        uint64 `json:"txnId"`
-	ClientTranId string `json:"clientTranId,omitempty"`
+	TxnId   uint64 `json:"txnId"`
+	Success bool   `json:"success"`
 }
 
 // GetTransferService create sub account transfer history
