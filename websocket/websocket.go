@@ -241,6 +241,7 @@ func (wsConn *wsConnection) PushTradeData(message []byte) {
 	}
 	errHandler := func(err error) {
 		mylog.DataLogger.Error().Msgf("[PushTradeData] WsCombinedTradeDataServe handler fail err: %v", err)
+		wsConn.wsClose()
 	}
 
 	_, stopC, err := futures.WsCombinedTradeDataServe(c, wsDepthHandler, errHandler)
@@ -251,7 +252,7 @@ func (wsConn *wsConnection) PushTradeData(message []byte) {
 
 	entityChannel[wsConn] = c
 	for {
-		time.Sleep(60 * time.Second)
+		time.Sleep(5 * time.Second)
 
 		if wsConn.isClosed {
 			mylog.DataLogger.Info().Msgf("[Websocket] len entityChannel: %v", len(entityChannel))
