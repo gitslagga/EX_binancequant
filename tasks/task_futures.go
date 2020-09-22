@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"strconv"
+	"strings"
 )
 
 /**
@@ -167,15 +169,12 @@ func CreateOrderService(c *gin.Context) {
 
 	list, err := createOrder.Do(context.Background())
 	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
-		c.Set("responseData", out)
-		return
-	}
+		msg := err.Error()
+		index := strings.Index(msg, ", msg=")
+		code, _ := strconv.Atoi(msg[len("<APIError> code="):index])
 
-	if list.Code != 0 {
 		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = fmt.Sprintf("%v|%v", BinanceCodeMessage(list.Code), list.Msg)
+		out.RespDesc = fmt.Sprintf("%v|%v", BinanceCodeMessage(code), msg[index+len(", msg="):])
 		c.Set("responseData", out)
 		return
 	}
