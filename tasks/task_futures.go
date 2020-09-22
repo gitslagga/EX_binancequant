@@ -6,6 +6,7 @@ import (
 	"EX_binancequant/trade/futures"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -168,6 +169,13 @@ func CreateOrderService(c *gin.Context) {
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
+		c.Set("responseData", out)
+		return
+	}
+
+	if list.Code != 0 {
+		out.RespCode = EC_NETWORK_ERR
+		out.RespDesc = fmt.Sprintf("%v|%v", BinanceCodeMessage(list.Code), list.Msg)
 		c.Set("responseData", out)
 		return
 	}

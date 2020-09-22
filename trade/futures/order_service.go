@@ -186,6 +186,8 @@ func (s *CreateOrderService) Do(ctx context.Context, opts ...RequestOption) (res
 
 // CreateOrderResponse define create order response
 type CreateOrderResponse struct {
+	Code             int              `json:"code,omitempty"`
+	Msg              string           `json:"msg,omitempty"`
 	Symbol           string           `json:"symbol"`
 	OrderID          int64            `json:"orderId"`
 	ClientOrderID    string           `json:"clientOrderId"`
