@@ -345,12 +345,18 @@ func ExchangeInfoService(c *gin.Context) {
 	out := CommonResp{}
 
 	list, err := trade.BAExFuturesClient.NewExchangeInfoService().Do(context.Background())
-
 	if err != nil {
 		out.RespCode = EC_NETWORK_ERR
 		out.RespDesc = err.Error()
 		c.Set("responseData", out)
 		return
+	}
+
+	for i := 0; i < len(list.Symbols); i++ {
+		if list.Symbols[i].Symbol == "LENDUSDT" {
+			list.Symbols = append(list.Symbols[:i], list.Symbols[i+1:]...)
+			break
+		}
 	}
 
 	responseData, err := json.Marshal(list)
