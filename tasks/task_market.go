@@ -270,6 +270,13 @@ func ListPriceChangeStatsService(c *gin.Context) {
 		return
 	}
 
+	for i := 0; i < len(list); i++ {
+		if list[i].Symbol == "LENDUSDT" {
+			list = append(list[:i], list[i+1:]...)
+			break
+		}
+	}
+
 	responseData, err := json.Marshal(list)
 	if err != nil {
 		out.RespCode = EC_JSON_MARSHAL_ERR
@@ -307,6 +314,13 @@ func ListPricesService(c *gin.Context) {
 		out.RespDesc = err.Error()
 		c.Set("responseData", out)
 		return
+	}
+
+	for i := 0; i < len(list); i++ {
+		if list[i].Symbol == "LENDUSDT" {
+			list = append(list[:i], list[i+1:]...)
+			break
+		}
 	}
 
 	responseData, err := json.Marshal(list)
