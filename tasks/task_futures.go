@@ -45,8 +45,12 @@ func ChangePositionModeService(c *gin.Context) {
 
 	err = positionMode.Do(context.Background())
 	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
+		msg := err.Error()
+		index := strings.Index(msg, ", msg=")
+		code, _ := strconv.Atoi(msg[len("<APIError> code="):index])
+
+		out.RespCode = code
+		out.RespDesc = fmt.Sprintf("%v|%v", BinanceCodeMessage(code), msg[index+len(", msg="):])
 		c.Set("responseData", out)
 		return
 	}
@@ -173,7 +177,7 @@ func CreateOrderService(c *gin.Context) {
 		index := strings.Index(msg, ", msg=")
 		code, _ := strconv.Atoi(msg[len("<APIError> code="):index])
 
-		out.RespCode = EC_NETWORK_ERR
+		out.RespCode = code
 		out.RespDesc = fmt.Sprintf("%v|%v", BinanceCodeMessage(code), msg[index+len(", msg="):])
 		c.Set("responseData", out)
 		return
@@ -621,8 +625,12 @@ func ChangeMarginTypeService(c *gin.Context) {
 
 	err = changeMarginType.Do(context.Background())
 	if err != nil {
-		out.RespCode = EC_NETWORK_ERR
-		out.RespDesc = err.Error()
+		msg := err.Error()
+		index := strings.Index(msg, ", msg=")
+		code, _ := strconv.Atoi(msg[len("<APIError> code="):index])
+
+		out.RespCode = code
+		out.RespDesc = fmt.Sprintf("%v|%v", BinanceCodeMessage(code), msg[index+len(", msg="):])
 		c.Set("responseData", out)
 		return
 	}
